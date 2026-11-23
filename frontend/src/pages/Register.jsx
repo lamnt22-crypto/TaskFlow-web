@@ -25,12 +25,12 @@ const Register = () => {
 
   const handleGoogleSignIn = () => {
     const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-    window.location.href = `${apiBase}/auth/google`;
+    window.location.href = `${apiBase}/oauth/google`;
   };
 
   const handleGithubSignIn = () => {
     const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-    window.location.href = `${apiBase}/auth/github`;
+    window.location.href = `${apiBase}/oauth/github`;
   };
 
   const handleSubmit = async (e) => {
