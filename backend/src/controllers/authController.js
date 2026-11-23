@@ -128,10 +128,82 @@ const getMe = async (req, res, next) => {
   }
 };
 
+const firebaseLogin = async (req, res, next) => {
+  try {
+    const { uid, email, displayName, photoURL, provider = 'google' } = req.body;
+    if (!uid) {
+      return res.status(400).json({ success: false, message: 'UID is required' });
+    }
+
+    const profile = {
+      id: uid,
+      displayName: displayName || (email ? email.split('@')[0] : 'Firebase User'),
+      emails: email ? [{ value: email }] : [],
+      photos: photoURL ? [{ value: photoURL }] : []
+    };
+
+    const user = await authService.findOrCreateOAuthUser(profile, provider);
+
+    const jwt = require('jsonwebtoken');
+    const crypto = require('crypto');
+    const { sql, poolPromise } = require('../config/database');
+
+    const accessToken = jwt.sign(
+      { userId: user.id || user.userId, email: user.email },
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+    );
+
+    const refreshToken = crypto.randomBytes(40).toString('hex');
+    const hashedToken = authService.hashRefreshToken(refreshToken);
+    const pool = await poolPromise;
+
+    const expiresInStr = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+    const days = parseInt(expiresInStr.replace('d', '')) || 7;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + days);
+
+    await pool.request()
+      .input('user_id', sql.Int, user.id || user.userId)
+      .input('hashed_token', sql.NVarChar(512), hashedToken)
+      .input('expires_at', sql.DateTime, expiresAt)
+      .query(`
+        INSERT INTO RefreshTokens (user_id, hashed_token, expires_at)
+        VALUES (@user_id, @hashed_token, @expires_at)
+      `);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: days * 24 * 60 * 60 * 1000,
+      path: '/api/auth'
+    };
+    res.cookie('refreshToken', refreshToken, cookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Firebase login successful',
+      accessToken,
+      data: {
+        userId: user.id || user.userId,
+        username: user.username,
+        email: user.email,
+        avatar_url: user.avatar_url,
+        theme_color: user.theme_color
+      }
+    });
+  } catch (error) {
+    console.error('Firebase Login Controller Error:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   refreshToken,
   logout,
-  getMe
+  getMe,
+  firebaseLogin
 };

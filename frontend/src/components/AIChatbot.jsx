@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { getChatHistory } from '../services/aiService';
 import { PriorityBadge } from './Badge';
+import HolographicOrb3D from './HolographicOrb3D';
+import { triggerHaptic } from '../utils/haptics';
+import { sounds } from '../utils/soundEffects';
 
 const parseMessageContent = (content) => {
   if (!content) return { text: '', data: null };
@@ -189,46 +192,72 @@ const AIChatbot = () => {
 
   return (
     <>
-      {/* Floating Button */}
-      <motion.button
-        onClick={() => setIsOpen(true)}
+      {/* 3D Holographic Floating Quantum Orb Launcher */}
+      <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: isOpen ? 0 : 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/30 z-50 overflow-hidden"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-3"
       >
-        <svg className="w-7 h-7 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-        <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full" />
-      </motion.button>
+        {/* Tooltip on hover */}
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          whileHover={{ opacity: 1, x: 0 }}
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/90 text-white text-xs font-bold border border-cyan-500/30 backdrop-blur-md shadow-lg pointer-events-none"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+          <span>TaskFlow Copilot AI</span>
+        </motion.div>
 
-      {/* Chat Window */}
+        <motion.button
+          onClick={() => {
+            triggerHaptic('medium');
+            sounds.playHologramPulse();
+            setIsOpen(true);
+          }}
+          whileHover={{ scale: 1.12, rotate: 5 }}
+          whileTap={{ scale: 0.92 }}
+          className="relative w-16 h-16 rounded-full flex items-center justify-center cursor-pointer group focus:outline-none"
+          title="Trò chuyện cùng TaskFlow AI"
+        >
+          {/* 3D Quantum Orb */}
+          <HolographicOrb3D size="sm" isThinking={isLoading} />
+        </motion.button>
+      </motion.div>
+
+      {/* Futuristic Spatial Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            initial={{ opacity: 0, y: 30, scale: 0.88 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden flex flex-col h-[500px] max-h-[80vh]"
+            exit={{ opacity: 0, y: 30, scale: 0.88 }}
+            transition={{ type: "spring", damping: 25, stiffness: 320 }}
+            className="fixed bottom-6 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[420px] bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_60px_-15px_rgba(99,102,241,0.35)] border border-cyan-500/30 dark:border-white/15 z-50 overflow-hidden flex flex-col h-[560px] max-h-[85vh]"
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-xl">✨</span>
-                </div>
+            {/* Holographic Header */}
+            <div className="bg-gradient-to-r from-slate-900 via-indigo-950/90 to-purple-950/90 p-4 border-b border-white/10 flex items-center justify-between relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-400 via-indigo-400 to-fuchsia-400" />
+              
+              <div className="flex items-center gap-3 relative z-10">
+                <HolographicOrb3D size="sm" isThinking={isLoading} />
                 <div>
-                  <h3 className="text-white font-bold text-sm">TaskFlow AI</h3>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                    <span className="text-white/80 text-xs">Online</span>
+                  <h3 className="text-white font-extrabold text-sm tracking-tight flex items-center gap-1.5">
+                    TaskFlow AI Copilot
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold uppercase tracking-wider">Hologram</span>
+                  </h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
+                    <span className="text-slate-400 text-xs">Sẵn sàng phản hồi siêu tốc</span>
                   </div>
                 </div>
               </div>
+
               <button 
-                onClick={() => setIsOpen(false)}
-                className="text-white/80 hover:text-white p-1"
+                onClick={() => {
+                  triggerHaptic('light');
+                  setIsOpen(false);
+                }}
+                className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors cursor-pointer relative z-10"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>

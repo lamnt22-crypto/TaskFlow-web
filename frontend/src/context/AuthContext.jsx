@@ -106,6 +106,42 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('accessToken');
   };
 
+  const loginGoogleFirebase = async () => {
+    setLoading(true);
+    try {
+      const { loginWithFirebaseGoogle } = await import('../services/firebaseAuth');
+      const res = await loginWithFirebaseGoogle();
+      if (res.success) {
+        setUser(res.user);
+        setAccessToken(res.accessToken);
+        return { success: true };
+      }
+      return { success: false, message: res.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginGithubFirebase = async () => {
+    setLoading(true);
+    try {
+      const { loginWithFirebaseGithub } = await import('../services/firebaseAuth');
+      const res = await loginWithFirebaseGithub();
+      if (res.success) {
+        setUser(res.user);
+        setAccessToken(res.accessToken);
+        return { success: true };
+      }
+      return { success: false, message: res.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -116,6 +152,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         loginWithToken,
+        loginGoogleFirebase,
+        loginGithubFirebase,
         register,
         logout,
       }}

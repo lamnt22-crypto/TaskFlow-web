@@ -243,15 +243,17 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto flex flex-col h-full space-y-6 pb-12 relative">
+      <div className="max-w-6xl mx-auto flex flex-col space-y-6 pb-12 relative">
         {/* Soft Background Aurora */}
         <div className="absolute top-0 left-0 w-full h-[600px] overflow-hidden pointer-events-none z-0 opacity-50">
           <div className="absolute -top-[100px] -left-[100px] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-blue-300/40 to-purple-300/40 blur-[100px]" />
           <div className="absolute top-[50px] -right-[100px] w-[400px] h-[400px] rounded-full bg-gradient-to-bl from-emerald-200/40 to-teal-200/40 blur-[100px]" />
         </div>
         
-        <div className="relative z-10 w-full flex flex-col h-full space-y-6">
-          <AIAssistantWidget />
+        <div className="relative z-10 w-full flex flex-col space-y-6">
+          <div className="w-full shrink-0" style={{ minHeight: '150px' }}>
+            <AIAssistantWidget />
+          </div>
           {/* Header Stats */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">

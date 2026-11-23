@@ -190,13 +190,33 @@ const findOrCreateOAuthUser = async (profile, provider) => {
   }
 
   // 3. Create a new user
-  // We'll generate a random password hash since password is required by schema (wait, we altered it to be NULL)
-  // Since password_hash is NULL, we don't pass it.
-  
+  // Ensure unique username in case another user already has the same display name
+  let baseUsername = (displayName || 'user').trim().replace(/[\r\n\t]/g, '').substring(0, 40) || 'user';
+  let candidateUsername = baseUsername;
+  let counter = 1;
+
+  while (true) {
+    const checkUser = await pool.request()
+      .input('candidateUsername', sql.NVarChar(50), candidateUsername)
+      .query('SELECT id FROM Users WHERE username = @candidateUsername');
+    if (checkUser.recordset.length === 0) {
+      break;
+    }
+    const suffix = `_${Math.floor(1000 + Math.random() * 9000)}`;
+    candidateUsername = `${baseUsername.substring(0, 50 - suffix.length)}${suffix}`;
+    counter++;
+    if (counter > 5) {
+      candidateUsername = `user_${Date.now()}`;
+      break;
+    }
+  }
+
+  const safeAvatar = avatarUrl ? avatarUrl.substring(0, 1000) : null;
+
   const insertResult = await pool.request()
-    .input('username', sql.NVarChar(50), displayName.substring(0, 50))
+    .input('username', sql.NVarChar(50), candidateUsername)
     .input('email', sql.NVarChar(100), email)
-    .input('avatar_url', sql.NVarChar(255), avatarUrl)
+    .input('avatar_url', sql.NVarChar(1000), safeAvatar)
     .input('profileId', sql.NVarChar(255), profileId)
     .query(`
       INSERT INTO Users (username, email, avatar_url, ${idField})

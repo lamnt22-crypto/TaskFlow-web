@@ -8,34 +8,272 @@ body {
   @apply bg-slate-900 text-slate-100;
 }
 
-/* Custom Scrollbar */
+/* ═══════════════════════════════════════════════════ */
+/*  Custom Scrollbar                                   */
+/* ═══════════════════════════════════════════════════ */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.3);
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.6);
 }
-
 .dark ::-webkit-scrollbar-thumb {
   background: rgba(71, 85, 105, 0.4);
 }
-
 .dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(71, 85, 105, 0.7);
 }
 
-/* Utilities */
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  Glassmorphism Utilities                            */
+/* ═══════════════════════════════════════════════════ */
 .glass-effect {
   @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 shadow-sm;
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.78) 100%);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow:
+    0 4px 24px -4px rgba(0,0,0,0.04),
+    0 1px 2px rgba(0,0,0,0.02),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.dark .glass-card {
+  background: linear-gradient(135deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.85) 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow:
+    0 4px 24px -4px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  3D Spatial Transforms                              */
+/* ═══════════════════════════════════════════════════ */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.perspective-1200 {
+  perspective: 1200px;
+}
+.perspective-2000 {
+  perspective: 2000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  Premium Animations & Keyframes                     */
+/* ═══════════════════════════════════════════════════ */
+
+/* Spatial border beam */
+@keyframes border-beam {
+  0% { offset-distance: 0%; }
+  100% { offset-distance: 100%; }
+}
+
+/* Floating card animation */
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.5deg); }
+}
+
+/* Pulse glow */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Aurora gradient animation */
+@keyframes aurora-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Shimmer loading animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Orbit animation for decorative elements */
+@keyframes orbit {
+  0% { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+
+/* Morphing gradient blob */
+@keyframes morph-blob {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50% { border-radius: 50% 60% 30% 60% / 30% 50% 70% 50%; }
+  75% { border-radius: 40% 60% 50% 40% / 60% 40% 60% 40%; }
+}
+
+/* Slide in up for staggered cards */
+@keyframes slide-in-up {
+  0% { opacity: 0; transform: translateY(28px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Subtle breathing scale */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Gradient text animation */
+@keyframes gradient-text {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  Animation Utility Classes                          */
+/* ═══════════════════════════════════════════════════ */
+.animate-float-subtle {
+  animation: float-subtle 6s ease-in-out infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+.animate-aurora {
+  background-size: 300% 300%;
+  animation: aurora-shift 8s ease-in-out infinite;
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+.animate-morph-blob {
+  animation: morph-blob 12s ease-in-out infinite;
+}
+.animate-slide-in-up {
+  animation: slide-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+.animate-gradient-text {
+  background-size: 200% auto;
+  animation: gradient-text 4s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  Premium Task Card Styles                           */
+/* ═══════════════════════════════════════════════════ */
+
+/* Task row hover shimmer line */
+.task-row-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transition: 0.6s;
+  pointer-events: none;
+}
+.task-row-shimmer:hover::before {
+  left: 100%;
+}
+
+/* Priority left accent glow */
+.priority-glow-urgent { box-shadow: inset 4px 0 0 0 #ef4444, 0 0 20px -4px rgba(239,68,68,0.15); }
+.priority-glow-high { box-shadow: inset 4px 0 0 0 #f97316, 0 0 20px -4px rgba(249,115,22,0.15); }
+.priority-glow-medium { box-shadow: inset 4px 0 0 0 #eab308, 0 0 20px -4px rgba(234,179,8,0.1); }
+.priority-glow-low { box-shadow: inset 4px 0 0 0 #6366f1, 0 0 20px -4px rgba(99,102,241,0.1); }
+
+/* ═══════════════════════════════════════════════════ */
+/*  Kanban Column Premium Styles                       */
+/* ═══════════════════════════════════════════════════ */
+
+/* Kanban column drop target aura */
+.kanban-col-drop-aura {
+  box-shadow:
+    0 0 0 2px rgba(99,102,241,0.4),
+    0 0 40px -8px rgba(99,102,241,0.3),
+    inset 0 0 20px rgba(99,102,241,0.05);
+}
+
+/* Kanban card drag overlay */
+.kanban-drag-overlay {
+  box-shadow:
+    0 30px 60px -12px rgba(0,0,0,0.25),
+    0 18px 36px -18px rgba(0,0,0,0.3);
+  transform: rotate(2deg) scale(1.04);
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  Section Headers with Animated Underline            */
+/* ═══════════════════════════════════════════════════ */
+.section-header-line {
+  position: relative;
+}
+.section-header-line::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.section-header-line:hover::after {
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  Stats Ring Animation                               */
+/* ═══════════════════════════════════════════════════ */
+@keyframes stats-ring-fill {
+  from { stroke-dashoffset: var(--ring-circumference, 283); }
+  to { stroke-dashoffset: var(--ring-offset, 0); }
+}
+.animate-ring-fill {
+  animation: stats-ring-fill 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  Responsive & Accessibility                         */
+/* ═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

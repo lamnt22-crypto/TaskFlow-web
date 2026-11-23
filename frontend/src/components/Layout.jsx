@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import PomodoroWidget from './PomodoroWidget';
 import KeyboardShortcutsManager from './KeyboardShortcutsManager';
+import MobileBottomNav from './MobileBottomNav';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -42,7 +43,7 @@ const Layout = ({ children }) => {
     const fetchNotifications = async () => {
       try {
         const response = await api.get('/tasks');
-        const tasks = response.data;
+        const tasks = Array.isArray(response.data?.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []);
         const now = new Date();
         now.setHours(0,0,0,0);
         
@@ -193,7 +194,7 @@ const Layout = ({ children }) => {
           </div>
         </header>
         
-        <main className="flex-1 overflow-auto bg-slate-50/50 dark:bg-slate-900/50 p-8 relative z-0">
+        <main className="flex-1 overflow-auto bg-slate-50/50 dark:bg-slate-900/50 p-4 sm:p-8 pb-28 sm:pb-8 relative z-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -210,6 +211,7 @@ const Layout = ({ children }) => {
       </div>
       <KeyboardShortcutsManager />
       <PomodoroWidget />
+      <MobileBottomNav />
     </div>
   );
 };

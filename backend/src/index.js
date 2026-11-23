@@ -32,7 +32,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true
 })); // Enable CORS for frontend with cookies
 app.use(cookieParser()); // Parse incoming cookies
