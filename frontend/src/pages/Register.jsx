@@ -19,42 +19,18 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { register, loginGoogleFirebase, loginGithubFirebase } = useContext(AuthContext);
+  const { register } = useContext(AuthContext);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const handleGoogleSignIn = async () => {
-    setErrorMsg("");
-    setLoading(true);
-    try {
-      const res = await loginGoogleFirebase();
-      if (res.success) {
-        navigate("/dashboard");
-      } else {
-        setErrorMsg(res.message || "Đăng nhập Google thất bại");
-      }
-    } catch (err) {
-      setErrorMsg("Đăng nhập Google thất bại");
-    } finally {
-      setLoading(false);
-    }
+  const handleGoogleSignIn = () => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+    window.location.href = `${apiBase}/auth/google`;
   };
 
-  const handleGithubSignIn = async () => {
-    setErrorMsg("");
-    setLoading(true);
-    try {
-      const res = await loginGithubFirebase();
-      if (res.success) {
-        navigate("/dashboard");
-      } else {
-        setErrorMsg(res.message || "Đăng nhập GitHub thất bại");
-      }
-    } catch (err) {
-      setErrorMsg("Đăng nhập GitHub thất bại");
-    } finally {
-      setLoading(false);
-    }
+  const handleGithubSignIn = () => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+    window.location.href = `${apiBase}/auth/github`;
   };
 
   const handleSubmit = async (e) => {

@@ -13,42 +13,18 @@ const Login = () => {
   // Password visibility
   const [showPassword, setShowPassword] = useState(false);
 
-  const { login, loginGoogleFirebase, loginGithubFirebase } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const handleGoogleSignIn = async () => {
-    setErrorMsg("");
-    setLoading(true);
-    try {
-      const res = await loginGoogleFirebase();
-      if (res.success) {
-        navigate("/dashboard");
-      } else {
-        setErrorMsg(res.message || "Đăng nhập Google thất bại");
-      }
-    } catch (err) {
-      setErrorMsg("Đăng nhập Google thất bại");
-    } finally {
-      setLoading(false);
-    }
+  const handleGoogleSignIn = () => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+    window.location.href = `${apiBase}/auth/google`;
   };
 
-  const handleGithubSignIn = async () => {
-    setErrorMsg("");
-    setLoading(true);
-    try {
-      const res = await loginGithubFirebase();
-      if (res.success) {
-        navigate("/dashboard");
-      } else {
-        setErrorMsg(res.message || "Đăng nhập GitHub thất bại");
-      }
-    } catch (err) {
-      setErrorMsg("Đăng nhập GitHub thất bại");
-    } finally {
-      setLoading(false);
-    }
+  const handleGithubSignIn = () => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+    window.location.href = `${apiBase}/auth/github`;
   };
 
   const handleSubmit = async (e) => {
@@ -74,7 +50,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex bg-white dark:bg-[#0a0a0a] transition-colors duration-500">
-      
+
       {/* Left Column: Form */}
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 relative z-10 w-full lg:w-1/2">
         <div className="absolute top-8 left-8 sm:left-12 flex items-center gap-4 z-20">
@@ -85,7 +61,7 @@ const Login = () => {
             <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
           </Link>
         </div>
-        
+
         <div className="absolute top-8 right-8 sm:right-12 z-20">
           <LanguageToggle />
         </div>
@@ -159,9 +135,9 @@ const Login = () => {
                       className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
                     >
                       {showPassword ? (
-                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4.03-9-9 0-1.056.187-2.07.53-3M6.228 6.228A8.955 8.955 0 0112 3c5 0 9 2.943 9 7 0 1.056-.187 2.07-.53 3M6.228 6.228L3 3m3.228 3.228l11.544 11.544M9.88 9.88a3 3 0 104.24 4.24" /></svg>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4.03-9-9 0-1.056.187-2.07.53-3M6.228 6.228A8.955 8.955 0 0112 3c5 0 9 2.943 9 7 0 1.056-.187 2.07-.53 3M6.228 6.228L3 3m3.228 3.228l11.544 11.544M9.88 9.88a3 3 0 104.24 4.24" /></svg>
                       ) : (
-                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7C20.268 16.057 16.477 19 12 19c-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7C20.268 16.057 16.477 19 12 19c-4.477 0-8.268-2.943-9.542-7z" /></svg>
                       )}
                     </button>
                   </div>
@@ -227,22 +203,22 @@ const Login = () => {
         />
         <div className="absolute inset-0 bg-indigo-900/60 dark:bg-zinc-900/80 mix-blend-multiply" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
+
         <div className="absolute bottom-0 left-0 p-16 xl:p-24 w-full">
-           <blockquote className="max-w-2xl">
-              <p className="text-3xl font-medium text-white leading-snug mb-6">
-                "TaskFlow has completely transformed how our engineering team ships product. The speed and clarity are unparalleled."
-              </p>
-              <footer className="flex items-center gap-4">
-                 <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Sarah J." className="w-full h-full object-cover" />
-                 </div>
-                 <div>
-                   <div className="text-white font-semibold text-lg">Sarah Jenkins</div>
-                   <div className="text-white/70">VP of Engineering at Globex</div>
-                 </div>
-              </footer>
-           </blockquote>
+          <blockquote className="max-w-2xl">
+            <p className="text-3xl font-medium text-white leading-snug mb-6">
+              "TaskFlow has completely transformed how our engineering team ships product. The speed and clarity are unparalleled."
+            </p>
+            <footer className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Sarah J." className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <div className="text-white font-semibold text-lg">Sarah Jenkins</div>
+                <div className="text-white/70">VP of Engineering at Globex</div>
+              </div>
+            </footer>
+          </blockquote>
         </div>
       </div>
     </div>
