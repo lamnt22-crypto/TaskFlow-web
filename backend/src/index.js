@@ -31,8 +31,21 @@ cronService.startCron();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Allow all in production/demo to prevent CORS blocks
+  },
   credentials: true
 })); // Enable CORS for frontend with cookies
 app.use(cookieParser()); // Parse incoming cookies
