@@ -71,7 +71,12 @@ const Profile = () => {
     
     setSaving(true);
     try {
-      const result = await updateProfile(profile);
+      const payload = {
+        username: profile.username.trim(),
+        email: profile.email.trim(),
+        theme_color: profile.theme_color ? profile.theme_color.trim() : null,
+      };
+      const result = await updateProfile(payload);
       setSuccess(true);
       setUser({ ...user, username: result.data.username, email: result.data.email, theme_color: result.data.theme_color });
       toast.success('Profile updated successfully.');

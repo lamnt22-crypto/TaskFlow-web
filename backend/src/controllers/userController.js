@@ -56,10 +56,13 @@ const updateMyProfile = async (req, res, next) => {
     }
     
     if (theme_color !== undefined) {
-      if (typeof theme_color !== 'string' || theme_color.trim() === '') {
+      if (theme_color === null || theme_color === '') {
+        data.theme_color = null;
+      } else if (typeof theme_color === 'string') {
+        data.theme_color = theme_color.trim() || null;
+      } else {
         return res.status(400).json({ success: false, message: 'Theme color must be a valid string' });
       }
-      data.theme_color = theme_color.trim();
     }
     
     // Check if nothing to update
