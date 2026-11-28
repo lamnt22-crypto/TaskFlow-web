@@ -1,5 +1,5 @@
 const { GoogleGenAI } = require('@google/genai');
-const { sql, poolPromise } = require('../config/database');
+const { query, withTransaction } = require('../config/database');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 const xlsx = require('xlsx');
@@ -11,20 +11,19 @@ const ai = new GoogleGenAI({ apiKey });
 exports.breakdownTask = async (req, res) => {
     try {
         const { taskId, taskTitle, taskDescription } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.userId || req.user.id;
 
         if (!taskId || !taskTitle) {
             return res.status(400).json({ message: 'Task ID and Title are required' });
         }
 
         // 1. Verify task belongs to user
-        const pool = await poolPromise;
-        const checkResult = await pool.request()
-            .input('taskId', sql.Int, taskId)
-            .input('userId', sql.Int, userId)
-            .query('SELECT id FROM Tasks WHERE id = @taskId AND user_id = @userId');
+        const checkResult = await query(
+            'SELECT id FROM Tasks WHERE id = $1 AND user_id = $2',
+            [taskId, userId]
+        );
 
-        if (checkResult.recordset.length === 0) {
+        if (checkResult.rows.length === 0) {
             return res.status(404).json({ message: 'Task not found or access denied' });
         }
 
@@ -52,28 +51,22 @@ Each object should have exactly two keys: "title" (string, max 200 chars) and "e
         }
 
         // 4. Save to Database
-        const transaction = new sql.Transaction(pool);
-        await transaction.begin();
-        try {
+        await withTransaction(async (client) => {
             for (const subtask of subtasks) {
-                await transaction.request()
-                    .input('taskId', sql.Int, taskId)
-                    .input('title', sql.NVarChar(255), subtask.title)
-                    .input('estimatedTime', sql.NVarChar(100), subtask.estimated_time || null)
-                    .query('INSERT INTO Subtasks (task_id, title, estimated_time) VALUES (@taskId, @title, @estimatedTime)');
+                await client.query(
+                    'INSERT INTO Subtasks (task_id, title, estimated_time) VALUES ($1, $2, $3)',
+                    [taskId, subtask.title, subtask.estimated_time || null]
+                );
             }
-            await transaction.commit();
-        } catch (dbError) {
-            await transaction.rollback();
-            throw dbError;
-        }
+        });
 
         // 5. Fetch updated subtasks
-        const subtasksResult = await pool.request()
-            .input('taskId', sql.Int, taskId)
-            .query('SELECT * FROM Subtasks WHERE task_id = @taskId ORDER BY created_at ASC');
+        const subtasksResult = await query(
+            'SELECT * FROM Subtasks WHERE task_id = $1 ORDER BY created_at ASC',
+            [taskId]
+        );
 
-        res.status(200).json(subtasksResult.recordset);
+        res.status(200).json(subtasksResult.rows);
 
     } catch (error) {
         console.error('Error in breakdownTask:', error);
@@ -83,15 +76,15 @@ Each object should have exactly two keys: "title" (string, max 200 chars) and "e
 
 exports.prioritizeTasks = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.userId || req.user.id;
 
         // 1. Fetch pending tasks
-        const pool = await poolPromise;
-        const tasksResult = await pool.request()
-            .input('userId', sql.Int, userId)
-            .query("SELECT id, title, priority, due_date, status FROM Tasks WHERE user_id = @userId AND status != 'COMPLETED'");
+        const tasksResult = await query(
+            "SELECT id, title, priority, due_date, status FROM Tasks WHERE user_id = $1 AND status != 'COMPLETED'",
+            [userId]
+        );
 
-        const tasks = tasksResult.recordset;
+        const tasks = tasksResult.rows;
 
         if (tasks.length === 0) {
             return res.status(200).json({ recommendation: "Bạn không có công việc nào đang chờ. Thật tuyệt vời! Hãy tận hưởng thời gian nghỉ ngơi nhé." });
@@ -134,13 +127,12 @@ exports.chat = async (req, res) => {
             return res.status(400).json({ message: 'Message is required' });
         }
 
-        const pool = await poolPromise;
-
         // Fetch user categories
-        const categoriesResult = await pool.request()
-            .input('userId', sql.Int, userId)
-            .query('SELECT id, name FROM Categories WHERE user_id = @userId');
-        const categories = categoriesResult.recordset;
+        const categoriesResult = await query(
+            'SELECT id, name FROM Categories WHERE user_id = $1',
+            [userId]
+        );
+        const categories = categoriesResult.rows;
         
         let categoriesContext = "User's Available Categories (Tags):\n";
         if (categories.length > 0) {
@@ -152,15 +144,17 @@ exports.chat = async (req, res) => {
         }
 
         // Fetch recent Tasks (Pending and Completed) to answer user queries about their tasks and summarize long descriptions
-        const recentTasksResult = await pool.request()
-            .input('userId', sql.Int, userId)
-            .query(`
-                SELECT TOP 50 id, title, description, status, priority, due_date, updated_at 
+        const recentTasksResult = await query(
+            `
+                SELECT id, title, description, status, priority, due_date, updated_at 
                 FROM Tasks 
-                WHERE user_id = @userId 
+                WHERE user_id = $1 
                 ORDER BY CASE WHEN status != 'COMPLETED' THEN 0 ELSE 1 END ASC, updated_at DESC
-            `);
-        const recentTasks = recentTasksResult.recordset;
+                LIMIT 50
+            `,
+            [userId]
+        );
+        const recentTasks = recentTasksResult.rows;
         let userWorkHabitsContext = "User's Tasks Snapshot (For context to answer queries like what is pending, what is completed, and to SUMMARIZE tasks if asked):\n";
         if (recentTasks.length > 0) {
             recentTasks.forEach(t => {
@@ -176,17 +170,19 @@ exports.chat = async (req, res) => {
         }
 
         // Fetch last 10 messages for context
-        const historyResult = await pool.request()
-            .input('userId', sql.Int, userId)
-            .query(`
-                SELECT TOP 10 role, content 
+        const historyResult = await query(
+            `
+                SELECT role, content 
                 FROM ChatMessages 
-                WHERE user_id = @userId 
+                WHERE user_id = $1 
                 ORDER BY created_at DESC
-            `);
+                LIMIT 10
+            `,
+            [userId]
+        );
             
         // History is returned DESC, so reverse to ASC for context
-        const history = historyResult.recordset.reverse();
+        const history = historyResult.rows.reverse();
         
         let conversationContext = "Previous conversation context:\n";
         history.forEach(msg => {
@@ -261,18 +257,16 @@ Also provide a helpful, friendly, and concise text response explaining what you 
         }
 
         // Save User Message to DB
-        await pool.request()
-            .input('userId', sql.Int, userId)
-            .input('role', sql.NVarChar(50), 'user')
-            .input('content', sql.NVarChar(sql.MAX), message)
-            .query('INSERT INTO ChatMessages (user_id, role, content) VALUES (@userId, @role, @content)');
+        await query(
+            'INSERT INTO ChatMessages (user_id, role, content) VALUES ($1, $2, $3)',
+            [userId, 'user', message]
+        );
             
         // Save Assistant Message to DB
-        await pool.request()
-            .input('userId', sql.Int, userId)
-            .input('role', sql.NVarChar(50), 'assistant')
-            .input('content', sql.NVarChar(sql.MAX), reply)
-            .query('INSERT INTO ChatMessages (user_id, role, content) VALUES (@userId, @role, @content)');
+        await query(
+            'INSERT INTO ChatMessages (user_id, role, content) VALUES ($1, $2, $3)',
+            [userId, 'assistant', reply]
+        );
 
         res.status(200).json({ reply });
 
@@ -285,17 +279,17 @@ Also provide a helpful, friendly, and concise text response explaining what you 
 exports.getChatHistory = async (req, res) => {
     try {
         const userId = req.user.id || req.user.userId;
-        const pool = await poolPromise;
-        const result = await pool.request()
-            .input('userId', sql.Int, userId)
-            .query(`
+        const result = await query(
+            `
                 SELECT role, content, created_at 
                 FROM ChatMessages 
-                WHERE user_id = @userId 
+                WHERE user_id = $1 
                 ORDER BY created_at ASC
-            `);
+            `,
+            [userId]
+        );
             
-        res.status(200).json(result.recordset);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching chat history:', error);
         res.status(500).json({ message: 'Server error fetching chat history' });
@@ -311,17 +305,16 @@ exports.summarizeTask = async (req, res) => {
             return res.status(400).json({ message: 'Task ID is required' });
         }
 
-        const pool = await poolPromise;
-        const checkResult = await pool.request()
-            .input('taskId', sql.Int, taskId)
-            .input('userId', sql.Int, userId)
-            .query('SELECT title, description FROM Tasks WHERE id = @taskId AND user_id = @userId');
+        const checkResult = await query(
+            'SELECT title, description FROM Tasks WHERE id = $1 AND user_id = $2',
+            [taskId, userId]
+        );
 
-        if (checkResult.recordset.length === 0) {
+        if (checkResult.rows.length === 0) {
             return res.status(404).json({ message: 'Task not found or access denied' });
         }
 
-        const task = checkResult.recordset[0];
+        const task = checkResult.rows[0];
         if (!task.description) {
             return res.status(400).json({ message: 'Task has no description to summarize' });
         }

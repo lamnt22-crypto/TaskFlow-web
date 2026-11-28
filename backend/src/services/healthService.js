@@ -1,4 +1,4 @@
-const { poolPromise } = require('../config/database');
+const { query } = require('../config/database');
 
 /**
  * Health Service
@@ -6,9 +6,7 @@ const { poolPromise } = require('../config/database');
  */
 const checkDatabaseStatus = async () => {
   try {
-    const pool = await poolPromise;
-    // Execute a simple SELECT 1 to ensure the DB is responsive
-    await pool.request().query('SELECT 1');
+    await query('SELECT 1');
     return { connected: true };
   } catch (error) {
     console.error('HealthService DB Check Error:', error.message);
@@ -17,5 +15,5 @@ const checkDatabaseStatus = async () => {
 };
 
 module.exports = {
-  checkDatabaseStatus
+  checkDatabaseStatus,
 };

@@ -1,101 +1,191 @@
-const sql = require('mssql');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-// SQL Server configuration object read entirely from environment variables
-const dbConfig = {
-  server: process.env.DB_SERVER || 'localhost',
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  connectionTimeout: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 30000,
-  requestTimeout: parseInt(process.env.DB_REQUEST_TIMEOUT) || 30000,
-  pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000
-  },
-  options: {
-    encrypt: process.env.DB_ENCRYPT === 'true', // Use true for Azure/production, false for local dev usually
-    trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE !== 'false', // Default true for dev
-    enableArithAbort: true
-  }
-};
+const connectionString = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : '';
 
-// If using a named instance like SQLEXPRESS, set instanceName.
-// Tedious requires omitting the port to resolve dynamic ports via SQL Browser.
-if (process.env.DB_INSTANCE) {
-  dbConfig.options.instanceName = process.env.DB_INSTANCE;
-} else {
-  dbConfig.port = parseInt(process.env.DB_PORT) || 1433;
-}
+const isLocalConnection =
+  !connectionString
+    ? ['localhost', '127.0.0.1'].includes(process.env.PGHOST || process.env.DB_SERVER || 'localhost')
+    : connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
 
-let pool = null;
-let connectingPromise = null;
+const useSsl =
+  process.env.DB_SSL === 'true' ||
+  (process.env.DB_SSL !== 'false' && (process.env.NODE_ENV === 'production' || !isLocalConnection));
+
+const poolConfig = connectionString
+  ? {
+      connectionString,
+      ssl: useSsl ? { rejectUnauthorized: false } : false,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT, 10) || 15000,
+    }
+  : {
+      host: process.env.PGHOST || process.env.DB_SERVER || 'localhost',
+      port: parseInt(process.env.PGPORT || process.env.DB_PORT, 10) || 5432,
+      user: process.env.PGUSER || process.env.DB_USER || 'postgres',
+      password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
+      database: process.env.PGDATABASE || process.env.DB_NAME || 'taskflow_db',
+      ssl: useSsl ? { rejectUnauthorized: false } : false,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT, 10) || 15000,
+    };
+
+const pool = new Pool(poolConfig);
+
+pool.on('error', (err) => {
+  console.error('❌ PostgreSQL Pool Error:', err.message);
+});
+
+const SCHEMA_SQL = `
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NULL,
+    avatar_url TEXT NULL,
+    theme_color VARCHAR(50) NULL,
+    google_id VARCHAR(255) UNIQUE NULL,
+    github_id VARCHAR(255) UNIQUE NULL,
+    current_streak INT NOT NULL DEFAULT 0,
+    highest_streak INT NOT NULL DEFAULT 0,
+    last_active_date DATE NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS categories (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    color VARCHAR(20) DEFAULT '#000000',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_categories_id_userid UNIQUE (id, user_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS tasks (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category_id INT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'TODO' CHECK (status IN ('TODO', 'IN_PROGRESS', 'COMPLETED')),
+    priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
+    due_date TIMESTAMP NULL,
+    pomodoro_count INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_tasks_categories FOREIGN KEY (category_id, user_id) REFERENCES categories(id, user_id) ON DELETE NO ACTION
+  );
+
+  CREATE TABLE IF NOT EXISTS subtasks (
+    id SERIAL PRIMARY KEY,
+    task_id INT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    estimated_time VARCHAR(100) NULL,
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS refreshtokens (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    hashed_token VARCHAR(512) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS chatmessages (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS dailyactivity (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    activity_date DATE NOT NULL,
+    tasks_completed INT NOT NULL DEFAULT 0,
+    CONSTRAINT uq_dailyactivity_userdate UNIQUE (user_id, activity_date)
+  );
+
+  CREATE INDEX IF NOT EXISTS ix_tasks_user_id ON tasks(user_id);
+  CREATE INDEX IF NOT EXISTS ix_tasks_category_id ON tasks(category_id);
+  CREATE INDEX IF NOT EXISTS ix_tasks_status ON tasks(status);
+  CREATE INDEX IF NOT EXISTS ix_tasks_priority ON tasks(priority);
+  CREATE INDEX IF NOT EXISTS ix_tasks_due_date ON tasks(due_date);
+  CREATE INDEX IF NOT EXISTS ix_categories_user_id ON categories(user_id);
+  CREATE INDEX IF NOT EXISTS ix_refreshtokens_user_id ON refreshtokens(user_id);
+`;
+
+let schemaReadyPromise = null;
 
 /**
- * Get or create an active database connection pool.
- * Automatically retries if previously disconnected or failed.
+ * Ensures PostgreSQL connection is live and all required tables exist.
+ * Safe to call concurrently; caches success and retries if initial attempt fails.
  */
-async function getPool() {
-  if (pool && pool.connected) {
-    return pool;
-  }
-  if (connectingPromise) {
-    return connectingPromise;
+async function ensureDatabaseReady() {
+  if (schemaReadyPromise) {
+    return schemaReadyPromise;
   }
 
-  connectingPromise = (async () => {
+  schemaReadyPromise = (async () => {
     try {
-      if (pool) {
-        try { await pool.close(); } catch (_) {}
-      }
-      pool = new sql.ConnectionPool(dbConfig);
-      pool.on('error', err => {
-        console.error('❌ SQL Server Pool Error:', err.message);
-        pool = null;
-      });
-      await pool.connect();
-      console.log('✅ Successfully connected to SQL Server Database');
-      return pool;
+      await pool.query('SELECT 1');
+      await pool.query(SCHEMA_SQL);
+      console.log('✅ Successfully connected to PostgreSQL Database & verified schema');
+      return true;
     } catch (err) {
-      pool = null;
-      console.error('❌ Database Connection Failed:\n', err.message);
+      schemaReadyPromise = null;
+      console.error('❌ PostgreSQL Connection / Schema Error:', err.message);
       throw err;
-    } finally {
-      connectingPromise = null;
     }
   })();
 
-  return connectingPromise;
+  return schemaReadyPromise;
 }
 
-// poolPromise is a Thenable proxy to getPool(), ensuring backward compatibility
-// for all existing imports: `const pool = await poolPromise`, `poolPromise.then()`, etc.
-// If a connection attempt failed previously or the database was restarted,
-// awaiting `poolPromise` will automatically retry connecting rather than staying permanently rejected.
-const poolPromise = {
-  then(onFulfilled, onRejected) {
-    return getPool().then(onFulfilled, onRejected);
-  },
-  catch(onRejected) {
-    return getPool().catch(onRejected);
-  },
-  finally(onFinally) {
-    return getPool().finally(onFinally);
-  },
-  request(...args) {
-    return getPool().then(p => p.request(...args));
-  }
-};
+/**
+ * Execute a parameterized PostgreSQL query, ensuring schema is initialized first.
+ */
+async function query(text, params = []) {
+  await ensureDatabaseReady();
+  return pool.query(text, params);
+}
 
-// Trigger initial connection on startup without crashing if DB starts with slight delay
-getPool().catch(() => {
-  console.warn('⚠️ Initial database connection pending. Queries will retry automatically upon request.');
+/**
+ * Run a callback inside a PostgreSQL transaction (BEGIN / COMMIT / ROLLBACK).
+ */
+async function withTransaction(callback) {
+  await ensureDatabaseReady();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await callback(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (err) {
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// Trigger initial connection on startup without crashing the process if DB wakes slowly
+ensureDatabaseReady().catch(() => {
+  console.warn('⚠️ Initial PostgreSQL connection pending. Queries will retry automatically upon request.');
 });
 
 module.exports = {
-  sql,
-  poolPromise,
-  getPool
+  pool,
+  query,
+  withTransaction,
+  ensureDatabaseReady,
 };
-

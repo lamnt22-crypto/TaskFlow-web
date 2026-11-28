@@ -1,5 +1,4 @@
 const taskService = require('../services/taskService');
-const { sql, poolPromise } = require('../config/database');
 
 const VALID_STATUSES = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
 const VALID_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
@@ -215,27 +214,7 @@ const updateSubtask = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid subtask ID' });
     }
 
-    const pool = await poolPromise;
-    // Verify ownership indirectly via Tasks table
-    const checkResult = await pool.request()
-      .input('subtaskId', sql.Int, subtaskId)
-      .input('userId', sql.Int, userId)
-      .query(`
-        SELECT s.id 
-        FROM Subtasks s 
-        JOIN Tasks t ON s.task_id = t.id 
-        WHERE s.id = @subtaskId AND t.user_id = @userId
-      `);
-
-    if (checkResult.recordset.length === 0) {
-      return res.status(403).json({ success: false, message: 'Access denied to this subtask' });
-    }
-
-    await pool.request()
-      .input('subtaskId', sql.Int, subtaskId)
-      .input('isCompleted', sql.Bit, is_completed ? 1 : 0)
-      .query('UPDATE Subtasks SET is_completed = @isCompleted, updated_at = GETDATE() WHERE id = @subtaskId');
-
+    await taskService.updateSubtask(userId, subtaskId, is_completed);
     return res.status(200).json({ success: true });
   } catch (error) {
     next(error);

@@ -4,7 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
 // Import configurations and routes
-const { poolPromise } = require('./config/database');
+const { ensureDatabaseReady } = require('./config/database');
 const healthRoutes = require('./routes/health');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -98,8 +98,8 @@ app.use(errorHandler);
 // Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  // Initialize Database connection promise
-  poolPromise.catch(() => {
+  // Initialize PostgreSQL connection & schema
+  ensureDatabaseReady().catch(() => {
     console.warn('⚠️ Server started, but database is not connected. Health check will fail.');
   });
 });
