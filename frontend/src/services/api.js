@@ -7,6 +7,8 @@ export const setAuthToken = (token) => {
   currentAccessToken = token;
 };
 
+export const getAuthToken = () => currentAccessToken || localStorage.getItem('accessToken');
+
 let authExpiredHandler = null;
 
 export const setAuthExpiredHandler = (callback) => {

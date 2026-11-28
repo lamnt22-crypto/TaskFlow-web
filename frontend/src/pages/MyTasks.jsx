@@ -152,13 +152,19 @@ const MyTasks = () => {
     return () => clearTimeout(timerId);
   }, [searchInput]);
 
-  // Listen for keyboard shortcut event & ?new=1 param
+  // Listen for keyboard shortcut event, live AI task updates & ?new=1 param
   useEffect(() => {
     const handleOpenCreateModal = () => handleOpenCreate();
     window.addEventListener("openCreateTaskModal", handleOpenCreateModal);
     return () =>
       window.removeEventListener("openCreateTaskModal", handleOpenCreateModal);
   }, []);
+
+  useEffect(() => {
+    const handleTasksUpdated = () => fetchTasks(false);
+    window.addEventListener("tasksUpdated", handleTasksUpdated);
+    return () => window.removeEventListener("tasksUpdated", handleTasksUpdated);
+  }, [sortOrder, searchQuery, statusFilter, priorityFilter, categoryFilter]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

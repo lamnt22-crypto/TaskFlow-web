@@ -97,13 +97,26 @@ const SCHEMA_SQL = `
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 
+  CREATE TABLE IF NOT EXISTS chat_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(180) NOT NULL DEFAULT 'Cuộc trò chuyện mới',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
   CREATE TABLE IF NOT EXISTS chatmessages (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_id INT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
     role VARCHAR(50) NOT NULL,
     content TEXT NOT NULL,
+    suggestions JSONB NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
+
+  ALTER TABLE chatmessages ADD COLUMN IF NOT EXISTS session_id INT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE;
+  ALTER TABLE chatmessages ADD COLUMN IF NOT EXISTS suggestions JSONB NULL;
 
   CREATE TABLE IF NOT EXISTS dailyactivity (
     id SERIAL PRIMARY KEY,
@@ -120,6 +133,8 @@ const SCHEMA_SQL = `
   CREATE INDEX IF NOT EXISTS ix_tasks_due_date ON tasks(due_date);
   CREATE INDEX IF NOT EXISTS ix_categories_user_id ON categories(user_id);
   CREATE INDEX IF NOT EXISTS ix_refreshtokens_user_id ON refreshtokens(user_id);
+  CREATE INDEX IF NOT EXISTS ix_chat_sessions_user_id ON chat_sessions(user_id, updated_at DESC);
+  CREATE INDEX IF NOT EXISTS ix_chatmessages_user_session ON chatmessages(user_id, session_id, created_at ASC);
 `;
 
 let schemaReadyPromise = null;

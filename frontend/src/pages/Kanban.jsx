@@ -218,8 +218,13 @@ const Kanban = () => {
 
   useEffect(() => {
     const handleOpenCreateModal = () => handleOpenCreate('TODO');
+    const handleTasksUpdated = () => fetchBoardData();
     window.addEventListener('openCreateTaskModal', handleOpenCreateModal);
-    return () => window.removeEventListener('openCreateTaskModal', handleOpenCreateModal);
+    window.addEventListener('tasksUpdated', handleTasksUpdated);
+    return () => {
+      window.removeEventListener('openCreateTaskModal', handleOpenCreateModal);
+      window.removeEventListener('tasksUpdated', handleTasksUpdated);
+    };
   }, []);
 
   const handleStatusChange = async (taskId, newStatus) => {

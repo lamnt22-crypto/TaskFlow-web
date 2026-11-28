@@ -86,8 +86,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     const handleOpenCreateModal = () => handleOpenCreate();
+    const handleTasksUpdated = () => fetchData();
     window.addEventListener('openCreateTaskModal', handleOpenCreateModal);
-    return () => window.removeEventListener('openCreateTaskModal', handleOpenCreateModal);
+    window.addEventListener('tasksUpdated', handleTasksUpdated);
+    return () => {
+      window.removeEventListener('openCreateTaskModal', handleOpenCreateModal);
+      window.removeEventListener('tasksUpdated', handleTasksUpdated);
+    };
   }, []);
 
   const handleOpenCreate = () => {

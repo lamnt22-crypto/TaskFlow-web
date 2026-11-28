@@ -70,8 +70,13 @@ const Calendar = () => {
 
   useEffect(() => {
     const handleOpenCreateModal = () => handleOpenCreateForDate(selectedDate);
+    const handleTasksUpdated = () => fetchCalendarData();
     window.addEventListener('openCreateTaskModal', handleOpenCreateModal);
-    return () => window.removeEventListener('openCreateTaskModal', handleOpenCreateModal);
+    window.addEventListener('tasksUpdated', handleTasksUpdated);
+    return () => {
+      window.removeEventListener('openCreateTaskModal', handleOpenCreateModal);
+      window.removeEventListener('tasksUpdated', handleTasksUpdated);
+    };
   }, [selectedDate]);
 
   const filteredTasks = useMemo(() => {
