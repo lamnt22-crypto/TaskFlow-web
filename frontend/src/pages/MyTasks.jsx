@@ -731,7 +731,7 @@ const MyTasks = () => {
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto flex flex-col h-full pb-12 relative">
+      <div className="max-w-6xl mx-auto flex flex-col h-full pb-12 relative">
         <FloatingOrbs />
 
         <div className="relative z-10 flex flex-col h-full">
@@ -1042,36 +1042,36 @@ const MyTasks = () => {
                     {t("tasks.create")}
                   </motion.button>
 
-                  <div className="flex gap-2 flex-1 lg:w-full">
+                  <div className="grid grid-cols-3 gap-2 flex-1 lg:w-full">
                     <motion.button
                       whileHover={{ y: -2, scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => setIsAIPlannerModalOpen(true)}
-                      className="flex-1 h-10 glass-card hover:shadow-lg text-indigo-600 font-bold px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs"
+                      className="h-10 glass-card hover:shadow-lg text-indigo-600 dark:text-indigo-300 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap"
                       title="AI Smart Planner"
                     >
-                      <span className="text-base">🪄</span>{" "}
-                      <span className="hidden sm:inline">AI Plan</span>
+                      <span className="text-sm sm:text-base">🪄</span>{" "}
+                      <span>AI Plan</span>
                     </motion.button>
                     <motion.button
                       whileHover={{ y: -2, scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => setIsAIFilePlannerModalOpen(true)}
-                      className="flex-1 h-10 glass-card hover:shadow-lg text-violet-600 font-bold px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs"
+                      className="h-10 glass-card hover:shadow-lg text-violet-600 dark:text-violet-300 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap"
                       title="AI File Planner"
                     >
-                      <span className="text-base">📄</span>{" "}
-                      <span className="hidden sm:inline">Tệp AI</span>
+                      <span className="text-sm sm:text-base">📄</span>{" "}
+                      <span>{isVi ? "Tệp AI" : "AI File"}</span>
                     </motion.button>
                     <motion.button
                       whileHover={{ y: -2, scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={handleExportCSV}
-                      className="flex-1 h-10 glass-card hover:shadow-lg text-slate-600 font-bold px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs"
+                      className="h-10 glass-card hover:shadow-lg text-slate-600 dark:text-slate-200 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap"
                       title="Export CSV"
                     >
-                      <span className="text-base">📥</span>{" "}
-                      <span className="hidden sm:inline">Xuất</span>
+                      <span className="text-sm sm:text-base">📥</span>{" "}
+                      <span>{isVi ? "Xuất CSV" : "Export"}</span>
                     </motion.button>
                   </div>
                 </div>
@@ -1130,7 +1130,7 @@ const MyTasks = () => {
                   <span className="text-[11px] font-black uppercase tracking-widest bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     ✨ Trợ lý AI thông minh
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                     NLP + Voice
                   </span>
                 </div>
@@ -1174,17 +1174,17 @@ const MyTasks = () => {
             </div>
           </motion.div>
 
-          {/* ══════════ Premium Toolbar ══════════ */}
+          {/* ══════════ Premium 2-Tier Responsive Toolbar ══════════ */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card p-3 rounded-2xl mb-6 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 shadow-sm border border-slate-100 dark:border-slate-800"
+            className="glass-card p-3 sm:p-3.5 rounded-2xl mb-6 flex flex-col gap-2.5 shadow-sm border border-slate-200/70 dark:border-slate-800 overflow-hidden"
           >
-            {/* Left Group: Search & Core Filters */}
-            <div className="flex flex-1 flex-wrap md:flex-nowrap items-center gap-2.5 min-w-0">
+            {/* Row 1: Search Input + Multi-select + View Mode Toggle */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 min-w-0">
               {/* Search Input */}
-              <div className="relative flex-1 min-w-[200px] h-10 sm:h-11">
+              <div className="relative flex-1 min-w-0 h-10 sm:h-11">
                 <svg
                   className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                   fill="none"
@@ -1210,176 +1210,250 @@ const MyTasks = () => {
                   <button
                     type="button"
                     onClick={() => setSearchInput("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs"
+                    aria-label="Clear search"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-slate-700 text-xs transition-colors"
                   >
                     ✕
                   </button>
                 )}
               </div>
 
-              {/* Filter Group (Horizontal scrollable on small screens) */}
-              <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar w-full md:w-auto h-10 sm:h-11 shrink-0 py-0.5">
-                {/* Status filter */}
-                <div className="flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-3 h-full">
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer uppercase tracking-wider h-full pr-1"
-                  >
-                    <option value="ALL">{t("tasks.allStatuses")}</option>
-                    <option value="TODO">{t("enums.status.TODO")}</option>
-                    <option value="IN_PROGRESS">{t("enums.status.IN_PROGRESS")}</option>
-                    <option value="COMPLETED">{t("enums.status.COMPLETED")}</option>
-                  </select>
-                </div>
+              {/* Quick Actions: Bulk Select + List/Board Switch */}
+              <div className="flex items-center gap-2 shrink-0 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSelectMode((prev) => !prev);
+                    setSelectedIds([]);
+                  }}
+                  className={`px-3.5 h-10 sm:h-11 rounded-xl text-xs font-bold border transition-all whitespace-nowrap flex items-center justify-center gap-1.5 shrink-0 ${
+                    isSelectMode
+                      ? "bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-500/25"
+                      : "bg-slate-50/90 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200/70 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800"
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>
+                    {isSelectMode
+                      ? isVi
+                        ? "Đang chọn"
+                        : "Selecting"
+                      : isVi
+                        ? "Chọn nhiều"
+                        : "Select"}
+                  </span>
+                </button>
 
-                {/* Priority filter */}
-                <div className="flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-3 h-full">
-                  <select
-                    value={priorityFilter}
-                    onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer uppercase tracking-wider h-full pr-1"
-                  >
-                    <option value="ALL">{t("tasks.allPriorities")}</option>
-                    <option value="URGENT">{t("enums.priority.URGENT")}</option>
-                    <option value="HIGH">{t("enums.priority.HIGH")}</option>
-                    <option value="MEDIUM">{t("enums.priority.MEDIUM")}</option>
-                    <option value="LOW">{t("enums.priority.LOW")}</option>
-                  </select>
-                </div>
+                {/* View Mode Toggle */}
+                <div className="relative flex items-center bg-slate-100/90 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 rounded-xl p-1 h-10 sm:h-11 flex-1 sm:flex-none sm:w-48 shrink-0">
+                  <motion.div
+                    layout
+                    className="absolute top-1 bottom-1 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-md shadow-indigo-500/20"
+                    style={{
+                      width: "calc(50% - 4px)",
+                      left: viewMode === "list" ? "4px" : "calc(50%)",
+                    }}
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
 
-                {/* Category filter + settings */}
-                <div className="flex items-center gap-1.5 bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl pl-3 pr-1.5 h-full">
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer uppercase tracking-wider max-w-[130px] truncate h-full"
-                  >
-                    <option value="ALL">{t("tasks.allCategories")}</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="w-px h-4 bg-slate-200 dark:bg-slate-700" />
                   <button
                     type="button"
-                    onClick={() => setIsCategoryModalOpen(true)}
-                    className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-slate-200/70 dark:border-slate-700 transition-all shrink-0"
-                    title="Manage Categories"
+                    onClick={() => setViewMode("list")}
+                    className={`relative z-10 text-xs font-bold rounded-lg transition-colors duration-200 flex items-center gap-1.5 flex-1 justify-center h-full whitespace-nowrap px-2 ${
+                      viewMode === "list"
+                        ? "text-white"
+                        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                    }`}
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
+                    <span>{t("kanban.list")}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("board")}
+                    className={`relative z-10 text-xs font-bold rounded-lg transition-colors duration-200 flex items-center gap-1.5 flex-1 justify-center h-full whitespace-nowrap px-2 ${
+                      viewMode === "board"
+                        ? "text-white"
+                        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                    </svg>
+                    <span>{t("kanban.board")}</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Group: Multi-select, Sort & View Mode Toggle */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-100 dark:border-slate-800">
-              {/* Bulk Select Toggle */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSelectMode((prev) => !prev);
-                  setSelectedIds([]);
-                }}
-                className={`px-3 h-10 sm:h-11 rounded-xl text-xs font-bold border transition-colors whitespace-nowrap ${
-                  isSelectMode
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "bg-slate-50/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200/70 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800"
-                }`}
-              >
-                {isSelectMode ? (isVi ? "Đang chọn" : "Selecting") : isVi ? "Chọn nhiều" : "Select"}
-              </button>
+            {/* Row 2: Aligned 2x2 (Mobile/Tablet) -> 4-Column (Desktop) Filters & Sort */}
+            <div className="pt-2.5 border-t border-slate-200/70 dark:border-slate-800 grid grid-cols-2 lg:grid-cols-4 gap-2">
+              {/* Status filter */}
+              <div className="min-w-0 flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-2.5 sm:px-3 h-10 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/15 transition-all">
+                <select
+                  aria-label={t("tasks.allStatuses")}
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full min-w-0 bg-transparent border-none text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer h-full truncate dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
+                >
+                  <option value="ALL">{t("tasks.allStatuses")}</option>
+                  <option value="TODO">{t("enums.status.TODO")}</option>
+                  <option value="IN_PROGRESS">{t("enums.status.IN_PROGRESS")}</option>
+                  <option value="COMPLETED">{t("enums.status.COMPLETED")}</option>
+                </select>
+              </div>
+
+              {/* Priority filter */}
+              <div className="min-w-0 flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-2.5 sm:px-3 h-10 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/15 transition-all">
+                <select
+                  aria-label={t("tasks.allPriorities")}
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                  className="w-full min-w-0 bg-transparent border-none text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer h-full truncate dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
+                >
+                  <option value="ALL">{t("tasks.allPriorities")}</option>
+                  <option value="URGENT">{t("enums.priority.URGENT")}</option>
+                  <option value="HIGH">{t("enums.priority.HIGH")}</option>
+                  <option value="MEDIUM">{t("enums.priority.MEDIUM")}</option>
+                  <option value="LOW">{t("enums.priority.LOW")}</option>
+                </select>
+              </div>
+
+              {/* Category filter + settings */}
+              <div className="min-w-0 flex items-center gap-1.5 bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl pl-2.5 sm:pl-3 pr-1.5 h-10 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/15 transition-all">
+                <select
+                  aria-label={t("tasks.allCategories")}
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full min-w-0 flex-1 bg-transparent border-none text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer h-full truncate dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
+                >
+                  <option value="ALL">{t("tasks.allCategories")}</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  className="w-7 h-7 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-slate-200/70 dark:border-slate-700 transition-all shrink-0"
+                  title={isVi ? "Quản lý danh mục" : "Manage Categories"}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+              </div>
 
               {/* Sort Dropdown */}
-              <div className="flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-3 h-10 sm:h-11 flex-1 sm:flex-none">
-                <svg className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="min-w-0 flex items-center gap-1.5 bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-2.5 sm:px-3 h-10 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/15 transition-all">
+                <svg className="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                 </svg>
                 <select
+                  aria-label="Sort tasks"
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value)}
-                  className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer h-full pr-1 w-full"
+                  className="w-full min-w-0 bg-transparent border-none text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer h-full truncate dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
                 >
                   <option value="dueDateAsc">{t("tasks.sortDueAsc")}</option>
                   <option value="dueDateDesc">{t("tasks.sortDueDesc")}</option>
                   <option value="createdAtDesc">{t("tasks.sortNewest")}</option>
                 </select>
               </div>
+            </div>
 
-              {/* View Mode Toggle */}
-              <div className="relative flex items-center bg-slate-100/90 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 rounded-xl p-1 h-10 sm:h-11 shrink-0 w-full sm:w-48">
-                <motion.div
-                  layout
-                  className="absolute top-1 bottom-1 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-md shadow-indigo-500/20"
-                  style={{
-                    width: "calc(50% - 4px)",
-                    left: viewMode === "list" ? "4px" : "calc(50%)",
+            {/* Active Filter Reset Strip */}
+            {(searchInput || statusFilter !== "ALL" || priorityFilter !== "ALL" || categoryFilter !== "ALL") && (
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">
+                  {isVi
+                    ? `Đang lọc • ${enrichedTasks.length} công việc khớp`
+                    : `Filtered • ${enrichedTasks.length} matching tasks`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput("");
+                    setStatusFilter("ALL");
+                    setPriorityFilter("ALL");
+                    setCategoryFilter("ALL");
                   }}
-                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setViewMode("list")}
-                  className={`relative z-10 text-xs font-bold rounded-lg transition-colors duration-200 flex items-center gap-1.5 flex-1 justify-center h-full ${
-                    viewMode === "list" ? "text-white" : "text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white"
-                  }`}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-300 border border-rose-200/70 dark:border-rose-500/30 font-semibold hover:bg-rose-100 dark:hover:bg-rose-500/25 transition-colors"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                  <span>{t("kanban.list")}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setViewMode("board")}
-                  className={`relative z-10 text-xs font-bold rounded-lg transition-colors duration-200 flex items-center gap-1.5 flex-1 justify-center h-full ${
-                    viewMode === "board" ? "text-white" : "text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white"
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                  </svg>
-                  <span>{t("kanban.board")}</span>
+                  <span>✕</span>
+                  <span>{isVi ? "Đặt lại bộ lọc" : "Reset filters"}</span>
                 </button>
               </div>
-            </div>
+            )}
           </motion.div>
 
           {/* Bulk Action Bar */}
           <AnimatePresence>
-            {isSelectMode && selectedIds.length > 0 && (
+            {isSelectMode && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-4 p-3 rounded-2xl bg-indigo-600 text-white flex flex-wrap items-center justify-between gap-3 shadow-lg shadow-indigo-500/25"
+                className="mb-4 p-3 rounded-2xl bg-indigo-600 text-white flex flex-wrap items-center justify-between gap-2.5 shadow-lg shadow-indigo-500/25"
               >
-                <span className="text-xs sm:text-sm font-bold px-2">
-                  {isVi ? `Đã chọn ${selectedIds.length} công việc` : `${selectedIds.length} selected`}
+                <span className="text-xs sm:text-sm font-bold px-1.5">
+                  {selectedIds.length > 0
+                    ? isVi
+                      ? `Đã chọn ${selectedIds.length} công việc`
+                      : `${selectedIds.length} selected`
+                    : isVi
+                      ? "Nhấn vào các công việc bên dưới để chọn hàng loạt"
+                      : "Tap tasks below to select multiple"}
                 </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleBulkComplete}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold transition-colors"
-                  >
-                    ✓ {isVi ? "Hoàn thành" : "Complete"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleBulkDelete}
-                    className="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold transition-colors"
-                  >
-                    🗑 {isVi ? "Xóa" : "Delete"}
-                  </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  {enrichedTasks.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedIds(
+                          selectedIds.length === enrichedTasks.length
+                            ? []
+                            : enrichedTasks.map((t) => t.id),
+                        )
+                      }
+                      className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-colors"
+                    >
+                      {selectedIds.length === enrichedTasks.length
+                        ? isVi
+                          ? "Bỏ chọn hết"
+                          : "Unselect all"
+                        : isVi
+                          ? "Chọn tất cả"
+                          : "Select all"}
+                    </button>
+                  )}
+                  {selectedIds.length > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleBulkComplete}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold transition-colors"
+                      >
+                        ✓ {isVi ? "Hoàn thành" : "Complete"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleBulkDelete}
+                        className="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold transition-colors"
+                      >
+                        🗑 {isVi ? "Xóa" : "Delete"}
+                      </button>
+                    </>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
