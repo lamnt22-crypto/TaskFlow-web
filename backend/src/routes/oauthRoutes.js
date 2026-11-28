@@ -5,7 +5,11 @@ const authService = require('../services/authService');
 
 const router = express.Router();
 
-const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
+const isProd = process.env.NODE_ENV === 'production';
+const FRONTEND_URL = (
+  process.env.FRONTEND_URL ||
+  (isProd ? 'https://task-flow-web-self.vercel.app' : 'http://localhost:5173')
+).replace(/\/+$/, '');
 
 /**
  * Handle successful OAuth login
@@ -27,7 +31,6 @@ const handleOAuthSuccess = async (req, res) => {
 
     const { refreshToken, days } = await authService.createRefreshToken(userId);
 
-    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: isProd,
@@ -38,25 +41,43 @@ const handleOAuthSuccess = async (req, res) => {
 
     res.redirect(`${FRONTEND_URL}/oauth-success?token=${accessToken}`);
   } catch (error) {
-    console.error('OAuth Success Handler Error:', error);
+    console.error('❌ OAuth Success Handler Error:', error);
     res.redirect(`${FRONTEND_URL}/login?error=OAuthServerError`);
   }
 };
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { failureRedirect: `${FRONTEND_URL}/login?error=GoogleAuthFailed` }),
-  handleOAuthSuccess
-);
+router.get('/google/callback', (req, res, next) => {
+  passport.authenticate('google', (err, user, info) => {
+    if (err) {
+      console.error('❌ Google OAuth Callback Error:', err);
+      return res.redirect(`${FRONTEND_URL}/login?error=GoogleAuthFailed`);
+    }
+    if (!user) {
+      console.warn('⚠️ Google OAuth No User:', info);
+      return res.redirect(`${FRONTEND_URL}/login?error=GoogleAuthFailed`);
+    }
+    req.user = user;
+    return handleOAuthSuccess(req, res);
+  })(req, res, next);
+});
 
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 
-router.get(
-  '/github/callback',
-  passport.authenticate('github', { failureRedirect: `${FRONTEND_URL}/login?error=GithubAuthFailed` }),
-  handleOAuthSuccess
-);
+router.get('/github/callback', (req, res, next) => {
+  passport.authenticate('github', (err, user, info) => {
+    if (err) {
+      console.error('❌ GitHub OAuth Callback Error:', err);
+      return res.redirect(`${FRONTEND_URL}/login?error=GithubAuthFailed`);
+    }
+    if (!user) {
+      console.warn('⚠️ GitHub OAuth No User:', info);
+      return res.redirect(`${FRONTEND_URL}/login?error=GithubAuthFailed`);
+    }
+    req.user = user;
+    return handleOAuthSuccess(req, res);
+  })(req, res, next);
+});
 
 module.exports = router;

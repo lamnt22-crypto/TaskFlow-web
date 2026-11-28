@@ -3,13 +3,17 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const authService = require('../services/authService');
 
-const backendUrl = process.env.BACKEND_URL ? process.env.BACKEND_URL.replace(/\/+$/, '') : '';
+const isProd = process.env.NODE_ENV === 'production';
+const backendUrl = (
+  process.env.BACKEND_URL ||
+  (isProd ? 'https://taskflow-backend-ct0e.onrender.com' : 'http://localhost:5000')
+).replace(/\/+$/, '');
 
 // Google Strategy
 passport.use(new GoogleStrategy({
     clientID: (process.env.GOOGLE_CLIENT_ID || 'placeholder').trim(),
     clientSecret: (process.env.GOOGLE_CLIENT_SECRET || 'placeholder').trim(),
-    callbackURL: backendUrl ? `${backendUrl}/api/oauth/google/callback` : '/api/oauth/google/callback',
+    callbackURL: `${backendUrl}/api/oauth/google/callback`,
     proxy: true,
     scope: ['profile', 'email']
   },
@@ -18,6 +22,7 @@ passport.use(new GoogleStrategy({
       const user = await authService.findOrCreateOAuthUser(profile, 'google');
       return done(null, user);
     } catch (error) {
+      console.error('❌ Google OAuth findOrCreateOAuthUser Error:', error);
       return done(error, false);
     }
   }
@@ -27,7 +32,7 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
     clientID: (process.env.GITHUB_CLIENT_ID || 'placeholder').trim(),
     clientSecret: (process.env.GITHUB_CLIENT_SECRET || 'placeholder').trim(),
-    callbackURL: backendUrl ? `${backendUrl}/api/oauth/github/callback` : '/api/oauth/github/callback',
+    callbackURL: `${backendUrl}/api/oauth/github/callback`,
     proxy: true,
     scope: ['user:email']
   },
@@ -36,6 +41,7 @@ passport.use(new GitHubStrategy({
       const user = await authService.findOrCreateOAuthUser(profile, 'github');
       return done(null, user);
     } catch (error) {
+      console.error('❌ GitHub OAuth findOrCreateOAuthUser Error:', error);
       return done(error, false);
     }
   }
