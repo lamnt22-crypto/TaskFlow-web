@@ -6,7 +6,7 @@ import { PriorityBadge } from './Badge';
 import { parseTaskFromText } from '../services/aiService';
 import toast from 'react-hot-toast';
 
-const SmartTaskInput = ({ onSubmit, isSubmitting }) => {
+const SmartTaskInput = ({ onSubmit, isSubmitting, className = 'mb-6' }) => {
   const { t, i18n } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [parsedData, setParsedData] = useState({ title: '', priority: 'MEDIUM', dueDate: null });
@@ -131,13 +131,13 @@ const SmartTaskInput = ({ onSubmit, isSubmitting }) => {
   const isVietnamese = i18n.language === 'vi';
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-full max-w-4xl mx-auto mb-6 group">
+    <form onSubmit={handleSubmit} className={`relative w-full max-w-4xl mx-auto group ${className}`}>
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
       
-      <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-2 flex flex-col transition-all focus-within:border-indigo-500 dark:focus-within:border-indigo-400 focus-within:shadow-md">
-        <div className="flex items-center w-full px-3 py-2">
-          <div className="shrink-0 mr-3 text-indigo-500">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+      <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-1.5 sm:p-2 flex flex-col transition-all focus-within:border-indigo-500 dark:focus-within:border-indigo-400 focus-within:shadow-md">
+        <div className="flex items-center w-full px-2 sm:px-3 py-1.5 sm:py-2 gap-1.5 sm:gap-2">
+          <div className="shrink-0 text-indigo-500">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
           </div>
           
           <input 
@@ -146,7 +146,7 @@ const SmartTaskInput = ({ onSubmit, isSubmitting }) => {
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isSubmitting || isAIParsing}
             placeholder={isListening ? (isVietnamese ? "Đang nghe..." : "Listening...") : (isVietnamese ? "Gõ: 'Nộp báo cáo 5h chiều nay ưu tiên cao'..." : "Type: 'Submit report 5pm tomorrow high priority'...")}
-            className="flex-1 bg-transparent border-none text-slate-800 dark:text-slate-100 font-medium placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none text-base"
+            className="flex-1 min-w-0 bg-transparent border-none text-slate-800 dark:text-slate-100 font-medium placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none text-sm sm:text-base"
             autoComplete="off"
           />
           
@@ -154,7 +154,7 @@ const SmartTaskInput = ({ onSubmit, isSubmitting }) => {
             <button
               type="button"
               onClick={handleVoiceRecord}
-              className={`ml-2 shrink-0 p-2 rounded-full transition-all flex items-center justify-center ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'}`}
+              className={`shrink-0 p-2 rounded-full transition-all flex items-center justify-center ${isListening ? 'bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 animate-pulse' : 'text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/15'}`}
               title={isVietnamese ? "Ghi âm bằng giọng nói" : "Voice to Task"}
             >
               <svg className="w-5 h-5" fill={isListening ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
@@ -164,14 +164,14 @@ const SmartTaskInput = ({ onSubmit, isSubmitting }) => {
           <button 
             type="submit"
             disabled={!parsedData.title || isSubmitting || isAIParsing}
-            className="ml-3 shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-4 py-2 text-sm font-bold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
           >
             {(isSubmitting || isAIParsing) ? (
               <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             ) : (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
             )}
-            Enter
+            <span className="hidden xs:inline sm:inline">Enter</span>
           </button>
         </div>
         

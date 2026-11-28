@@ -31,7 +31,14 @@
     "kanban": "Bảng Kanban",
     "calendar": "Lịch",
     "profile": "Hồ sơ",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "workspaceGroup": "KHÔNG GIAN LÀM VIỆC",
+    "preferencesGroup": "TÙY CHỈNH",
+    "accountGroup": "TÀI KHOẢN",
+    "language": "Ngôn ngữ",
+    "quickSearch": "Tìm nhanh...",
+    "quickCreate": "Tạo nhanh",
+    "shortcuts": "Phím tắt"
   },
   "auth": {
     "loginTitle": "Chào mừng trở lại",

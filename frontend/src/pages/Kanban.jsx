@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import TaskCard from '../components/TaskCard';
 import TaskModal from '../components/TaskModal';
@@ -16,45 +17,12 @@ import { useGamification } from '../context/GamificationContext';
 import { triggerHaptic } from '../utils/haptics';
 import { sounds } from '../utils/soundEffects';
 
-/* ═══════════════════════════════════════════
-   Column Configuration
-   ═══════════════════════════════════════════ */
-const COLUMN_CONFIG = {
-  TODO: {
-    title: 'VIỆC CẦN LÀM',
-    emoji: '📋',
-    dotColor: 'bg-slate-400',
-    headerGradient: 'from-slate-500 to-slate-600',
-    dropAura: 'ring-slate-400/40 border-slate-400 bg-slate-50/50 dark:bg-slate-800/60 shadow-[0_0_40px_-8px_rgba(100,116,139,0.25)]',
-    columnBg: 'bg-gradient-to-b from-slate-50/80 to-white/40 dark:from-slate-900/80 dark:to-slate-900/40 border-slate-200/80 dark:border-slate-800',
-    countBg: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  },
-  IN_PROGRESS: {
-    title: 'ĐANG TIẾN HÀNH',
-    emoji: '⚡',
-    dotColor: 'bg-indigo-500',
-    headerGradient: 'from-indigo-500 to-purple-600',
-    dropAura: 'ring-indigo-500/40 border-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 shadow-[0_0_40px_-8px_rgba(99,102,241,0.25)]',
-    columnBg: 'bg-gradient-to-b from-indigo-50/60 to-white/40 dark:from-indigo-950/30 dark:to-slate-900/40 border-indigo-100 dark:border-indigo-900/40',
-    countBg: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300',
-  },
-  COMPLETED: {
-    title: 'XONG',
-    emoji: '✅',
-    dotColor: 'bg-emerald-500',
-    headerGradient: 'from-emerald-500 to-teal-600',
-    dropAura: 'ring-emerald-500/40 border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/40 shadow-[0_0_40px_-8px_rgba(16,185,129,0.25)]',
-    columnBg: 'bg-gradient-to-b from-emerald-50/60 to-white/40 dark:from-emerald-950/30 dark:to-slate-900/40 border-emerald-100 dark:border-emerald-900/40',
-    countBg: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300',
-  }
-};
+const SortableTask = ({ task, onEdit, onDelete, onStatusChange }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    data: { type: 'Task', task },
+  });
 
-/* ═══════════════════════════════════════════
-   Sortable Task Card Wrapper
-   ═══════════════════════════════════════════ */
-const SortableTask = ({ task, onEdit, onDelete }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id, data: { type: 'Task', task } });
-  
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -63,92 +31,105 @@ const SortableTask = ({ task, onEdit, onDelete }) => {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-      <TaskCard task={task} onEdit={onEdit} onDelete={onDelete} isDragging={isDragging} />
+      <TaskCard
+        task={task}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onStatusChange={onStatusChange}
+        isDragging={isDragging}
+      />
     </div>
   );
 };
 
-/* ═══════════════════════════════════════════
-   Premium Kanban Column
-   ═══════════════════════════════════════════ */
-const KanbanColumn = ({ statusKey, tasks, onEdit, onDelete, onAddTask }) => {
-  const config = COLUMN_CONFIG[statusKey];
+const KanbanColumn = ({ statusKey, config, tasks, onEdit, onDelete, onStatusChange, onAddTask, isVi }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: statusKey,
-    data: { type: 'Column', title: statusKey }
+    data: { type: 'Column', title: statusKey },
   });
-  
   const { t } = useTranslation();
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 30 }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: statusKey === 'TODO' ? 0.1 : statusKey === 'IN_PROGRESS' ? 0.2 : 0.3, type: 'spring', stiffness: 200, damping: 25 }}
-      className="flex flex-col min-w-[290px] sm:min-w-[340px] flex-1"
+      transition={{ duration: 0.3 }}
+      className="flex flex-col w-full min-w-[285px] sm:min-w-[330px] xl:min-w-0 flex-1"
     >
       {/* Column Header */}
-      <div className="flex items-center justify-between mb-4 px-1">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between mb-3.5 px-1">
+        <div className="flex items-center gap-2.5">
           <div className={`w-3 h-3 rounded-full ${config.dotColor} shadow-sm`} />
-          <h3 className="font-black text-sm tracking-widest uppercase text-slate-700 dark:text-slate-200">
+          <h3 className="font-black text-xs sm:text-sm tracking-widest uppercase text-slate-700 dark:text-slate-200">
             {config.title}
           </h3>
-          <span className={`${config.countBg} text-xs font-black px-2.5 py-0.5 rounded-full`}>
+          <span className={`${config.countBg} text-xs font-black px-2.5 py-0.5 rounded-full tabular-nums`}>
             {tasks.length}
           </span>
         </div>
-        <div className="flex items-center gap-1">
-          <button 
-            onClick={() => onAddTask && onAddTask(statusKey)}
-            className="p-1.5 hover:bg-white rounded-lg text-slate-400 hover:text-indigo-600 transition-all hover:shadow-md hover:scale-110"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-          </button>
-          <button className="p-1.5 hover:bg-white rounded-lg text-slate-400 hover:text-slate-600 transition-all hover:shadow-md hover:scale-110">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onAddTask && onAddTask(statusKey)}
+          title={isVi ? 'Thêm việc vào cột này' : 'Add task to column'}
+          className="p-1.5 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:shadow-sm"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
       </div>
 
       {/* Column Drop Zone */}
-      <div 
+      <div
         ref={setNodeRef}
-        className={`flex-1 rounded-3xl p-4 min-h-[520px] flex flex-col gap-3 transition-all duration-300 border backdrop-blur-md
+        className={`flex-1 rounded-3xl p-3.5 sm:p-4 min-h-[420px] xl:min-h-[520px] flex flex-col gap-3 transition-all duration-300 border backdrop-blur-md
           ${config.columnBg}
-          ${isOver 
-            ? `ring-2 ${config.dropAura} scale-[1.01]` 
-            : 'border-slate-200/60 shadow-[0_2px_16px_rgba(0,0,0,0.02)]'
+          ${
+            isOver
+              ? `ring-2 ${config.dropAura} scale-[1.01]`
+              : 'border-slate-200/60 dark:border-slate-800/80 shadow-xs'
           }`}
       >
-        <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
           <AnimatePresence>
-            {tasks.map(task => (
+            {tasks.map((task) => (
               <motion.div
                 key={task.id}
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 layout
               >
-                <SortableTask task={task} onEdit={onEdit} onDelete={onDelete} />
+                <SortableTask
+                  task={task}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onStatusChange={onStatusChange}
+                />
               </motion.div>
             ))}
           </AnimatePresence>
         </SortableContext>
-        
-        {/* Empty Drop Target */}
+
         {tasks.length === 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className={`flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 text-center transition-all
-              ${isOver ? 'border-indigo-300 bg-indigo-50/30' : 'border-slate-200 bg-white/20'}
-            `}
+            className={`flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
+              isOver
+                ? 'border-indigo-300 bg-indigo-50/30 dark:border-indigo-500/40 dark:bg-indigo-950/20'
+                : 'border-slate-200 dark:border-slate-700/60 bg-white/20 dark:bg-slate-900/30'
+            }`}
           >
-            <div className="text-4xl mb-3 opacity-40">{config.emoji}</div>
-            <p className="text-sm font-bold text-slate-400">{t('kanban.dropHere')}</p>
-            <p className="text-xs text-slate-400/70 mt-1">Kéo thả công việc vào đây</p>
+            <div className="text-4xl mb-3 opacity-50">{config.emoji}</div>
+            <p className="text-sm font-bold text-slate-400 dark:text-slate-500">{t('kanban.dropHere')}</p>
+            <button
+              type="button"
+              onClick={() => onAddTask && onAddTask(statusKey)}
+              className="mt-3 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              + {t('tasks.create')}
+            </button>
           </motion.div>
         )}
       </div>
@@ -156,14 +137,17 @@ const KanbanColumn = ({ statusKey, tasks, onEdit, onDelete, onAddTask }) => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   Premium Kanban Page
-   ═══════════════════════════════════════════ */
 const Kanban = () => {
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTask, setActiveTask] = useState(null);
+
+  // Filters & Mobile Tab
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('ALL');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [mobileColumn, setMobileColumn] = useState('TODO'); // 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'ALL'
 
   // Modal states
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -171,26 +155,54 @@ const Kanban = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [defaultStatus, setDefaultStatus] = useState('TODO');
-  
-  const { t } = useTranslation();
-  const { triggerConfetti, triggerCelebration, fetchStreaks, playTingSound } = useGamification();
+
+  const { t, i18n } = useTranslation();
+  const isVi = i18n.language === 'vi';
+  const { triggerCelebration, fetchStreaks, playTingSound } = useGamification();
+
+  const columnConfigs = useMemo(
+    () => ({
+      TODO: {
+        title: t('kanban.todo'),
+        emoji: '📋',
+        dotColor: 'bg-slate-400',
+        dropAura: 'ring-slate-400/40 border-slate-400 bg-slate-50/50 dark:bg-slate-800/60',
+        columnBg: 'bg-gradient-to-b from-slate-50/90 to-white/60 dark:from-slate-900/90 dark:to-slate-900/50',
+        countBg: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+      },
+      IN_PROGRESS: {
+        title: t('kanban.inProgress'),
+        emoji: '⚡',
+        dotColor: 'bg-indigo-500',
+        dropAura: 'ring-indigo-500/40 border-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40',
+        columnBg: 'bg-gradient-to-b from-indigo-50/70 to-white/60 dark:from-indigo-950/30 dark:to-slate-900/50',
+        countBg: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300',
+      },
+      COMPLETED: {
+        title: t('kanban.done'),
+        emoji: '✅',
+        dotColor: 'bg-emerald-500',
+        dropAura: 'ring-emerald-500/40 border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/40',
+        columnBg: 'bg-gradient-to-b from-emerald-50/70 to-white/60 dark:from-emerald-950/30 dark:to-slate-900/50',
+        countBg: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300',
+      },
+    }),
+    [t],
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } })
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } }),
   );
 
   const fetchBoardData = async () => {
     try {
-      const [tasksRes, catRes] = await Promise.all([
-        getTasks(),
-        getCategories()
-      ]);
+      const [tasksRes, catRes] = await Promise.all([getTasks(), getCategories()]);
       setCategories(catRes.data || []);
-      
-      const enrichedTasks = (tasksRes.data || []).map(task => ({
+
+      const enrichedTasks = (tasksRes.data || []).map((task) => ({
         ...task,
-        category: (catRes.data || []).find(c => c.id === task.category_id) || null
+        category: (catRes.data || []).find((c) => c.id === task.category_id) || null,
       }));
       setTasks(enrichedTasks);
     } catch (error) {
@@ -204,9 +216,41 @@ const Kanban = () => {
     fetchBoardData();
   }, []);
 
+  useEffect(() => {
+    const handleOpenCreateModal = () => handleOpenCreate('TODO');
+    window.addEventListener('openCreateTaskModal', handleOpenCreateModal);
+    return () => window.removeEventListener('openCreateTaskModal', handleOpenCreateModal);
+  }, []);
+
+  const handleStatusChange = async (taskId, newStatus) => {
+    const task = tasks.find((item) => item.id === taskId);
+    if (!task || task.status === newStatus) return;
+
+    setTasks((prev) => prev.map((item) => (item.id === taskId ? { ...item, status: newStatus } : item)));
+    try {
+      const response = await updateTask(taskId, { status: newStatus });
+      toast.success(t('kanban.movedTo', { status: t(`enums.status.${newStatus}`) }));
+
+      if (newStatus === 'COMPLETED') {
+        playTingSound();
+        const gamification = response?.data?.gamification || response?.gamification;
+        triggerCelebration({
+          type: gamification?.allCompleted ? 'all_completed' : 'task_completed',
+          taskTitle: task.title,
+          xpEarned: 100,
+          streakCount: gamification?.currentStreak || 1,
+        });
+        fetchStreaks();
+      }
+      fetchBoardData();
+    } catch (error) {
+      toast.error(isVi ? 'Không thể cập nhật trạng thái' : 'Failed to update task status');
+      fetchBoardData();
+    }
+  };
+
   const handleDragStart = (event) => {
-    const { active } = event;
-    const task = tasks.find(t => t.id === active.id);
+    const task = tasks.find((item) => item.id === event.active.id);
     setActiveTask(task);
     sounds.playPop();
     triggerHaptic('dragPick');
@@ -220,42 +264,14 @@ const Kanban = () => {
     sounds.playDrop();
     triggerHaptic('dragDrop');
 
-    const taskId = active.id;
-    
-    // If dropping over another task, get that task's status
-    let newStatus = over.id; 
+    let newStatus = over.id;
     if (over.data.current?.type === 'Task') {
       newStatus = over.data.current.task.status;
     }
 
-    const task = tasks.find(t => t.id === taskId);
-    if (task && task.status !== newStatus) {
-      // Optimistic update
-      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
-      try {
-        const response = await updateTask(taskId, { status: newStatus });
-        toast.success(t('kanban.movedTo', { status: t(`enums.status.${newStatus}`) }));
-        
-        if (newStatus === 'COMPLETED') {
-           playTingSound();
-           const gamification = response?.data?.gamification || response?.gamification;
-           triggerCelebration({
-             type: gamification?.allCompleted ? 'all_completed' : 'task_completed',
-             taskTitle: task.title,
-             xpEarned: 100,
-             streakCount: gamification?.currentStreak || 3
-           });
-           fetchStreaks();
-        }
-        fetchBoardData();
-      } catch (error) {
-        toast.error('Failed to update task status');
-        fetchBoardData(); // revert on fail
-      }
-    }
+    await handleStatusChange(active.id, newStatus);
   };
 
-  // Handlers for modals
   const handleOpenCreate = (status = 'TODO') => {
     setTaskToEdit(null);
     setDefaultStatus(status);
@@ -275,12 +291,12 @@ const Kanban = () => {
         await updateTask(taskToEdit.id, taskData);
         toast.success(t('tasks.updated'));
       } else {
-        await createTask({ ...taskData, status: defaultStatus });
+        await createTask({ ...taskData, status: taskData.status || defaultStatus });
         toast.success(t('tasks.created'));
       }
       fetchBoardData();
     } catch (err) {
-      toast.error('Operation failed');
+      toast.error(isVi ? 'Thao tác thất bại' : 'Operation failed');
     }
   };
   const handleDeleteConfirm = async (taskId) => {
@@ -289,34 +305,40 @@ const Kanban = () => {
       toast.success(t('tasks.deleted'));
       fetchBoardData();
     } catch (err) {
-      toast.error('Failed to delete');
+      toast.error(isVi ? 'Xóa thất bại' : 'Failed to delete');
     }
   };
 
-  const todoTasks = tasks.filter(t => t.status === 'TODO');
-  const inProgressTasks = tasks.filter(t => t.status === 'IN_PROGRESS');
-  const completedTasks = tasks.filter(t => t.status === 'COMPLETED');
-  const completionRate = tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0;
+  const filteredTasks = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return tasks.filter((task) => {
+      if (q && !task.title?.toLowerCase().includes(q)) return false;
+      if (priorityFilter !== 'ALL' && task.priority !== priorityFilter) return false;
+      if (categoryFilter !== 'ALL' && String(task.category_id) !== String(categoryFilter)) return false;
+      return true;
+    });
+  }, [tasks, searchQuery, priorityFilter, categoryFilter]);
+
+  const todoTasks = filteredTasks.filter((task) => task.status === 'TODO');
+  const inProgressTasks = filteredTasks.filter((task) => task.status === 'IN_PROGRESS');
+  const completedTasks = filteredTasks.filter((task) => task.status === 'COMPLETED');
+  const completionRate = filteredTasks.length > 0 ? Math.round((completedTasks.length / filteredTasks.length) * 100) : 0;
 
   if (loading) {
     return (
       <Layout>
         <div className="max-w-[1600px] mx-auto flex flex-col h-full pb-12">
-          {/* Skeleton Header */}
           <div className="mb-8 mt-4">
-            <div className="h-10 w-64 rounded-2xl animate-shimmer mb-3" />
-            <div className="h-5 w-96 rounded-xl animate-shimmer" style={{ animationDelay: '0.1s' }} />
+            <div className="h-10 w-64 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse mb-3" />
+            <div className="h-5 w-80 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
           </div>
-          {/* Skeleton Columns */}
-          <div className="flex gap-6 flex-1">
-            {[0,1,2].map(i => (
-              <div key={i} className="flex-1 min-w-[340px]">
-                <div className="h-6 w-40 rounded-lg animate-shimmer mb-4" style={{ animationDelay: `${i * 0.1}s` }} />
-                <div className="rounded-3xl p-4 border border-slate-100 space-y-3 min-h-[520px]">
-                  {[0,1,2].map(j => (
-                    <div key={j} className="h-32 rounded-2xl animate-shimmer" style={{ animationDelay: `${(i + j) * 0.1}s` }} />
-                  ))}
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-3xl p-4 border border-slate-200 dark:border-slate-800 space-y-3 min-h-[420px]">
+                <div className="h-6 w-36 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse mb-4" />
+                {[0, 1, 2].map((j) => (
+                  <div key={j} className="h-28 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70 animate-pulse" />
+                ))}
               </div>
             ))}
           </div>
@@ -325,133 +347,260 @@ const Kanban = () => {
     );
   }
 
+  const columnGroups = [
+    { key: 'TODO', tasks: todoTasks },
+    { key: 'IN_PROGRESS', tasks: inProgressTasks },
+    { key: 'COMPLETED', tasks: completedTasks },
+  ];
+
+  const visibleColumnsOnMobile =
+    mobileColumn === 'ALL' ? columnGroups : columnGroups.filter((g) => g.key === mobileColumn);
+
   return (
     <Layout>
-      <div className="max-w-[1600px] mx-auto flex flex-col h-full pb-12 relative">
-        {/* Background decorations */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-15" 
-            style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-          <div className="absolute top-1/2 -left-40 w-[500px] h-[500px] rounded-full opacity-10" 
-            style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-        </div>
-
+      <div className="max-w-[1600px] mx-auto flex flex-col h-full pb-8 relative">
         <div className="relative z-10 flex flex-col h-full">
-          {/* ══════════ Hero Header ══════════ */}
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
+          {/* Hero Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8"
+            className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6"
           >
             <div>
-              <div className="flex items-center gap-4 mb-2">
-                <h1 className="text-4xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-800 to-slate-900 bg-clip-text text-transparent">
+              <div className="flex flex-wrap items-center gap-3 mb-1.5">
+                <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
                   {t('kanban.title')}
                 </h1>
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.3, type: 'spring', stiffness: 500 }}
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-1.5 rounded-2xl text-xs font-black shadow-lg shadow-indigo-500/25"
-                >
-                  {tasks.length} {t('kanban.active')}
-                </motion.span>
+                <span className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3.5 py-1 rounded-full text-xs font-black shadow-md shadow-indigo-500/20 tabular-nums">
+                  {filteredTasks.length} {t('kanban.active')}
+                </span>
               </div>
-              <p className="text-slate-500 font-medium text-sm">{t('kanban.subtitle')}</p>
+              <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">
+                {t('kanban.subtitle')}
+              </p>
             </div>
-            
-            <div className="flex items-center gap-3 self-start md:self-auto">
-              {/* View Mode */}
-              <div className="flex glass-card rounded-xl p-1">
-                <a href="/my-tasks" className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-slate-500 rounded-lg hover:bg-white/80 hover:text-slate-700 transition-all">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+
+            <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+              <div className="flex bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-xs">
+                <Link
+                  to="/my-tasks"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-white transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
                   {t('kanban.list')}
-                </a>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-indigo-700 bg-white rounded-lg shadow-sm border border-slate-200/60">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>
+                </Link>
+                <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 rounded-lg">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  </svg>
                   {t('kanban.board')}
-                </button>
+                </span>
               </div>
-              
-              <motion.button 
-                whileHover={{ y: -2, scale: 1.03 }}
-                whileTap={{ scale: 0.96 }}
+
+              <button
+                type="button"
                 onClick={() => handleOpenCreate('TODO')}
-                className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white font-bold py-2.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2 text-sm"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-indigo-500/25 transition-all flex items-center gap-1.5 text-xs sm:text-sm"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
                 {t('tasks.create')}
-              </motion.button>
+              </button>
             </div>
           </motion.div>
 
-          {/* ══════════ Board Columns ══════════ */}
-          <DndContext 
+          {/* Filter & Search Bar */}
+          <div className="bg-white/95 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3 mb-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shadow-xs">
+            <div className="relative flex-1 min-w-0">
+              <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('tasks.search')}
+                className="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
+                className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none"
+              >
+                <option value="ALL">{t('tasks.allPriorities')}</option>
+                <option value="URGENT">{t('enums.priority.URGENT')}</option>
+                <option value="HIGH">{t('enums.priority.HIGH')}</option>
+                <option value="MEDIUM">{t('enums.priority.MEDIUM')}</option>
+                <option value="LOW">{t('enums.priority.LOW')}</option>
+              </select>
+
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none max-w-[160px]"
+              >
+                <option value="ALL">{t('tasks.allCategories')}</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+
+              {(searchQuery || priorityFilter !== 'ALL' || categoryFilter !== 'ALL') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setPriorityFilter('ALL');
+                    setCategoryFilter('ALL');
+                  }}
+                  className="px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/15 whitespace-nowrap"
+                >
+                  {t('tasks.clearFilters')}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Column Segment Tabs (< md) */}
+          <div className="flex md:hidden items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 rounded-2xl mb-4 overflow-x-auto hide-scrollbar">
+            {[
+              { id: 'TODO', label: `${t('kanban.todo')} (${todoTasks.length})` },
+              { id: 'IN_PROGRESS', label: `${t('kanban.inProgress')} (${inProgressTasks.length})` },
+              { id: 'COMPLETED', label: `${t('kanban.done')} (${completedTasks.length})` },
+              { id: 'ALL', label: isVi ? 'Tất cả' : 'All' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setMobileColumn(tab.id)}
+                className={`flex-1 whitespace-nowrap px-3 py-2 rounded-xl text-[11px] font-bold transition-colors ${
+                  mobileColumn === tab.id
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Board Columns */}
+          <DndContext
             sensors={sensors}
-            collisionDetection={closestCorners} 
-            onDragStart={handleDragStart} 
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
-            <div className="flex gap-6 overflow-x-auto pb-4 flex-1 items-start hide-scrollbar">
-              <KanbanColumn statusKey="TODO" tasks={todoTasks} onEdit={handleOpenEdit} onDelete={handleOpenDelete} onAddTask={handleOpenCreate} />
-              <KanbanColumn statusKey="IN_PROGRESS" tasks={inProgressTasks} onEdit={handleOpenEdit} onDelete={handleOpenDelete} onAddTask={handleOpenCreate} />
-              <KanbanColumn statusKey="COMPLETED" tasks={completedTasks} onEdit={handleOpenEdit} onDelete={handleOpenDelete} onAddTask={handleOpenCreate} />
+            {/* Mobile view (< md): renders focused tab or all */}
+            <div className={`md:hidden ${mobileColumn === 'ALL' ? 'flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory' : 'flex flex-col gap-4'}`}>
+              {visibleColumnsOnMobile.map((col) => (
+                <div key={col.key} className={mobileColumn === 'ALL' ? 'snap-center shrink-0 w-[86vw]' : 'w-full'}>
+                  <KanbanColumn
+                    statusKey={col.key}
+                    config={columnConfigs[col.key]}
+                    tasks={col.tasks}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleOpenDelete}
+                    onStatusChange={handleStatusChange}
+                    onAddTask={handleOpenCreate}
+                    isVi={isVi}
+                  />
+                </div>
+              ))}
             </div>
-            
-            {/* Drag Overlay */}
+
+            {/* Tablet & Desktop view (md+): grid-cols-3 on xl, smooth horizontal scroll on md-lg */}
+            <div className="hidden md:flex xl:grid xl:grid-cols-3 gap-6 overflow-x-auto xl:overflow-visible pb-4 flex-1 items-start hide-scrollbar">
+              {columnGroups.map((col) => (
+                <KanbanColumn
+                  key={col.key}
+                  statusKey={col.key}
+                  config={columnConfigs[col.key]}
+                  tasks={col.tasks}
+                  onEdit={handleOpenEdit}
+                  onDelete={handleOpenDelete}
+                  onStatusChange={handleStatusChange}
+                  onAddTask={handleOpenCreate}
+                  isVi={isVi}
+                />
+              ))}
+            </div>
+
             <DragOverlay>
               {activeTask ? (
-                <motion.div 
+                <motion.div
                   initial={{ scale: 1, rotate: 0 }}
-                  animate={{ scale: 1.06, rotate: 2.5 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="opacity-95 kanban-drag-overlay rounded-2xl"
+                  animate={{ scale: 1.04, rotate: 2 }}
+                  className="opacity-95 rounded-2xl"
                 >
                   <TaskCard task={activeTask} />
                 </motion.div>
               ) : null}
             </DragOverlay>
           </DndContext>
-          
-          {/* ══════════ Premium Footer Stats ══════════ */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+
+          {/* Footer Progress Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-6 glass-card rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-5"
+            className="mt-5 bg-white/95 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs"
           >
             <div className="flex items-center gap-4">
-              <div className="relative">
-                {/* Progress ring */}
-                <svg width={56} height={56} className="transform -rotate-90">
-                  <circle cx={28} cy={28} r={23} fill="none" stroke="#e2e8f0" strokeWidth={4} />
-                  <circle 
-                    cx={28} cy={28} r={23} fill="none" 
-                    stroke="url(#statsGrad)" strokeWidth={4} strokeLinecap="round"
-                    strokeDasharray={2 * Math.PI * 23} 
-                    strokeDashoffset={2 * Math.PI * 23 * (1 - completionRate / 100)}
+              <div className="relative shrink-0">
+                <svg width={52} height={52} className="transform -rotate-90">
+                  <circle cx={26} cy={26} r={21} fill="none" stroke="currentColor" strokeWidth={4} className="text-slate-200 dark:text-slate-800" />
+                  <circle
+                    cx={26}
+                    cy={26}
+                    r={21}
+                    fill="none"
+                    stroke="url(#statsGrad)"
+                    strokeWidth={4}
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 21}
+                    strokeDashoffset={2 * Math.PI * 21 * (1 - completionRate / 100)}
                     className="transition-all duration-1000 ease-out"
                   />
                   <defs>
-                    <linearGradient id="statsGrad" x1="0" y1="0" x2="56" y2="56">
-                      <stop stopColor="#6366f1" /><stop offset="1" stopColor="#8b5cf6" />
+                    <linearGradient id="statsGrad" x1="0" y1="0" x2="52" y2="52">
+                      <stop stopColor="#6366f1" />
+                      <stop offset="1" stopColor="#8b5cf6" />
                     </linearGradient>
                   </defs>
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-indigo-600">{completionRate}%</span>
+                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-indigo-600 dark:text-indigo-400 tabular-nums">
+                  {completionRate}%
+                </span>
               </div>
               <div>
-                <h4 className="font-bold text-slate-800 text-sm">{t('kanban.weeklyStage')}</h4>
-                <p className="text-xs text-slate-500 mt-0.5">{t('kanban.completedOf', { completed: completedTasks.length, total: tasks.length })}</p>
+                <h4 className="font-bold text-slate-800 dark:text-white text-sm">{t('kanban.weeklyStage')}</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {t('kanban.completedOf', { completed: completedTasks.length, total: filteredTasks.length })}
+                </p>
               </div>
             </div>
 
-            {/* Segmented Progress Bar */}
             <div className="flex flex-col gap-2 w-full max-w-sm">
-              <div className="flex justify-between text-[11px] font-bold text-slate-500">
+              <div className="flex justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-slate-300" />
+                  <span className="w-2 h-2 rounded-full bg-slate-400" />
                   {t('kanban.todo')} ({todoTasks.length})
                 </span>
                 <span className="flex items-center gap-1.5">
@@ -463,26 +612,20 @@ const Kanban = () => {
                   {t('kanban.done')} ({completedTasks.length})
                 </span>
               </div>
-              <div className="flex h-3 w-full rounded-full overflow-hidden bg-slate-100 shadow-inner">
-                {tasks.length > 0 && (
+              <div className="flex h-2.5 w-full rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                {filteredTasks.length > 0 && (
                   <>
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(todoTasks.length / tasks.length) * 100}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                      className="bg-gradient-to-r from-slate-300 to-slate-400 rounded-l-full"
+                    <div
+                      style={{ width: `${(todoTasks.length / filteredTasks.length) * 100}%` }}
+                      className="bg-slate-400 transition-all duration-500"
                     />
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(inProgressTasks.length / tasks.length) * 100}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
-                      className="bg-gradient-to-r from-indigo-500 to-purple-500 border-l-2 border-white"
+                    <div
+                      style={{ width: `${(inProgressTasks.length / filteredTasks.length) * 100}%` }}
+                      className="bg-indigo-500 transition-all duration-500"
                     />
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(completedTasks.length / tasks.length) * 100}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
-                      className="bg-gradient-to-r from-emerald-400 to-teal-500 border-l-2 border-white rounded-r-full"
+                    <div
+                      style={{ width: `${(completedTasks.length / filteredTasks.length) * 100}%` }}
+                      className="bg-emerald-500 transition-all duration-500"
                     />
                   </>
                 )}
@@ -491,8 +634,7 @@ const Kanban = () => {
           </motion.div>
         </div>
 
-        {/* Modals */}
-        <TaskModal 
+        <TaskModal
           isOpen={isTaskModalOpen}
           onClose={() => setIsTaskModalOpen(false)}
           task={taskToEdit}
@@ -500,7 +642,7 @@ const Kanban = () => {
           onSave={handleSaveTask}
           onManageCategories={() => {}}
         />
-        <DeleteModal 
+        <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           task={taskToDelete}

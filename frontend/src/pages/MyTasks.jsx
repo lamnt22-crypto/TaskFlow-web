@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import TaskModal from "../components/TaskModal";
 import DeleteModal from "../components/DeleteModal";
@@ -107,9 +108,16 @@ const MyTasks = () => {
   const [viewMode, setViewMode] = useState("list"); // 'list' or 'board'
 
   const { t, i18n } = useTranslation();
+  const isVi = i18n.language === "vi";
+  const location = useLocation();
+  const navigate = useNavigate();
   const { startFocus } = React.useContext(PomodoroContext);
   const { triggerConfetti, triggerCelebration, fetchStreaks, playTingSound } =
     useGamification();
+
+  // Bulk select state
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   // Modal States
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -144,13 +152,21 @@ const MyTasks = () => {
     return () => clearTimeout(timerId);
   }, [searchInput]);
 
-  // Listen for keyboard shortcut event
+  // Listen for keyboard shortcut event & ?new=1 param
   useEffect(() => {
     const handleOpenCreateModal = () => handleOpenCreate();
     window.addEventListener("openCreateTaskModal", handleOpenCreateModal);
     return () =>
       window.removeEventListener("openCreateTaskModal", handleOpenCreateModal);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("new") === "1") {
+      handleOpenCreate();
+      navigate("/my-tasks", { replace: true });
+    }
+  }, [location.search, navigate]);
 
   // Load Tasks based on filters
   const fetchTasks = async (showLoading = true) => {
@@ -277,6 +293,53 @@ const MyTasks = () => {
       toast.error("Failed to delete task");
     }
   };
+  const toggleSelectTask = (taskId) => {
+    setSelectedIds((prev) =>
+      prev.includes(taskId)
+        ? prev.filter((id) => id !== taskId)
+        : [...prev, taskId],
+    );
+  };
+
+  const handleBulkComplete = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await Promise.all(
+        selectedIds.map((id) => updateTask(id, { status: "COMPLETED" })),
+      );
+      playTingSound();
+      triggerConfetti("small");
+      fetchStreaks();
+      toast.success(
+        isVi
+          ? `Đã hoàn thành ${selectedIds.length} công việc!`
+          : `Completed ${selectedIds.length} tasks!`,
+      );
+      setSelectedIds([]);
+      setIsSelectMode(false);
+      fetchTasks(false);
+    } catch {
+      toast.error(isVi ? "Cập nhật hàng loạt thất bại" : "Bulk complete failed");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await Promise.all(selectedIds.map((id) => deleteTask(id)));
+      toast.success(
+        isVi
+          ? `Đã xóa ${selectedIds.length} công việc!`
+          : `Deleted ${selectedIds.length} tasks!`,
+      );
+      setSelectedIds([]);
+      setIsSelectMode(false);
+      fetchTasks(false);
+    } catch {
+      toast.error(isVi ? "Xóa hàng loạt thất bại" : "Bulk delete failed");
+    }
+  };
+
   const handleToggleStatus = async (task) => {
     try {
       const newStatus = task.status === "COMPLETED" ? "TODO" : "COMPLETED";
@@ -427,220 +490,197 @@ const MyTasks = () => {
             ? "priority-glow-medium"
             : "priority-glow-low";
     const isCompleted = task.status === "COMPLETED";
+    const isSelected = selectedIds.includes(task.id);
 
     return (
       <motion.div
         layout
-        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{
           opacity: 0,
-          x: -40,
-          scale: 0.95,
-          transition: { duration: 0.25 },
+          x: -30,
+          scale: 0.96,
+          transition: { duration: 0.2 },
         }}
         transition={{
-          delay: index * 0.04,
+          delay: Math.min(index * 0.03, 0.25),
           type: "spring",
           stiffness: 300,
           damping: 30,
         }}
-        className={`group relative flex items-center justify-between p-5 mb-3 glass-card rounded-2xl overflow-hidden task-row-shimmer
+        onClick={() => (isSelectMode ? toggleSelectTask(task.id) : handleOpenEdit(task))}
+        className={`group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 mb-3 glass-card rounded-2xl overflow-hidden task-row-shimmer cursor-pointer
         ${priorityGlow}
-        hover:shadow-[0_12px_40px_-8px_rgba(99,102,241,0.18)] hover:-translate-y-1 transition-all duration-300 ease-out
-        ${isCompleted ? "opacity-50 saturate-50" : ""}`}
-        style={{ perspective: "600px" }}
+        hover:shadow-[0_12px_36px_-8px_rgba(99,102,241,0.18)] hover:-translate-y-0.5 transition-all duration-300 ease-out
+        ${isSelected ? "ring-2 ring-indigo-500" : ""}
+        ${isCompleted ? "opacity-60 saturate-75" : ""}`}
       >
-        {/* Subtle gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/[0.02] via-transparent to-purple-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-        <div className="flex items-start gap-4 relative z-10 flex-1 min-w-0">
-          {/* Custom Checkbox */}
-          <button
-            onClick={() => handleToggleStatus(task)}
-            className={`mt-0.5 shrink-0 w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all duration-400 ${
-              isCompleted
-                ? "bg-gradient-to-br from-emerald-400 to-teal-500 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)] scale-110 rotate-0"
-                : "border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:scale-110"
-            }`}
-          >
-            {isCompleted && (
-              <motion.svg
-                initial={{ scale: 0, rotate: -90 }}
-                animate={{ scale: 1, rotate: 0 }}
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M5 13l4 4L19 7"
-                />
-              </motion.svg>
-            )}
-          </button>
+        <div className="flex items-start gap-3.5 relative z-10 flex-1 min-w-0">
+          {/* Bulk Selection or Complete Checkbox */}
+          {isSelectMode ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleSelectTask(task.id);
+              }}
+              aria-label="Select task"
+              className={`mt-0.5 shrink-0 w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all ${
+                isSelected
+                  ? "bg-indigo-600 border-indigo-600 text-white"
+                  : "border-slate-300 dark:border-slate-600"
+              }`}
+            >
+              {isSelected && (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleStatus(task);
+              }}
+              aria-label="Toggle task completion"
+              className={`mt-0.5 shrink-0 w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all duration-300 ${
+                isCompleted
+                  ? "bg-gradient-to-br from-emerald-400 to-teal-500 border-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.35)]"
+                  : "border-slate-300 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:scale-105"
+              }`}
+            >
+              {isCompleted && (
+                <motion.svg
+                  initial={{ scale: 0, rotate: -90 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  className="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </motion.svg>
+              )}
+            </button>
+          )}
 
           <div className="flex-1 min-w-0">
             <h3
-              className={`font-bold text-[15px] leading-snug transition-all duration-300 ${isCompleted ? "text-slate-400 line-through decoration-2" : "text-slate-800 group-hover:text-indigo-600"}`}
+              className={`font-bold text-sm sm:text-[15px] leading-snug transition-colors ${
+                isCompleted
+                  ? "text-slate-400 dark:text-slate-500 line-through decoration-2"
+                  : "text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
+              }`}
             >
               {task.title}
             </h3>
             {task.description && (
-              <p className="text-slate-400 text-xs mt-1.5 line-clamp-1 max-w-2xl leading-relaxed">
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 line-clamp-1 max-w-2xl leading-relaxed">
                 {task.description}
               </p>
             )}
-            <div className="flex items-center gap-2.5 mt-3 flex-wrap">
-              {/* Subtask progress mini bar */}
+            <div className="flex items-center gap-2 mt-2.5 flex-wrap">
               {task.subtasks && task.subtasks.length > 0 && (
-                <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-lg">
-                  <svg
-                    className="w-3.5 h-3.5 text-indigo-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                    />
+                <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 px-2 py-0.5 rounded-lg">
+                  <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                   </svg>
-                  {task.subtasks.filter((s) => s.is_completed).length}/
-                  {task.subtasks.length}
+                  {task.subtasks.filter((s) => s.is_completed).length}/{task.subtasks.length}
                 </span>
               )}
-              {/* Category chip */}
               {task.category && (
                 <span
-                  className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg border shadow-xs"
+                  className="flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-lg border"
                   style={{
-                    borderColor: (task.category.color || "#6366f1") + "30",
+                    borderColor: (task.category.color || "#6366f1") + "35",
                     color: task.category.color || "#6366f1",
-                    backgroundColor: (task.category.color || "#6366f1") + "0d",
+                    backgroundColor: (task.category.color || "#6366f1") + "12",
                   }}
                 >
                   <span
-                    className="w-2 h-2 rounded-full shadow-sm"
-                    style={{
-                      backgroundColor: task.category.color || "#6366f1",
-                    }}
-                  ></span>
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: task.category.color || "#6366f1" }}
+                  />
                   {task.category.name}
                 </span>
               )}
-              {/* Priority badge */}
-              <div className="scale-90 origin-left">
-                <PriorityBadge priority={task.priority} />
-              </div>
+              <PriorityBadge priority={task.priority} />
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 shrink-0 relative z-10">
-          {/* Due date chip */}
+        {/* Right Side: Due Date + Accessible Action Buttons */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 shrink-0 relative z-10 pl-10 sm:pl-0"
+        >
           {task.due_date && (
             <div
-              className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl border transition-colors ${
+              className={`flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-xl border transition-colors whitespace-nowrap ${
                 isCompleted
-                  ? "bg-slate-50 text-slate-400 border-slate-100"
+                  ? "bg-slate-100 dark:bg-slate-800/80 text-slate-400 border-slate-200 dark:border-slate-700"
                   : isToday(task.due_date)
-                    ? "bg-amber-50 text-amber-600 border-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.1)]"
+                    ? "bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-200 dark:border-amber-500/30"
                     : new Date(task.due_date) < new Date()
-                      ? "bg-red-50 text-red-500 border-red-200 shadow-[0_0_12px_rgba(239,68,68,0.1)]"
-                      : "bg-slate-50 text-slate-500 border-slate-100"
+                      ? "bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-300 border-red-200 dark:border-red-500/30"
+                      : "bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700"
               }`}
             >
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              {isToday(task.due_date)
-                ? i18n.language === "vi"
-                  ? "Hôm nay, "
-                  : "Today, "
-                : ""}
-              {new Date(task.due_date).toLocaleTimeString(
-                i18n.language === "vi" ? "vi-VN" : "en-US",
-                {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  ...(isToday(task.due_date)
-                    ? {}
-                    : { month: "short", day: "numeric" }),
-                },
-              )}
+              {isToday(task.due_date) ? (isVi ? "Hôm nay, " : "Today, ") : ""}
+              {new Date(task.due_date).toLocaleTimeString(isVi ? "vi-VN" : "en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                ...(isToday(task.due_date) ? {} : { month: "short", day: "numeric" }),
+              })}
             </div>
           )}
-          {/* Action buttons - slide in on hover */}
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-3 group-hover:translate-x-0">
+
+          {/* Action Buttons (Visible on mobile/tablet, reveal cleanly on desktop hover) */}
+          <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
             <button
+              type="button"
               onClick={() => startFocus(task)}
-              className="p-2 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 transition-all hover:scale-110 hover:shadow-md"
+              className="p-2 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/15 transition-colors"
               title="Start Focus"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
             <button
+              type="button"
+              onClick={() => navigate(`/tasks/${task.id}`)}
+              className="p-2 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 rounded-xl hover:bg-cyan-50 dark:hover:bg-cyan-500/15 transition-colors"
+              title={isVi ? "Xem chi tiết" : "Task details"}
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </button>
+            <button
+              type="button"
               onClick={() => handleOpenEdit(task)}
-              className="p-2 text-slate-400 hover:text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all hover:scale-110 hover:shadow-md"
+              className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/15 transition-colors"
+              title={isVi ? "Chỉnh sửa" : "Edit"}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
             <button
+              type="button"
               onClick={() => handleOpenDelete(task)}
-              className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition-all hover:scale-110 hover:shadow-md"
+              className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/15 transition-colors"
+              title={isVi ? "Xóa" : "Delete"}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
           </div>
@@ -656,14 +696,12 @@ const MyTasks = () => {
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="flex items-center justify-between mb-5"
+      className="flex items-center justify-between mb-4"
     >
-      <h2 className="text-lg font-extrabold text-slate-800 flex items-center gap-3 section-header-line">
-        <span className={`p-2 rounded-xl ${iconBg} shadow-sm`}>{icon}</span>
+      <h2 className="text-base sm:text-lg font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2.5 section-header-line">
+        <span className={`p-2 rounded-xl ${iconBg} dark:bg-slate-800 shadow-sm`}>{icon}</span>
         {title}
-        <span
-          className={`${countBg} px-2.5 py-0.5 rounded-full text-xs font-black`}
-        >
+        <span className={`${countBg} dark:bg-slate-800 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-black tabular-nums`}>
           {count}
         </span>
       </h2>
@@ -1134,13 +1172,13 @@ const MyTasks = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="glass-card p-3 rounded-2xl mb-8 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 shadow-sm border border-slate-100"
+            transition={{ delay: 0.2 }}
+            className="glass-card p-3 rounded-2xl mb-6 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 shadow-sm border border-slate-100 dark:border-slate-800"
           >
             {/* Left Group: Search & Core Filters */}
             <div className="flex flex-1 flex-wrap md:flex-nowrap items-center gap-2.5 min-w-0">
               {/* Search Input */}
-              <div className="relative flex-1 min-w-[240px] h-11">
+              <div className="relative flex-1 min-w-[200px] h-10 sm:h-11">
                 <svg
                   className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                   fill="none"
@@ -1160,36 +1198,41 @@ const MyTasks = () => {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder={t("tasks.search")}
-                  className="w-full h-full pl-10 pr-4 bg-slate-50/80 hover:bg-white focus:bg-white border border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all font-medium placeholder-slate-400"
+                  className="w-full h-full pl-10 pr-8 bg-slate-50/90 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-slate-200/70 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all font-medium placeholder-slate-400"
                 />
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchInput("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
               {/* Filter Group (Horizontal scrollable on small screens) */}
-              <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar w-full md:w-auto h-11 shrink-0 py-0.5">
+              <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar w-full md:w-auto h-10 sm:h-11 shrink-0 py-0.5">
                 {/* Status filter */}
-                <div className="flex items-center bg-slate-50/80 border border-slate-100 rounded-xl px-3 h-full hover:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all">
+                <div className="flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-3 h-full">
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-transparent border-none text-xs font-semibold text-slate-600 focus:outline-none cursor-pointer uppercase tracking-wider h-full pr-1"
+                    className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer uppercase tracking-wider h-full pr-1"
                   >
                     <option value="ALL">{t("tasks.allStatuses")}</option>
                     <option value="TODO">{t("enums.status.TODO")}</option>
-                    <option value="IN_PROGRESS">
-                      {t("enums.status.IN_PROGRESS")}
-                    </option>
-                    <option value="COMPLETED">
-                      {t("enums.status.COMPLETED")}
-                    </option>
+                    <option value="IN_PROGRESS">{t("enums.status.IN_PROGRESS")}</option>
+                    <option value="COMPLETED">{t("enums.status.COMPLETED")}</option>
                   </select>
                 </div>
 
                 {/* Priority filter */}
-                <div className="flex items-center bg-slate-50/80 border border-slate-100 rounded-xl px-3 h-full hover:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all">
+                <div className="flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-3 h-full">
                   <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="bg-transparent border-none text-xs font-semibold text-slate-600 focus:outline-none cursor-pointer uppercase tracking-wider h-full pr-1"
+                    className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer uppercase tracking-wider h-full pr-1"
                   >
                     <option value="ALL">{t("tasks.allPriorities")}</option>
                     <option value="URGENT">{t("enums.priority.URGENT")}</option>
@@ -1200,11 +1243,11 @@ const MyTasks = () => {
                 </div>
 
                 {/* Category filter + settings */}
-                <div className="flex items-center gap-1.5 bg-slate-50/80 border border-slate-100 rounded-xl pl-3 pr-1.5 h-full hover:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all">
+                <div className="flex items-center gap-1.5 bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl pl-3 pr-1.5 h-full">
                   <select
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="bg-transparent border-none text-xs font-semibold text-slate-600 focus:outline-none cursor-pointer uppercase tracking-wider max-w-[130px] truncate h-full"
+                    className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer uppercase tracking-wider max-w-[130px] truncate h-full"
                   >
                     <option value="ALL">{t("tasks.allCategories")}</option>
                     {categories.map((c) => (
@@ -1213,57 +1256,49 @@ const MyTasks = () => {
                       </option>
                     ))}
                   </select>
-                  <div className="w-px h-4 bg-slate-200" />
+                  <div className="w-px h-4 bg-slate-200 dark:bg-slate-700" />
                   <button
+                    type="button"
                     onClick={() => setIsCategoryModalOpen(true)}
-                    className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 bg-white rounded-lg shadow-sm border border-slate-100 transition-all hover:shadow hover:scale-105 shrink-0"
+                    className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-slate-200/70 dark:border-slate-700 transition-all shrink-0"
                     title="Manage Categories"
                   >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Group: Sort & View Mode Toggle */}
-            <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-100">
+            {/* Right Group: Multi-select, Sort & View Mode Toggle */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-100 dark:border-slate-800">
+              {/* Bulk Select Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSelectMode((prev) => !prev);
+                  setSelectedIds([]);
+                }}
+                className={`px-3 h-10 sm:h-11 rounded-xl text-xs font-bold border transition-colors whitespace-nowrap ${
+                  isSelectMode
+                    ? "bg-indigo-600 text-white border-indigo-600"
+                    : "bg-slate-50/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200/70 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800"
+                }`}
+              >
+                {isSelectMode ? (isVi ? "Đang chọn" : "Selecting") : isVi ? "Chọn nhiều" : "Select"}
+              </button>
+
               {/* Sort Dropdown */}
-              <div className="flex items-center bg-slate-50/80 border border-slate-100 rounded-xl px-3 h-11 hover:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all">
-                <svg
-                  className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
-                  />
+              <div className="flex items-center bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-xl px-3 h-10 sm:h-11 flex-1 sm:flex-none">
+                <svg className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                 </svg>
                 <select
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value)}
-                  className="bg-transparent border-none text-xs font-semibold text-slate-600 focus:outline-none cursor-pointer h-full pr-1"
+                  className="bg-transparent border-none text-xs font-semibold text-slate-600 dark:text-slate-200 focus:outline-none cursor-pointer h-full pr-1 w-full"
                 >
                   <option value="dueDateAsc">{t("tasks.sortDueAsc")}</option>
                   <option value="dueDateDesc">{t("tasks.sortDueDesc")}</option>
@@ -1271,9 +1306,8 @@ const MyTasks = () => {
                 </select>
               </div>
 
-              {/* View Mode Toggle — Đồng bộ chiều cao chuẩn h-11 */}
-              <div className="relative flex items-center bg-slate-100/90 border border-slate-200/70 rounded-xl p-1 h-11 shrink-0 w-52">
-                {/* Sliding active indicator */}
+              {/* View Mode Toggle */}
+              <div className="relative flex items-center bg-slate-100/90 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 rounded-xl p-1 h-10 sm:h-11 shrink-0 w-full sm:w-48">
                 <motion.div
                   layout
                   className="absolute top-1 bottom-1 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-md shadow-indigo-500/20"
@@ -1288,54 +1322,72 @@ const MyTasks = () => {
                   type="button"
                   onClick={() => setViewMode("list")}
                   className={`relative z-10 text-xs font-bold rounded-lg transition-colors duration-200 flex items-center gap-1.5 flex-1 justify-center h-full ${
-                    viewMode === "list"
-                      ? "text-white"
-                      : "text-slate-500 hover:text-slate-800"
+                    viewMode === "list" ? "text-white" : "text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.5}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
-                  <span>Danh sách</span>
+                  <span>{t("kanban.list")}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setViewMode("board")}
                   className={`relative z-10 text-xs font-bold rounded-lg transition-colors duration-200 flex items-center gap-1.5 flex-1 justify-center h-full ${
-                    viewMode === "board"
-                      ? "text-white"
-                      : "text-slate-500 hover:text-slate-800"
+                    viewMode === "board" ? "text-white" : "text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.5}
-                      d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
-                    />
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                   </svg>
-                  <span>Bảng</span>
+                  <span>{t("kanban.board")}</span>
                 </button>
               </div>
             </div>
           </motion.div>
+
+          {/* Bulk Action Bar */}
+          <AnimatePresence>
+            {isSelectMode && selectedIds.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-4 p-3 rounded-2xl bg-indigo-600 text-white flex flex-wrap items-center justify-between gap-3 shadow-lg shadow-indigo-500/25"
+              >
+                <span className="text-xs sm:text-sm font-bold px-2">
+                  {isVi ? `Đã chọn ${selectedIds.length} công việc` : `${selectedIds.length} selected`}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleBulkComplete}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold transition-colors"
+                  >
+                    ✓ {isVi ? "Hoàn thành" : "Complete"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBulkDelete}
+                    className="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold transition-colors"
+                  >
+                    🗑 {isVi ? "Xóa" : "Delete"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedIds([]);
+                      setIsSelectMode(false);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-colors"
+                  >
+                    {t("form.cancel")}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* ══════════ Content Area ══════════ */}
           {isLoading ? (
@@ -1348,12 +1400,7 @@ const MyTasks = () => {
             >
               <div className="w-16 h-16 mb-4 text-red-400">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
               <p className="text-red-500 font-medium text-sm">{error}</p>
@@ -1363,6 +1410,7 @@ const MyTasks = () => {
               <KanbanBoard
                 tasks={enrichedTasks}
                 onTaskStatusChange={handleTaskStatusChange}
+                onEdit={handleOpenEdit}
               />
             ) : (
               <div className="flex flex-col gap-8">
@@ -1571,12 +1619,13 @@ const MyTasks = () => {
                   </svg>
                 </div>
               </div>
-              <h3 className="text-2xl font-black text-slate-800 mb-2">
+              <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">
                 {t("tasks.noTasksFilter")}
               </h3>
-              <p className="text-slate-500 font-medium mb-8 text-center max-w-sm">
-                Hãy tận hưởng thời gian rảnh, hoặc tạo một nhiệm vụ mới để bắt
-                đầu hành trình năng suất.
+              <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 text-center max-w-sm px-4">
+                {isVi
+                  ? "Hãy tận hưởng thời gian rảnh, hoặc tạo một nhiệm vụ mới để bắt đầu hành trình năng suất."
+                  : "Enjoy the free time, or create a new task to get things moving."}
               </p>
               <motion.button
                 whileHover={{ y: -3, scale: 1.05 }}

@@ -31,7 +31,14 @@
     "kanban": "Kanban Board",
     "calendar": "Calendar",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "workspaceGroup": "WORKSPACE",
+    "preferencesGroup": "PREFERENCES",
+    "accountGroup": "ACCOUNT",
+    "language": "Language",
+    "quickSearch": "Search...",
+    "quickCreate": "New Task",
+    "shortcuts": "Shortcuts"
   },
   "auth": {
     "loginTitle": "Welcome back",

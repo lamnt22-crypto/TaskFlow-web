@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import PomodoroWidget from './PomodoroWidget';
 import KeyboardShortcutsManager from './KeyboardShortcutsManager';
+import CommandPalette from './CommandPalette';
 import MobileBottomNav from './MobileBottomNav';
 import { resolveAvatarUrl } from '../utils/avatarUrl';
 
@@ -168,7 +169,53 @@ const Layout = ({ children }) => {
             </button>
             <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{pageTitle}</h2>
           </div>
-          <div className="flex items-center gap-2.5 sm:gap-4 relative shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 relative shrink-0">
+            {/* Quick Search / Command Palette Trigger */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('openCommandPalette'))}
+              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/80 dark:border-white/10 text-slate-500 dark:text-slate-300 text-xs font-medium transition-colors"
+              title={`${t('nav.quickSearch')} (Ctrl+K)`}
+              aria-label="Open Command Palette"
+            >
+              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="hidden md:inline">{t('nav.quickSearch')}</span>
+              <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-slate-400">
+                ⌘K
+              </kbd>
+            </button>
+
+            {/* Quick Create Task Trigger */}
+            <button
+              type="button"
+              onClick={() => {
+                const createRoutes = ['/dashboard', '/my-tasks', '/kanban', '/calendar'];
+                if (createRoutes.includes(location.pathname)) {
+                  window.dispatchEvent(new CustomEvent('openCreateTaskModal'));
+                } else {
+                  navigate('/my-tasks?new=1');
+                }
+              }}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm shadow-indigo-500/20 transition-all hover:scale-[1.02]"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>{t('nav.quickCreate')}</span>
+            </button>
+
+            {/* Shortcuts Help Trigger (replaces floating bottom pill) */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('openShortcutsModal'))}
+              className="hidden md:flex w-8 h-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-bold border border-transparent hover:border-slate-200 dark:hover:border-white/10"
+              title={`${t('nav.shortcuts')} (?)`}
+              aria-label="Keyboard Shortcuts"
+            >
+              ?
+            </button>
             
             {/* Notification Bell */}
             <div ref={dropdownRef} className="relative">
@@ -282,6 +329,7 @@ const Layout = ({ children }) => {
           </AnimatePresence>
         </main>
       </div>
+      <CommandPalette />
       <KeyboardShortcutsManager />
       <PomodoroWidget />
       <MobileBottomNav />

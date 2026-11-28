@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import StreakWidget from './StreakWidget';
 import LanguageToggle from './LanguageToggle';
+import { resolveAvatarUrl } from '../utils/avatarUrl';
 
 const Sidebar = ({
   collapsed = false,
@@ -14,7 +15,7 @@ const Sidebar = ({
   onCloseMobile,
 }) => {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
-  const { logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { t } = useTranslation();
 
   const navItems = [
@@ -58,15 +59,23 @@ const Sidebar = ({
 
   const renderSidebarBody = (isCollapsed = false, isMobileDrawer = false) => (
     <>
-      <div className={`h-16 flex items-center border-b border-slate-800/60 shrink-0 ${isCollapsed ? 'justify-center px-2' : 'justify-between px-5'}`}>
-        <div className="flex items-center gap-2.5 overflow-hidden">
-          <svg className="w-6 h-6 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <div className={`h-16 flex items-center border-b border-slate-800/70 shrink-0 ${isCollapsed ? 'justify-center px-2' : 'justify-between px-5'}`}>
+        <NavLink
+          to="/dashboard"
+          onClick={isMobileDrawer ? onCloseMobile : undefined}
+          className="flex items-center gap-2.5 overflow-hidden group"
+        >
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-md shadow-indigo-500/30 shrink-0 group-hover:scale-105 transition-transform">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
           {!isCollapsed && (
-            <h1 className="text-xl font-bold text-white tracking-tight truncate">TaskFlow</h1>
+            <h1 translate="no" className="text-lg font-extrabold text-white tracking-tight truncate">
+              TaskFlow
+            </h1>
           )}
-        </div>
+        </NavLink>
 
         {isMobileDrawer ? (
           <button
@@ -110,20 +119,24 @@ const Sidebar = ({
         </div>
       )}
 
-      <nav className={`flex-1 overflow-y-auto hide-scrollbar ${isCollapsed ? 'px-2.5 py-4' : 'px-4 py-6'} space-y-2`}>
+      <nav className={`flex-1 overflow-y-auto hide-scrollbar ${isCollapsed ? 'px-2.5 py-4' : 'px-3.5 py-5'} space-y-1.5`}>
         {!isCollapsed && (
-          <div className="text-xs font-semibold text-slate-500 mb-3 px-2 tracking-wider">MAIN NAVIGATION</div>
+          <div className="text-[11px] font-bold text-slate-500 mb-2.5 px-2.5 tracking-wider uppercase">
+            {t('nav.workspaceGroup')}
+          </div>
         )}
 
         {navItems.map((item) => (
-          <motion.div key={item.to} whileHover={{ scale: 1.02, x: isCollapsed ? 0 : 2 }} whileTap={{ scale: 0.98 }}>
+          <motion.div key={item.to} whileHover={{ x: isCollapsed ? 0 : 2 }} whileTap={{ scale: 0.98 }}>
             <NavLink
               to={item.to}
               onClick={isMobileDrawer ? onCloseMobile : undefined}
               title={isCollapsed ? item.label : undefined}
               className={({ isActive }) =>
-                `flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-2.5'} rounded-lg transition-all duration-200 ${
-                  isActive ? 'bg-indigo-600/15 text-indigo-400 font-medium' : 'hover:bg-slate-800/80 hover:text-white'
+                `flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3.5 py-2.5'} rounded-xl text-sm transition-all duration-200 ${
+                  isActive
+                    ? 'bg-indigo-600/20 text-indigo-300 font-semibold border border-indigo-500/25 shadow-sm shadow-indigo-950/30'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white border border-transparent'
                 }`
               }
             >
@@ -133,20 +146,28 @@ const Sidebar = ({
           </motion.div>
         ))}
 
-        {!isCollapsed && (
-          <div className="py-2">
-            <StreakWidget />
-          </div>
-        )}
+        {/* Streak Card */}
+        <div className="pt-3 pb-1">
+          <StreakWidget compact={isCollapsed} />
+        </div>
 
+        {/* Preferences Section */}
         {!isCollapsed && (
           <div className="pt-4 pb-1">
-            <div className="text-xs font-semibold text-slate-500 mb-3 px-2 tracking-wider">PREFERENCES</div>
+            <div className="text-[11px] font-bold text-slate-500 mb-2 px-2.5 tracking-wider uppercase">
+              {t('nav.preferencesGroup')}
+            </div>
           </div>
         )}
 
         {!isCollapsed && (
-          <div className="px-4 mb-2 flex justify-start">
+          <div className="flex items-center justify-between px-3.5 py-2 rounded-xl text-slate-400 hover:bg-slate-800/50 transition-colors">
+            <div className="flex items-center gap-3 text-sm">
+              <svg className="w-5 h-5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+              <span>{t('nav.language')}</span>
+            </div>
             <LanguageToggle />
           </div>
         )}
@@ -155,7 +176,7 @@ const Sidebar = ({
           type="button"
           onClick={toggleTheme}
           title={isCollapsed ? (isDarkMode ? t('profile.darkMode') : t('profile.lightMode')) : undefined}
-          className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'justify-between px-4 py-2.5'} rounded-lg hover:bg-slate-800/80 hover:text-white transition-all duration-200 text-slate-400 group`}
+          className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'justify-between px-3.5 py-2.5'} rounded-xl text-sm hover:bg-slate-800/80 hover:text-white transition-all duration-200 text-slate-400`}
         >
           <div className="flex items-center gap-3">
             {isDarkMode ? (
@@ -170,15 +191,18 @@ const Sidebar = ({
             {!isCollapsed && <span>{isDarkMode ? t('profile.darkMode') : t('profile.lightMode')}</span>}
           </div>
           {!isCollapsed && (
-            <div className={`w-8 h-4 rounded-full p-0.5 transition-colors ${isDarkMode ? 'bg-indigo-500' : 'bg-slate-700'}`}>
-              <div className={`w-3 h-3 bg-white rounded-full shadow-sm transform transition-transform ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`}></div>
+            <div className={`w-9 h-5 rounded-full p-0.5 transition-colors flex items-center ${isDarkMode ? 'bg-indigo-500' : 'bg-slate-700'}`}>
+              <div className={`w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`} />
             </div>
           )}
         </button>
 
+        {/* Account Section */}
         {!isCollapsed && (
-          <div className="pt-2 pb-1">
-            <div className="text-xs font-semibold text-slate-500 mb-3 px-2 tracking-wider">ACCOUNT</div>
+          <div className="pt-4 pb-1">
+            <div className="text-[11px] font-bold text-slate-500 mb-2 px-2.5 tracking-wider uppercase">
+              {t('nav.accountGroup')}
+            </div>
           </div>
         )}
 
@@ -187,8 +211,10 @@ const Sidebar = ({
           onClick={isMobileDrawer ? onCloseMobile : undefined}
           title={isCollapsed ? t('nav.profile') : undefined}
           className={({ isActive }) =>
-            `flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-2.5'} rounded-lg transition-all duration-200 ${
-              isActive ? 'bg-indigo-600/15 text-indigo-400 font-medium' : 'hover:bg-slate-800/80 hover:text-white'
+            `flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3.5 py-2.5'} rounded-xl text-sm transition-all duration-200 ${
+              isActive
+                ? 'bg-indigo-600/20 text-indigo-300 font-semibold border border-indigo-500/25'
+                : 'text-slate-300 hover:bg-slate-800/80 hover:text-white border border-transparent'
             }`
           }
         >
@@ -199,7 +225,32 @@ const Sidebar = ({
         </NavLink>
       </nav>
 
-      <div className="p-3 sm:p-4 border-t border-slate-800/60 shrink-0">
+      {/* Bottom User Strip + Logout */}
+      <div className="p-3 border-t border-slate-800/70 shrink-0 space-y-2">
+        {!isCollapsed && user && (
+          <NavLink
+            to="/profile"
+            onClick={isMobileDrawer ? onCloseMobile : undefined}
+            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-slate-800/60 transition-colors"
+          >
+            {resolveAvatarUrl(user?.avatar_url) ? (
+              <img
+                src={resolveAvatarUrl(user.avatar_url)}
+                alt={user.username}
+                className="w-8 h-8 rounded-full object-cover border border-slate-700 shrink-0"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-slate-200 truncate">{user.username}</p>
+              <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+            </div>
+          </NavLink>
+        )}
+
         <button
           type="button"
           onClick={() => {
@@ -207,7 +258,7 @@ const Sidebar = ({
             logout();
           }}
           title={isCollapsed ? t('nav.logout') : undefined}
-          className={`flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'} w-full rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors`}
+          className={`flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3.5 py-2.5'} w-full rounded-xl text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors`}
         >
           <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
