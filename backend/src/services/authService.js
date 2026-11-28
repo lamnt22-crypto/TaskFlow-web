@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { query } = require('../config/database');
+const { getJwtAccessSecret, getJwtExpiresIn } = require('../config/jwt');
 
 /**
  * Hash a raw token using SHA-256 for secure database storage.
@@ -80,8 +81,8 @@ const loginUser = async (email, password) => {
 
   const accessToken = jwt.sign(
     { userId: user.id, email: user.email },
-    process.env.JWT_ACCESS_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+    getJwtAccessSecret(),
+    { expiresIn: getJwtExpiresIn() }
   );
 
   const { refreshToken } = await createRefreshToken(user.id);
@@ -111,8 +112,8 @@ const refreshAccessToken = async (rawRefreshToken) => {
 
   const accessToken = jwt.sign(
     { userId: user.id, email: user.email },
-    process.env.JWT_ACCESS_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+    getJwtAccessSecret(),
+    { expiresIn: getJwtExpiresIn() }
   );
 
   return { accessToken };

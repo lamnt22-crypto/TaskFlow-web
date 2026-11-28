@@ -11,7 +11,9 @@ require('dotenv').config();
   'GITHUB_CLIENT_SECRET',
   'GEMINI_API_KEY',
   'JWT_ACCESS_SECRET',
+  'JWT_ACCESS_EXPIRES_IN',
   'JWT_REFRESH_SECRET',
+  'JWT_REFRESH_EXPIRES_IN',
   'SESSION_SECRET',
   'NODE_ENV',
 ].forEach((key) => {

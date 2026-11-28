@@ -1,6 +1,7 @@
 const authService = require('../services/authService');
 const userService = require('../services/userService');
 const jwt = require('jsonwebtoken');
+const { getJwtAccessSecret, getJwtExpiresIn } = require('../config/jwt');
 
 const getRefreshCookieOptions = (days = 7) => {
   const isProd = process.env.NODE_ENV === 'production';
@@ -151,8 +152,8 @@ const firebaseLogin = async (req, res, next) => {
 
     const accessToken = jwt.sign(
       { userId, email: user.email },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+      getJwtAccessSecret(),
+      { expiresIn: getJwtExpiresIn() }
     );
 
     const { refreshToken: rawRefresh, days } = await authService.createRefreshToken(userId);

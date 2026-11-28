@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const authService = require('../services/authService');
+const { getJwtAccessSecret, getJwtExpiresIn } = require('../config/jwt');
 
 const router = express.Router();
 
@@ -25,8 +26,8 @@ const handleOAuthSuccess = async (req, res) => {
     const userId = user.id || user.userId;
     const accessToken = jwt.sign(
       { userId, email: user.email },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+      getJwtAccessSecret(),
+      { expiresIn: getJwtExpiresIn() }
     );
 
     const { refreshToken, days } = await authService.createRefreshToken(userId);

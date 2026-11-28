@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { getJwtAccessSecret } = require('../config/jwt');
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -10,7 +11,7 @@ const authMiddleware = (req, res, next) => {
   const token = authHeader.split(' ')[1];
   
   try {
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const payload = jwt.verify(token, getJwtAccessSecret());
     req.user = payload; // Attach payload { userId, email } to req.user
     next();
   } catch (error) {
