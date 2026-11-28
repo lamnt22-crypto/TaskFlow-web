@@ -468,42 +468,43 @@ const Dashboard = () => {
                 />
               </motion.div>
 
+              {/* FULL-WIDTH 4 Real-Data KPI Cards (2x2 Phone, 4 across Tablet Portrait/Landscape & Desktop) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 w-full">
+                {kpiCards.map((stat, idx) => (
+                  <motion.button
+                    type="button"
+                    variants={itemVariants}
+                    key={idx}
+                    onClick={stat.onClick}
+                    className="text-left bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-xs relative transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer min-w-0 overflow-hidden"
+                  >
+                    <div className="flex items-center gap-3 w-full min-w-0">
+                      <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-md shrink-0 text-white ${stat.iconBg}`}>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={stat.icon} />
+                        </svg>
+                      </div>
+                      <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums leading-none">
+                        {stat.value}
+                      </p>
+                    </div>
+
+                    <div className="min-w-0 w-full space-y-1.5">
+                      <p className="text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold leading-snug">
+                        {stat.label}
+                      </p>
+                      <span className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full leading-tight ${stat.pillClass}`}>
+                        {stat.sublabel}
+                      </span>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+
               {/* MAIN 2-COLUMN LAYOUT (Stacks cleanly on Mobile & Tablet 768px-1279px, Splits on Desktop xl+) */}
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                 {/* LEFT COLUMN */}
                 <div className="xl:col-span-8 flex flex-col gap-6 min-w-0">
-                  {/* 4 Real-Data KPI Cards (2x2 on Phone, 4 across on Tablet & Desktop) */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                    {kpiCards.map((stat, idx) => (
-                      <motion.button
-                        type="button"
-                        variants={itemVariants}
-                        key={idx}
-                        onClick={stat.onClick}
-                        className="text-left bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-100 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-xs relative transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer min-w-0 overflow-hidden"
-                      >
-                        <div className="flex items-center gap-3 w-full min-w-0">
-                          <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-md shrink-0 text-white ${stat.iconBg}`}>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={stat.icon} />
-                            </svg>
-                          </div>
-                          <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums leading-none">
-                            {stat.value}
-                          </p>
-                        </div>
-
-                        <div className="min-w-0 w-full space-y-1.5">
-                          <p className="text-slate-700 dark:text-slate-200 text-xs sm:text-[13px] font-bold leading-snug">
-                            {stat.label}
-                          </p>
-                          <span className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full leading-tight ${stat.pillClass}`}>
-                            {stat.sublabel}
-                          </span>
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
 
                   {/* TODAY'S TASKS (Actionable Mobile Cards + Desktop Table) */}
                   <motion.div
@@ -590,11 +591,11 @@ const Dashboard = () => {
                       <table className="w-full text-left border-collapse">
                         <thead>
                           <tr className="border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase tracking-wider text-slate-400 font-bold bg-slate-50/50 dark:bg-slate-900">
-                            <th className="pl-6 pr-2 py-3.5 w-10" />
-                            <th className="px-4 py-3.5">{isVi ? 'Tên công việc' : 'Task Title'}</th>
-                            <th className="px-4 py-3.5">{isVi ? 'Danh mục' : 'Category'}</th>
-                            <th className="px-4 py-3.5">{isVi ? 'Ưu tiên' : 'Priority'}</th>
-                            <th className="px-6 py-3.5">{isVi ? 'Trạng thái' : 'Status'}</th>
+                            <th className="pl-4 sm:pl-6 pr-2 py-3.5 w-10" />
+                            <th className="px-3 lg:px-4 py-3.5">{isVi ? 'Tên công việc' : 'Task Title'}</th>
+                            <th className="px-3 lg:px-4 py-3.5">{isVi ? 'Danh mục' : 'Category'}</th>
+                            <th className="px-3 lg:px-4 py-3.5">{isVi ? 'Ưu tiên' : 'Priority'}</th>
+                            <th className="px-4 sm:px-6 py-3.5">{isVi ? 'Trạng thái' : 'Status'}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -625,12 +626,12 @@ const Dashboard = () => {
                                       )}
                                     </button>
                                   </td>
-                                  <td className="px-4 py-3.5">
-                                    <p className={`text-sm font-bold truncate max-w-[240px] transition-colors ${isDone ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
+                                  <td className="px-3 lg:px-4 py-3.5">
+                                    <p className={`text-sm font-bold truncate max-w-[170px] xl:max-w-[240px] transition-colors ${isDone ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
                                       {task.title}
                                     </p>
                                   </td>
-                                  <td className="px-4 py-3.5">
+                                  <td className="px-3 lg:px-4 py-3.5 whitespace-nowrap">
                                     {task.category ? (
                                       <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                                         {task.category.name}
@@ -639,10 +640,10 @@ const Dashboard = () => {
                                       <span className="text-xs text-slate-400">-</span>
                                     )}
                                   </td>
-                                  <td className="px-4 py-3.5">
+                                  <td className="px-3 lg:px-4 py-3.5 whitespace-nowrap">
                                     <PriorityBadge priority={task.priority} />
                                   </td>
-                                  <td className="px-6 py-3.5">
+                                  <td className="px-4 sm:px-6 py-3.5 whitespace-nowrap">
                                     {isDone ? (
                                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />

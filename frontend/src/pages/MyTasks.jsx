@@ -647,8 +647,8 @@ const MyTasks = () => {
             </div>
           )}
 
-          {/* Action Buttons (Visible on mobile/tablet, reveal cleanly on desktop hover) */}
-          <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
+          {/* Action Buttons (Always visible on mobile/touch tablets, reveal smoothly on desktop pointer hover) */}
+          <div className="flex items-center gap-1 hover-reveal-actions">
             <button
               type="button"
               onClick={() => startFocus(task)}
@@ -768,25 +768,85 @@ const MyTasks = () => {
               />
             </div>
 
-            <div className="relative z-10 p-5 sm:p-7 xl:p-8 flex flex-col xl:flex-row items-stretch xl:items-center gap-6 xl:gap-8">
-              {/* Left Content */}
-              <div className="flex-1 min-w-0">
-                {/* Title Row (Pairs with compact Tablet actions on md..xl) */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <motion.div
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
+            <div className="relative z-10 p-5 sm:p-7 xl:p-8 flex flex-col gap-5 sm:gap-6">
+              {/* Top Row: Title + Compact 3D Visual (Desktop xl+) + Action Cluster */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{
+                      delay: 0.2,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15,
+                    }}
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0"
+                  >
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                      />
+                    </svg>
+                  </motion.div>
+
+                  <div className="min-w-0">
+                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-700 to-purple-700 dark:from-white dark:via-indigo-300 dark:to-purple-300 bg-clip-text text-transparent leading-tight truncate">
+                      {t("tasks.title")}
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium mt-0.5">
+                      {t("tasks.subtitle")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Controls: 3D Preview (Desktop xl+) + Action Buttons */}
+                <div className="flex flex-col sm:flex-row lg:items-center gap-4 shrink-0">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.85, rotate: -3 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    transition={{
+                      delay: 0.3,
+                      type: "spring",
+                      stiffness: 150,
+                      damping: 20,
+                    }}
+                    className="relative hidden xl:block shrink-0"
+                  >
+                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-400/20 via-purple-400/20 to-cyan-400/20 rounded-2xl blur-xl animate-aurora" />
+                    <motion.img
+                      src="/hero-tasks-3d.jpg"
+                      alt="TaskFlow 3D"
+                      className="w-24 h-24 object-cover rounded-2xl shadow-xl shadow-indigo-500/15 border border-white/40 relative"
+                      animate={{ y: [0, -4, 0] }}
                       transition={{
-                        delay: 0.2,
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 15,
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
                       }}
-                      className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0"
+                    />
+                    <span className="absolute -bottom-2 -right-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-2.5 py-0.5 rounded-xl text-[10px] font-black shadow-md shadow-indigo-500/30 whitespace-nowrap">
+                      🚀 {activeCount}
+                    </span>
+                  </motion.div>
+
+                  <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full sm:w-auto lg:w-[270px] shrink-0">
+                    <motion.button
+                      whileHover={{ y: -2, scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleOpenCreate}
+                      className="h-11 sm:w-52 lg:w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white font-bold px-5 rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/35 transition-all flex items-center justify-center gap-2 text-sm shrink-0"
                     >
                       <svg
-                        className="w-6 h-6 text-white"
+                        className="w-5 h-5 shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -795,100 +855,166 @@ const MyTasks = () => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2.5}
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                          d="M12 4v16m8-8H4"
                         />
                       </svg>
-                    </motion.div>
+                      <span>{t("tasks.create")}</span>
+                    </motion.button>
 
-                    <div className="min-w-0">
-                      <h1 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-700 to-purple-700 dark:from-white dark:via-indigo-300 dark:to-purple-300 bg-clip-text text-transparent leading-tight truncate">
-                        {t("tasks.title")}
-                      </h1>
-                      <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium mt-0.5">
-                        {t("tasks.subtitle")}
-                      </p>
+                    <div className="grid grid-cols-3 gap-2 flex-1 lg:w-full min-w-0">
+                      <motion.button
+                        whileHover={{ y: -2, scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => setIsAIPlannerModalOpen(true)}
+                        className="h-10 glass-card hover:shadow-lg text-indigo-600 dark:text-indigo-300 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap min-w-0"
+                        title="AI Smart Planner"
+                      >
+                        <span className="text-sm shrink-0">🪄</span>{" "}
+                        <span className="truncate">AI Plan</span>
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ y: -2, scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => setIsAIFilePlannerModalOpen(true)}
+                        className="h-10 glass-card hover:shadow-lg text-violet-600 dark:text-violet-300 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap min-w-0"
+                        title="AI File Planner"
+                      >
+                        <span className="text-sm shrink-0">📄</span>{" "}
+                        <span className="truncate">{isVi ? "Tệp AI" : "AI File"}</span>
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ y: -2, scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={handleExportCSV}
+                        className="h-10 glass-card hover:shadow-lg text-slate-600 dark:text-slate-200 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap min-w-0"
+                        title="Export CSV"
+                      >
+                        <span className="text-sm shrink-0">📥</span>{" "}
+                        <span className="truncate">{isVi ? "Xuất CSV" : "Export"}</span>
+                      </motion.button>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Stats Row - Spacious Full-Width Grid (2x2 Phone, 4-col Tablet & Desktop) */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 sm:mt-6">
-                  {/* Total Active */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    whileHover={{ y: -3, scale: 1.02 }}
-                    className="glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-shadow shrink-0">
-                        <svg
-                          className="w-5 h-5 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 10V3L4 14h7v7l9-11h-7z"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-2xl font-black text-slate-800 dark:text-white leading-none tabular-nums">
-                        {activeCount}
-                      </p>
-                    </div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-300 mt-2.5 truncate">
-                      {isVi ? "Đang hoạt động" : "Active tasks"}
-                    </p>
-                  </motion.div>
-
-                  {/* Completion Rate */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.25 }}
-                    whileHover={{ y: -3, scale: 1.02 }}
-                    className="glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="relative shrink-0">
-                        <StatRing
-                          value={completedTasks.length}
-                          max={totalCount}
-                          color="#10b981"
-                          size={40}
-                          strokeWidth={4}
+              {/* Bottom Row: FULL-WIDTH 4 Stat Cards (2x2 Phone, 4 across Tablet Portrait/Landscape & Desktop) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full">
+                {/* Total Active */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  className="glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-shadow shrink-0">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
                         />
-                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-emerald-600 dark:text-emerald-400">
-                          {completionRate}%
-                        </span>
-                      </div>
-                      <p className="text-2xl font-black text-slate-800 dark:text-white leading-none tabular-nums truncate">
-                        {completedTasks.length}
-                        <span className="text-sm text-slate-400 font-bold">
-                          /{totalCount}
-                        </span>
-                      </p>
+                      </svg>
                     </div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-300 mt-2.5 truncate">
-                      {isVi ? "Hoàn thành" : "Completed"}
+                    <p className="text-2xl font-black text-slate-800 dark:text-white leading-none tabular-nums">
+                      {activeCount}
                     </p>
-                  </motion.div>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-2.5 truncate">
+                    {isVi ? "Đang hoạt động" : "Active tasks"}
+                  </p>
+                </motion.div>
 
-                  {/* Today */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.35 }}
-                    whileHover={{ y: -3, scale: 1.02 }}
-                    className="glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-lg group-hover:shadow-amber-500/30 transition-shadow shrink-0">
+                {/* Completion Rate */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  className="glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative shrink-0">
+                      <StatRing
+                        value={completedTasks.length}
+                        max={totalCount}
+                        color="#10b981"
+                        size={40}
+                        strokeWidth={4}
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-emerald-600 dark:text-emerald-400">
+                        {completionRate}%
+                      </span>
+                    </div>
+                    <p className="text-2xl font-black text-slate-800 dark:text-white leading-none tabular-nums truncate">
+                      {completedTasks.length}
+                      <span className="text-sm text-slate-400 font-bold">
+                        /{totalCount}
+                      </span>
+                    </p>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-2.5 truncate">
+                    {isVi ? "Hoàn thành" : "Completed"}
+                  </p>
+                </motion.div>
+
+                {/* Today */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  className="glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-lg group-hover:shadow-amber-500/30 transition-shadow shrink-0">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-2xl font-black text-slate-800 dark:text-white leading-none tabular-nums">
+                      {todayTasks.length}
+                    </p>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-2.5 truncate">
+                    {isVi ? "Hôm nay" : "Today"}
+                  </p>
+                </motion.div>
+
+                {/* Overdue */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45 }}
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  className={`glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden relative ${overdueCount > 0 ? "ring-1 ring-red-200/60" : ""}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-shadow shrink-0 ${
+                        overdueCount > 0
+                          ? "bg-gradient-to-br from-red-400 to-rose-500 shadow-red-500/20 group-hover:shadow-red-500/30"
+                          : "bg-gradient-to-br from-emerald-400 to-teal-500 shadow-emerald-500/20 group-hover:shadow-emerald-500/30"
+                      }`}
+                    >
+                      {overdueCount > 0 ? (
                         <svg
                           className="w-5 h-5 text-white"
                           fill="none"
@@ -899,181 +1025,44 @@ const MyTasks = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2.5}
-                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                      </div>
-                      <p className="text-2xl font-black text-slate-800 dark:text-white leading-none tabular-nums">
-                        {todayTasks.length}
-                      </p>
+                      ) : (
+                        <svg
+                          className="w-5 h-5 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2.5}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
                     </div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-300 mt-2.5 truncate">
-                      {isVi ? "Hôm nay" : "Today"}
+                    <p
+                      className={`text-2xl font-black leading-none tabular-nums ${overdueCount > 0 ? "text-red-500" : "text-emerald-500"}`}
+                    >
+                      {overdueCount}
                     </p>
-                  </motion.div>
-
-                  {/* Overdue */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.45 }}
-                    whileHover={{ y: -3, scale: 1.02 }}
-                    className={`glass-card p-3.5 sm:p-4 rounded-2xl cursor-default group min-w-0 overflow-hidden relative ${overdueCount > 0 ? "ring-1 ring-red-200/60" : ""}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-shadow shrink-0 ${
-                          overdueCount > 0
-                            ? "bg-gradient-to-br from-red-400 to-rose-500 shadow-red-500/20 group-hover:shadow-red-500/30"
-                            : "bg-gradient-to-br from-emerald-400 to-teal-500 shadow-emerald-500/20 group-hover:shadow-emerald-500/30"
-                        }`}
-                      >
-                        {overdueCount > 0 ? (
-                          <svg
-                            className="w-5 h-5 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2.5}
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-5 h-5 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2.5}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                      <p
-                        className={`text-2xl font-black leading-none tabular-nums ${overdueCount > 0 ? "text-red-500" : "text-emerald-500"}`}
-                      >
-                        {overdueCount}
-                      </p>
-                    </div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-300 mt-2.5 truncate">
-                      {overdueCount > 0
-                        ? isVi
-                          ? "Quá hạn"
-                          : "Overdue"
-                        : isVi
-                          ? "Tốt lắm!"
-                          : "On track!"}
-                    </p>
-                    {overdueCount > 0 && (
-                      <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-400 animate-pulse shadow-[0_0_8px_rgba(248,113,113,0.6)]" />
-                    )}
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* Right - 3D Hero Illustration (Desktop xl+) + Action Buttons (Responsive across Mobile/Tablet/Desktop) */}
-              <div className="flex flex-col items-center gap-4 w-full xl:w-[285px] shrink-0">
-                {/* 3D Hero Image - Visible cleanly on Desktop xl+ where Hero has ample room */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.85, rotate: -3 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  transition={{
-                    delay: 0.3,
-                    type: "spring",
-                    stiffness: 150,
-                    damping: 20,
-                  }}
-                  className="relative hidden xl:block mb-1"
-                >
-                  <div className="absolute -inset-4 bg-gradient-to-r from-indigo-400/20 via-purple-400/20 to-cyan-400/20 rounded-[30px] blur-2xl animate-aurora" />
-                  <motion.img
-                    src="/hero-tasks-3d.jpg"
-                    alt="TaskFlow 3D"
-                    className="w-52 h-52 object-cover rounded-3xl shadow-2xl shadow-indigo-500/15 border border-white/40"
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.7, type: "spring", stiffness: 500 }}
-                    className="absolute -bottom-3 -right-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3.5 py-1.5 rounded-2xl text-xs font-black shadow-lg shadow-indigo-500/30 flex items-center gap-1.5 whitespace-nowrap"
-                  >
-                    <span className="text-sm">🚀</span> {activeCount}{" "}
-                    {t("kanban.active")}
-                  </motion.div>
-                </motion.div>
-
-                {/* Action Buttons - Stacked on Mobile & Desktop xl+, clean side-by-side Row on Tablet (sm..xl) */}
-                <div className="flex flex-col md:flex-row xl:flex-col gap-2.5 w-full">
-                  <motion.button
-                    whileHover={{ y: -2, scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={handleOpenCreate}
-                    className="h-11 xl:h-12 md:w-56 xl:w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white font-bold px-5 rounded-2xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2 text-sm shrink-0"
-                  >
-                    <svg
-                      className="w-5 h-5 shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    <span>{t("tasks.create")}</span>
-                  </motion.button>
-
-                  <div className="grid grid-cols-3 gap-2 flex-1 xl:w-full min-w-0">
-                    <motion.button
-                      whileHover={{ y: -2, scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => setIsAIPlannerModalOpen(true)}
-                      className="h-11 xl:h-10 glass-card hover:shadow-lg text-indigo-600 dark:text-indigo-300 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap min-w-0"
-                      title="AI Smart Planner"
-                    >
-                      <span className="text-sm sm:text-base shrink-0">🪄</span>{" "}
-                      <span className="truncate">AI Plan</span>
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ y: -2, scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => setIsAIFilePlannerModalOpen(true)}
-                      className="h-11 xl:h-10 glass-card hover:shadow-lg text-violet-600 dark:text-violet-300 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap min-w-0"
-                      title="AI File Planner"
-                    >
-                      <span className="text-sm sm:text-base shrink-0">📄</span>{" "}
-                      <span className="truncate">{isVi ? "Tệp AI" : "AI File"}</span>
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ y: -2, scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={handleExportCSV}
-                      className="h-11 xl:h-10 glass-card hover:shadow-lg text-slate-600 dark:text-slate-200 font-bold px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs whitespace-nowrap min-w-0"
-                      title="Export CSV"
-                    >
-                      <span className="text-sm sm:text-base shrink-0">📥</span>{" "}
-                      <span className="truncate">{isVi ? "Xuất CSV" : "Export"}</span>
-                    </motion.button>
                   </div>
-                </div>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-2.5 truncate">
+                    {overdueCount > 0
+                      ? isVi
+                        ? "Quá hạn"
+                        : "Overdue"
+                      : isVi
+                        ? "Tốt lắm!"
+                        : "On track!"}
+                  </p>
+                  {overdueCount > 0 && (
+                    <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-400 animate-pulse shadow-[0_0_8px_rgba(248,113,113,0.6)]" />
+                  )}
+                </motion.div>
               </div>
             </div>
           </motion.div>

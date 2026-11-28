@@ -283,6 +283,21 @@ body {
 /* ═══════════════════════════════════════════════════ */
 /*  Responsive & Accessibility                         */
 /* ═══════════════════════════════════════════════════ */
+/* Touch-safe hover action reveal (always visible on touch tablets, hover-reveal on pointer desktop) */
+.hover-reveal-actions {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+  .hover-reveal-actions {
+    opacity: 0;
+  }
+  .group:hover .hover-reveal-actions,
+  .hover-reveal-actions:focus-within {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
