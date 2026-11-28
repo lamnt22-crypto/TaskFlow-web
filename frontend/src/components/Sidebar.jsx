@@ -274,7 +274,7 @@ const Sidebar = ({
       {/* Desktop Sidebar */}
       <aside
         className={`hidden lg:flex ${
-          collapsed ? 'w-20' : 'w-64'
+          collapsed ? 'w-20' : 'w-56 xl:w-64'
         } bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-xl border-r border-slate-800 dark:border-slate-900 text-slate-300 flex-col h-screen sticky top-0 transition-all duration-300 z-20 shadow-2xl shadow-indigo-900/20 shrink-0`}
       >
         {renderSidebarBody(collapsed, false)}

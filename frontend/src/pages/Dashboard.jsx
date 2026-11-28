@@ -439,7 +439,7 @@ const Dashboard = () => {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 py-4">
               {[0, 1, 2, 3].map((i) => (
                 <div key={i} className="h-28 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70 animate-pulse" />
               ))}
@@ -468,37 +468,38 @@ const Dashboard = () => {
                 />
               </motion.div>
 
-              {/* MAIN 2-COLUMN LAYOUT */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* MAIN 2-COLUMN LAYOUT (Stacks cleanly on Mobile & Tablet 768px-1279px, Splits on Desktop xl+) */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                 {/* LEFT COLUMN */}
-                <div className="lg:col-span-8 flex flex-col gap-6 min-w-0">
-                  {/* 4 Real-Data KPI Cards */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="xl:col-span-8 flex flex-col gap-6 min-w-0">
+                  {/* 4 Real-Data KPI Cards (2x2 on Phone, 4 across on Tablet & Desktop) */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     {kpiCards.map((stat, idx) => (
                       <motion.button
                         type="button"
                         variants={itemVariants}
                         key={idx}
                         onClick={stat.onClick}
-                        className="text-left bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-xs relative transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
+                        className="text-left bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-100 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-xs relative transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer min-w-0 overflow-hidden"
                       >
-                        <div className="flex justify-between items-start mb-3 gap-2 w-full">
-                          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shadow-md shrink-0 text-white ${stat.iconBg}`}>
-                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center gap-3 w-full min-w-0">
+                          <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-md shrink-0 text-white ${stat.iconBg}`}>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={stat.icon} />
                             </svg>
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full truncate max-w-[96px] ${stat.pillClass}`}>
-                            {stat.sublabel}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums mb-0.5">
+                          <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums leading-none">
                             {stat.value}
                           </p>
-                          <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold truncate">
+                        </div>
+
+                        <div className="min-w-0 w-full space-y-1.5">
+                          <p className="text-slate-700 dark:text-slate-200 text-xs sm:text-[13px] font-bold leading-snug">
                             {stat.label}
                           </p>
+                          <span className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full leading-tight ${stat.pillClass}`}>
+                            {stat.sublabel}
+                          </span>
                         </div>
                       </motion.button>
                     ))}
@@ -750,12 +751,12 @@ const Dashboard = () => {
                   </motion.div>
                 </div>
 
-                {/* RIGHT COLUMN */}
-                <div className="lg:col-span-4 flex flex-col gap-6 min-w-0">
+                {/* RIGHT COLUMN (Side-by-side 2-col on Tablet md-xl, Vertical stack on Desktop xl+) */}
+                <div className="xl:col-span-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-6 min-w-0 content-start">
                   {/* UPCOMING DEADLINES LIST */}
                   <motion.div
                     variants={itemVariants}
-                    className="bg-white/95 dark:bg-slate-900/90 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col min-h-[340px] lg:h-[400px]"
+                    className="bg-white/95 dark:bg-slate-900/90 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col min-h-[340px] h-[360px] sm:h-[400px]"
                   >
                     <div className="flex justify-between items-center mb-5">
                       <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
