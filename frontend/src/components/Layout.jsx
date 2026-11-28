@@ -9,6 +9,7 @@ import api from '../services/api';
 import PomodoroWidget from './PomodoroWidget';
 import KeyboardShortcutsManager from './KeyboardShortcutsManager';
 import MobileBottomNav from './MobileBottomNav';
+import { resolveAvatarUrl } from '../utils/avatarUrl';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -19,7 +20,12 @@ const Layout = ({ children }) => {
   
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    setAvatarLoadError(false);
+  }, [user?.avatar_url]);
 
   const getInitials = (name) => {
     return name ? name.charAt(0).toUpperCase() : 'U';
@@ -184,8 +190,13 @@ const Layout = ({ children }) => {
               </AnimatePresence>
             </div>
 
-            {user?.avatar_url ? (
-              <img src={`http://localhost:5000${user.avatar_url}`} alt={user.username} className="w-9 h-9 rounded-full object-cover shadow-sm shadow-indigo-500/20 border border-white dark:border-slate-800" />
+            {resolveAvatarUrl(user?.avatar_url) && !avatarLoadError ? (
+              <img
+                src={resolveAvatarUrl(user.avatar_url)}
+                alt={user.username}
+                onError={() => setAvatarLoadError(true)}
+                className="w-9 h-9 rounded-full object-cover shadow-sm shadow-indigo-500/20 border border-white dark:border-slate-800"
+              />
             ) : (
               <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-sm shadow-indigo-500/20">
                 {getInitials(user?.username)}

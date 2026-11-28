@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { AuthContext } from '../context/AuthContext';
 import { getProfile, updateProfile, uploadAvatar } from '../services/userService';
+import { resolveAvatarUrl } from '../utils/avatarUrl';
 import { toast } from 'react-hot-toast';
 
 const Profile = () => {
@@ -14,7 +15,12 @@ const Profile = () => {
   
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
   const fileInputRef = React.useRef(null);
+
+  useEffect(() => {
+    setAvatarLoadError(false);
+  }, [user?.avatar_url]);
 
   const fetchProfile = async () => {
     try {
@@ -85,9 +91,59 @@ const Profile = () => {
     }
   };
 
+  const compressImageForAvatar = (file) =>
+    new Promise((resolve) => {
+      if (!file.type.startsWith('image/') || file.type === 'image/gif' || file.type === 'image/svg+xml') {
+        resolve(file);
+        return;
+      }
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        const maxSize = 320;
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          const ratio = Math.min(maxSize / width, maxSize / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            resolve(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
+          },
+          'image/jpeg',
+          0.85
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(file);
+      };
+      img.src = objectUrl;
+    });
+
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file.');
+      return;
+    }
 
     // Check size (5MB)
     if (file.size > 5 * 1024 * 1024) {
@@ -95,16 +151,18 @@ const Profile = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('avatar', file);
-
     setUploadingAvatar(true);
     try {
+      const preparedFile = await compressImageForAvatar(file);
+      const formData = new FormData();
+      formData.append('avatar', preparedFile);
+
       const result = await uploadAvatar(formData);
+      setAvatarLoadError(false);
       setUser({ ...user, avatar_url: result.data.avatar_url });
       toast.success('Avatar updated successfully!');
     } catch (err) {
-      toast.error('Failed to upload avatar.');
+      toast.error(err.response?.data?.message || 'Failed to upload avatar.');
       console.error(err);
     } finally {
       setUploadingAvatar(false);
@@ -187,8 +245,13 @@ const Profile = () => {
                  <div className="flex items-center gap-6 mb-8">
                     <div className="relative group">
                         <div className="w-24 h-24 rounded-full border-2 border-slate-200 dark:border-zinc-700 overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shadow-sm">
-                            {user?.avatar_url ? (
-                              <img src={`http://localhost:5000${user.avatar_url}`} alt={profile.username} className="w-full h-full object-cover" />
+                            {resolveAvatarUrl(user?.avatar_url) && !avatarLoadError ? (
+                              <img
+                                src={resolveAvatarUrl(user.avatar_url)}
+                                alt={profile.username}
+                                onError={() => setAvatarLoadError(true)}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <span className="text-3xl font-bold text-slate-400">{getInitials(profile.username)}</span>
                             )}

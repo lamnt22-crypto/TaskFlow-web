@@ -89,21 +89,22 @@ const updateMyProfile = async (req, res, next) => {
 const uploadAvatar = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    
-    if (!req.file) {
+
+    if (!req.file || !req.file.buffer) {
       return res.status(400).json({ success: false, message: 'No image provided' });
     }
-    
-    // Create the URL to be saved in DB
-    const avatarUrl = `/public/avatars/${req.file.filename}`;
-    
-    // Update user profile
+
+    const mimeType = req.file.mimetype || 'image/jpeg';
+    const base64Data = req.file.buffer.toString('base64');
+    const avatarUrl = `data:${mimeType};base64,${base64Data}`;
+
+    // Update user profile in PostgreSQL so avatar persists across ephemeral restarts
     const updatedProfile = await userService.updateUserProfile(userId, { avatar_url: avatarUrl });
-    
+
     return res.status(200).json({
       success: true,
       message: 'Avatar updated successfully',
-      data: updatedProfile
+      data: updatedProfile,
     });
   } catch (error) {
     next(error);

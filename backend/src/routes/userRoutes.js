@@ -3,21 +3,19 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const multer = require('multer');
-const path = require('path');
 
-// Configure multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/avatars/');
+// Use memory storage so avatars persist in PostgreSQL as Data URLs across ephemeral cloud restarts (Render)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype || !file.mimetype.startsWith('image/')) {
+      const err = new Error('Only image files are allowed');
+      err.statusCode = 400;
+      return cb(err);
+    }
+    cb(null, true);
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, req.user.userId + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-const upload = multer({ 
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
 // Apply auth middleware to all routes
