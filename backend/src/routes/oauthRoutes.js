@@ -5,11 +5,11 @@ const authService = require('../services/authService');
 
 const router = express.Router();
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = (process.env.NODE_ENV || '').trim() === 'production';
 const FRONTEND_URL = (
   process.env.FRONTEND_URL ||
   (isProd ? 'https://task-flow-web-self.vercel.app' : 'http://localhost:5173')
-).replace(/\/+$/, '');
+).trim().replace(/\/+$/, '');
 
 /**
  * Handle successful OAuth login

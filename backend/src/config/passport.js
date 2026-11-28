@@ -3,11 +3,11 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const authService = require('../services/authService');
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = (process.env.NODE_ENV || '').trim() === 'production';
 const backendUrl = (
   process.env.BACKEND_URL ||
   (isProd ? 'https://taskflow-backend-ct0e.onrender.com' : 'http://localhost:5000')
-).replace(/\/+$/, '');
+).trim().replace(/\/+$/, '');
 
 // Google Strategy
 passport.use(new GoogleStrategy({

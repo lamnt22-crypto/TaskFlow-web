@@ -1,4 +1,25 @@
 require('dotenv').config();
+
+// Sanitize environment variables against accidental trailing newlines/spaces (e.g. from cloud dashboards)
+[
+  'FRONTEND_URL',
+  'BACKEND_URL',
+  'DATABASE_URL',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'GITHUB_CLIENT_ID',
+  'GITHUB_CLIENT_SECRET',
+  'GEMINI_API_KEY',
+  'JWT_ACCESS_SECRET',
+  'JWT_REFRESH_SECRET',
+  'SESSION_SECRET',
+  'NODE_ENV',
+].forEach((key) => {
+  if (typeof process.env[key] === 'string') {
+    process.env[key] = process.env[key].trim();
+  }
+});
+
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
