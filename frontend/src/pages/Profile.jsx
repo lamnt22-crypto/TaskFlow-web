@@ -200,20 +200,20 @@ const Profile = () => {
           <p className="text-slate-500 dark:text-slate-400 mt-2">Manage your profile, preferences, and security settings.</p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 items-start">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
           
           {/* Sidebar Navigation */}
           <div className="w-full md:w-64 shrink-0">
-            <nav className="flex flex-col gap-1">
-              <a href="#" className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-semibold transition-colors">
+            <nav className="flex flex-row md:flex-col gap-1.5 overflow-x-auto hide-scrollbar pb-1 md:pb-0">
+              <a href="#" className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-semibold transition-colors whitespace-nowrap shrink-0">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 Public Profile
               </a>
-              <a href="#" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 font-medium transition-colors opacity-60 cursor-not-allowed">
+              <a href="#" className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 font-medium transition-colors opacity-60 cursor-not-allowed whitespace-nowrap shrink-0">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 Security
               </a>
-              <a href="#" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 font-medium transition-colors opacity-60 cursor-not-allowed">
+              <a href="#" className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 font-medium transition-colors opacity-60 cursor-not-allowed whitespace-nowrap shrink-0">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                 Notifications
               </a>
@@ -247,8 +247,8 @@ const Profile = () => {
                  )}
 
                  {/* Avatar Section - Inline & Clean */}
-                 <div className="flex items-center gap-6 mb-8">
-                    <div className="relative group">
+                 <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6 mb-8">
+                    <div className="relative group shrink-0">
                         <div className="w-24 h-24 rounded-full border-2 border-slate-200 dark:border-zinc-700 overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shadow-sm">
                             {resolveAvatarUrl(user?.avatar_url) && !avatarLoadError ? (
                               <img
@@ -266,14 +266,14 @@ const Profile = () => {
                           <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleAvatarUpload} disabled={uploadingAvatar} />
                         </label>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white">{profile.username}</h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{profile.email}</p>
+                    <div className="min-w-0">
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white truncate">{profile.username}</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-3 truncate">{profile.email}</p>
                       <button 
                         type="button" 
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingAvatar}
-                        className="text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                        className="text-xs font-bold px-3.5 py-2 rounded-lg border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                       >
                         {uploadingAvatar ? 'Uploading...' : 'Upload new avatar'}
                       </button>
@@ -309,9 +309,9 @@ const Profile = () => {
                       </div>
                     </div>
 
-                    <div className="pt-4 flex items-center justify-end gap-3">
-                      <button type="button" onClick={fetchProfile} className="px-5 py-2 rounded-xl text-sm font-bold border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">Cancel</button>
-                      <button type="submit" disabled={saving} className="px-5 py-2 rounded-xl text-sm font-bold bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 shadow-md transition-colors disabled:opacity-50">Save Changes</button>
+                    <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                      <button type="button" onClick={fetchProfile} className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">Cancel</button>
+                      <button type="submit" disabled={saving} className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 shadow-md transition-colors disabled:opacity-50">Save Changes</button>
                     </div>
                  </form>
                </div>

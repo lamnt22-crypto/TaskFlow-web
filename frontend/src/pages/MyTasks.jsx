@@ -724,7 +724,7 @@ const MyTasks = () => {
               />
             </div>
 
-            <div className="relative z-10 p-8 flex flex-col lg:flex-row items-start lg:items-center gap-8">
+            <div className="relative z-10 p-5 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center gap-6 sm:gap-8">
               {/* Left Content */}
               <div className="flex-1 min-w-0">
                 {/* Title Area */}
@@ -937,7 +937,7 @@ const MyTasks = () => {
               </div>
 
               {/* Right - 3D Hero Illustration + Actions */}
-              <div className="flex flex-col items-center gap-5 shrink-0 lg:w-[300px]">
+              <div className="flex flex-col items-center gap-5 w-full lg:w-[300px] shrink-0">
                 {/* 3D Hero Image */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
@@ -975,7 +975,7 @@ const MyTasks = () => {
                 </motion.div>
 
                 {/* Action Buttons - Stacked for right column */}
-                <div className="flex flex-row lg:flex-col gap-2 w-full">
+                <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 w-full">
                   <motion.button
                     whileHover={{ y: -3, scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}

@@ -15,7 +15,12 @@ const PomodoroWidget = () => {
     startTimer
   } = useContext(PomodoroContext);
 
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
+    }
+    return true;
+  });
 
   // If no task is active and timer is at 0, don't show the widget
   if (!activeTask) return null;
@@ -60,18 +65,20 @@ const PomodoroWidget = () => {
         initial={{ opacity: 0, y: 50, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 50, scale: 0.9 }}
-        className="fixed bottom-6 right-6 z-50 flex flex-col items-end"
+        className="fixed bottom-24 left-4 lg:left-auto lg:bottom-6 lg:right-24 z-40 flex flex-col items-start lg:items-end max-w-[calc(100vw-6rem)] sm:max-w-none"
       >
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden w-72 backdrop-blur-xl">
+        <div className={`bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden backdrop-blur-xl transition-all ${isExpanded ? 'w-68 sm:w-72' : 'w-auto min-w-[168px]'}`}>
           
           {/* Header (collapsible toggle) */}
           <div 
-            className="px-4 py-3 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between cursor-pointer border-b border-slate-100 dark:border-slate-700/50"
+            className="px-3.5 sm:px-4 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between gap-3 cursor-pointer border-b border-slate-100 dark:border-slate-700/50"
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🍅</span>
-              <span className="font-semibold text-sm text-slate-800 dark:text-slate-100">Focus Timer</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-lg sm:text-xl shrink-0">🍅</span>
+              <span className="font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100 truncate">
+                {isExpanded ? 'Focus Timer' : formatTime(timeLeft)}
+              </span>
             </div>
             <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
               {isExpanded ? (

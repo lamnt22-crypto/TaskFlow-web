@@ -12,6 +12,8 @@ const Home = () => {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const { t } = useTranslation();
   const [activeFaq, setActiveFaq] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [failedStepImages, setFailedStepImages] = useState({});
   const containerRef = useRef(null);
 
   // Parallax Scroll Effects
@@ -53,14 +55,14 @@ const Home = () => {
       <AmbientBackground />
 
       {/* 2. Ultra-Luxury Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 dark:bg-[#07080b]/70 backdrop-blur-2xl border-b border-zinc-200/80 dark:border-white/10 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#07080b]/80 backdrop-blur-2xl border-b border-zinc-200/80 dark:border-white/10 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
           
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)] group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300">
+          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)] group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
-            <span className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
+            <span className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
             <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hidden sm:inline-block">
               3D Spatial
             </span>
@@ -72,12 +74,14 @@ const Home = () => {
             <a href="#pricing" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">Pricing</a>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-5">
-            <LanguageToggle />
+          <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4">
+            <div className="hidden xs:block sm:block">
+              <LanguageToggle />
+            </div>
             <div className="w-px h-5 bg-zinc-200 dark:bg-white/10 hidden sm:block"></div>
             <button 
               onClick={toggleTheme}
-              className="w-10 h-10 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white rounded-full hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors duration-200"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white rounded-full hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors duration-200"
               aria-label="Toggle Dark Mode"
             >
               {isDarkMode ? (
@@ -86,20 +90,72 @@ const Home = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
             </button>
-            <Link to="/login" className="hidden sm:block text-sm font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors">
+            <Link to="/login" className="hidden md:block text-sm font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors px-2">
               {t('nav.login')}
             </Link>
-            <Link to="/register" className="text-sm font-semibold px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full hover:scale-105 hover:shadow-[0_10px_25px_rgba(99,102,241,0.25)] dark:hover:shadow-[0_10px_25px_rgba(255,255,255,0.25)] transition-all duration-300">
+            <Link to="/register" className="hidden sm:inline-flex text-xs sm:text-sm font-semibold px-4 sm:px-6 py-2 sm:py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full hover:scale-105 hover:shadow-[0_10px_25px_rgba(99,102,241,0.25)] dark:hover:shadow-[0_10px_25px_rgba(255,255,255,0.25)] transition-all duration-300 whitespace-nowrap">
               {t('nav.register')}
             </Link>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors"
+              aria-label="Toggle Menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile / Tablet Navigation Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden overflow-hidden border-t border-zinc-200/80 dark:border-white/10 bg-white/95 dark:bg-[#07080b]/95 backdrop-blur-2xl"
+            >
+              <div className="px-4 py-4 space-y-2">
+                <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5">
+                  Features
+                </a>
+                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5">
+                  How it Works
+                </a>
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5">
+                  Pricing
+                </a>
+                <div className="pt-2 border-t border-zinc-200/80 dark:border-white/10 flex flex-col gap-2">
+                  <div className="flex items-center justify-between px-3 py-1 sm:hidden">
+                    <span className="text-xs font-semibold text-zinc-500">Language</span>
+                    <LanguageToggle />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="py-2.5 text-center rounded-xl text-sm font-semibold border border-zinc-200 dark:border-white/15 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-white/5">
+                      {t('nav.login')}
+                    </Link>
+                    <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="py-2.5 text-center rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-sm">
+                      {t('nav.register')}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
-      <main className="pt-28 pb-16 relative z-10">
+      <main className="pt-20 sm:pt-24 pb-16 relative z-10">
         
         {/* 3. Flagship 3D Spatial Hero Section */}
-        <section className="px-4 sm:px-6 min-h-[92vh] flex flex-col items-center justify-center text-center pt-16 pb-12">
+        <section className="px-4 sm:px-6 lg:min-h-[88vh] flex flex-col items-center justify-center text-center pt-8 sm:pt-14 pb-10 sm:pb-12">
           <motion.div 
             initial="hidden"
             animate="visible"
@@ -107,15 +163,15 @@ const Home = () => {
             className="max-w-5xl mx-auto relative z-20 flex flex-col items-center"
           >
             {/* 3D Introducing Pill Badge */}
-            <motion.div variants={fadeIn} className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/80 dark:bg-zinc-900/60 backdrop-blur-xl border border-indigo-500/20 dark:border-white/10 text-zinc-800 dark:text-zinc-200 text-xs sm:text-sm font-bold tracking-wide mb-8 shadow-sm">
-              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
+            <motion.div variants={fadeIn} className="inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-white/85 dark:bg-zinc-900/70 backdrop-blur-xl border border-indigo-500/20 dark:border-white/10 text-zinc-800 dark:text-zinc-200 text-xs sm:text-sm font-bold tracking-wide mb-6 sm:mb-8 shadow-sm max-w-full">
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-indigo-500 animate-ping shrink-0"></span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 font-extrabold">TaskFlow 3D Spatial</span>
-              <span className="text-zinc-400 dark:text-zinc-500">•</span>
-              <span>The Next-Gen Multi-Million Dollar Workspace</span>
+              <span className="text-zinc-400 dark:text-zinc-500 hidden xs:inline">•</span>
+              <span className="text-[11px] sm:text-sm text-zinc-600 dark:text-zinc-300">Next-Gen AI Workspace</span>
             </motion.div>
             
             {/* Hero Main Headline */}
-            <motion.h1 variants={fadeIn} className="text-5xl sm:text-6xl md:text-[5.5rem] font-black tracking-tight text-zinc-900 dark:text-white leading-[1.08] mb-8">
+            <motion.h1 variants={fadeIn} className="text-[2.25rem] leading-[1.12] sm:text-6xl md:text-7xl lg:text-[5.25rem] font-black tracking-tight text-zinc-900 dark:text-white sm:leading-[1.08] mb-5 sm:mb-8">
               Work moves faster <br className="hidden sm:block"/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-500 to-cyan-400 dark:from-indigo-400 dark:via-purple-300 dark:to-cyan-400">
                 in three dimensions.
@@ -123,24 +179,24 @@ const Home = () => {
             </motion.h1>
             
             {/* Hero Subtitle */}
-            <motion.p variants={fadeIn} className="text-lg sm:text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-3xl mx-auto leading-relaxed font-normal">
+            <motion.p variants={fadeIn} className="text-base sm:text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed font-normal px-1">
               Đỉnh cao quản trị công việc kết hợp <strong className="text-zinc-900 dark:text-white font-semibold">Trí tuệ nhân tạo Gemini</strong>, không gian tương tác 3D đa tầng và hệ thống Gamification tạo động lực tức thì.
             </motion.p>
             
             {/* CTA Action Buttons */}
-            <motion.div variants={fadeIn} className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full">
-              <Link to="/register" className="w-full sm:w-auto px-9 py-4 sm:py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-base sm:text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-[0_15px_35px_rgba(99,102,241,0.4)] flex items-center justify-center gap-3 group">
+            <motion.div variants={fadeIn} className="flex flex-col sm:flex-row gap-3.5 sm:gap-6 justify-center items-center w-full max-w-md sm:max-w-none">
+              <Link to="/register" className="w-full sm:w-auto px-7 sm:px-9 py-3.5 sm:py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm sm:text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-[0_15px_35px_rgba(99,102,241,0.4)] flex items-center justify-center gap-2.5 sm:gap-3 group">
                 Bắt đầu Trải Nghiệm Miễn Phí
                 <svg className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
               </Link>
-              <a href="#features" className="w-full sm:w-auto px-8 py-4 sm:py-5 bg-white/80 dark:bg-zinc-900/80 text-zinc-900 dark:text-white border border-zinc-200 dark:border-white/10 font-bold text-base sm:text-lg rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/80 backdrop-blur-md transition-all duration-300 shadow-sm flex items-center justify-center gap-2">
+              <a href="#features" className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-5 bg-white/85 dark:bg-zinc-900/80 text-zinc-900 dark:text-white border border-zinc-200 dark:border-white/10 font-bold text-sm sm:text-lg rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/80 backdrop-blur-md transition-all duration-300 shadow-sm flex items-center justify-center gap-2">
                 Khám phá Tính năng 3D
               </a>
             </motion.div>
             
-            <motion.div variants={fadeIn} className="mt-8 text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-4">
+            <motion.div variants={fadeIn} className="mt-6 sm:mt-8 text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
               <span>⚡ Không cần thẻ tín dụng</span>
-              <span>•</span>
+              <span className="hidden xs:inline">•</span>
               <span>🎁 Tặng trọn gói trợ lý Gemini AI</span>
             </motion.div>
           </motion.div>
@@ -148,49 +204,51 @@ const Home = () => {
           {/* 4. Interactive 3D Spatial Canvas Stage */}
           <motion.div 
             style={{ y: heroY }}
-            initial={{ opacity: 0, y: 70, scale: 0.95 }}
+            initial={{ opacity: 0, y: 50, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1.2, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full mt-14 sm:mt-20 relative z-20"
+            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full mt-10 sm:mt-16 lg:mt-20 relative z-20"
           >
             <SpatialHeroCanvas />
           </motion.div>
         </section>
 
         {/* 5. Trusted By Social Proof */}
-        <section className="py-14 bg-zinc-100/60 dark:bg-black/40 border-y border-zinc-200/80 dark:border-white/5 overflow-hidden relative z-20">
-          <div className="max-w-7xl mx-auto px-6 mb-8 text-center flex flex-col items-center">
-             <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-3">Được tin dùng bởi hơn 10,000+ chuyên gia công nghệ & doanh nghiệp</p>
+        <section className="py-10 sm:py-14 bg-zinc-100/60 dark:bg-black/40 border-y border-zinc-200/80 dark:border-white/5 overflow-hidden relative z-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6 sm:mb-8 text-center flex flex-col items-center">
+             <p className="text-[11px] sm:text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-3">Được tin dùng bởi hơn 10,000+ chuyên gia công nghệ & doanh nghiệp</p>
              <div className="flex gap-1 mb-2 text-amber-400">
                {[1,2,3,4,5].map(star => (
                  <svg key={star} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                ))}
              </div>
-             <p className="text-zinc-600 dark:text-zinc-400 text-sm font-medium">4.9/5 điểm đánh giá từ 2,000+ phản hồi trên Product Hunt & G2</p>
+             <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm font-medium">4.9/5 điểm đánh giá từ 2,000+ phản hồi trên Product Hunt & G2</p>
           </div>
-          <div className="flex gap-20 whitespace-nowrap px-6 opacity-60 dark:opacity-40 hover:opacity-100 transition-opacity duration-500 grayscale">
-            <div className="animate-[marquee_25s_linear_infinite] flex gap-24 items-center">
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
-            </div>
-            <div className="animate-[marquee_25s_linear_infinite] flex gap-24 items-center" aria-hidden="true">
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
-               <span className="text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
+          <div className="overflow-hidden relative [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+            <div className="flex w-max gap-12 sm:gap-20 whitespace-nowrap px-6 opacity-60 dark:opacity-40 hover:opacity-100 transition-opacity duration-500 grayscale">
+              <div className="animate-[marquee_25s_linear_infinite] flex gap-12 sm:gap-24 items-center">
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
+              </div>
+              <div className="animate-[marquee_25s_linear_infinite] flex gap-12 sm:gap-24 items-center" aria-hidden="true">
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
+                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
+              </div>
             </div>
           </div>
         </section>
 
         {/* 6. Spotlight Bento Grid Features (3D Glowing Architecture) */}
-        <section id="features" className="py-28 px-4 sm:px-6 max-w-7xl mx-auto relative z-20">
-          <div className="max-w-3xl mb-20 text-center md:text-left">
+        <section id="features" className="py-16 sm:py-28 px-4 sm:px-6 max-w-7xl mx-auto relative z-20">
+          <div className="max-w-3xl mb-12 sm:mb-20 text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-500/20">
               💎 Kiến trúc triệu đô
             </div>
@@ -198,7 +256,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
-              className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-6"
+              className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-5 sm:mb-6"
             >
               Mọi thứ bạn cần.<br/> 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500">
@@ -210,13 +268,13 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ delay: 0.1 }}
-              className="text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed"
+              className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed"
             >
               Thiết kế theo triết lý tối giản công thái học, loại bỏ hoàn toàn các nút bấm thừa. Mọi thao tác đều được tính toán để mang lại cảm giác thỏa mãn nhất.
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-7">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-7">
             
             {/* Feature 1: AI Copilot (Voice & Document-to-Task) - 7 Cols */}
             <SpotlightCard 
@@ -224,7 +282,7 @@ const Home = () => {
               spotlightColor="rgba(129, 140, 248, 0.22)"
               borderColor="rgba(99, 102, 241, 0.5)"
             >
-              <div className="p-8 sm:p-10 flex flex-col h-full justify-between">
+              <div className="p-6 sm:p-10 flex flex-col h-full justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 flex items-center gap-1.5">
@@ -355,15 +413,15 @@ const Home = () => {
                 </div>
 
                 {/* Mini Pomodoro Graphic */}
-                <div className="rounded-2xl bg-zinc-100/90 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-5 flex items-center justify-between">
-                  <div className="relative w-20 h-20 flex items-center justify-center">
-                    <svg className="w-full h-full -rotate-90">
+                <div className="rounded-2xl bg-zinc-100/90 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-5 flex items-center justify-between gap-4">
+                  <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+                    <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
                       <circle cx="40" cy="40" r="32" stroke="rgba(244,63,94,0.15)" strokeWidth="6" fill="none" />
                       <circle cx="40" cy="40" r="32" stroke="#f43f5e" strokeWidth="6" strokeDasharray="200" strokeDashoffset="50" strokeLinecap="round" fill="none" />
                     </svg>
                     <span className="absolute text-sm font-black font-mono text-zinc-900 dark:text-white">25:00</span>
                   </div>
-                  <div className="space-y-1.5 flex-1 pl-5 text-xs">
+                  <div className="space-y-1.5 flex-1 min-w-0 text-xs">
                     <div className="flex justify-between font-medium">
                       <span className="text-zinc-500">Học tập & R&D</span>
                       <span className="font-bold text-zinc-800 dark:text-zinc-200">65%</span>
@@ -502,21 +560,21 @@ const Home = () => {
         </section>
 
         {/* 7. How It Works Section (3D Spatial Workflow Steps) */}
-        <section id="how-it-works" className="py-28 px-4 sm:px-6 relative z-20 bg-zinc-100/60 dark:bg-black/40 border-y border-zinc-200/80 dark:border-white/5">
+        <section id="how-it-works" className="py-20 sm:py-28 px-4 sm:px-6 relative z-20 bg-zinc-100/60 dark:bg-black/40 border-y border-zinc-200/80 dark:border-white/5">
            <div className="max-w-7xl mx-auto">
-             <div className="text-center mb-20">
+             <div className="text-center mb-14 sm:mb-20">
                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-500/20">
                  ⚡ Quy trình 3 bước tối ưu
                </div>
-               <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">
+               <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">
                  Khởi đầu chỉ trong 3 bước
                </h2>
-               <p className="text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+               <p className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
                  Từ ý tưởng mơ hồ đến kết quả hoàn hảo. TaskFlow được thiết kế để không làm lãng phí một giây nào của bạn.
                </p>
              </div>
              
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 {[
                   { 
                     step: "BƯỚC 01", 
@@ -524,6 +582,7 @@ const Home = () => {
                     desc: "Khởi tạo workspace thông minh chỉ trong vài giây. Tùy biến các danh mục dự án, phân quyền cộng sự an toàn.",
                     image: "/images/step_workspace_3d.jpg",
                     tag: "Isometric Workspace",
+                    icon: "🗂️",
                     spotlight: "rgba(6, 182, 212, 0.25)",
                     border: "rgba(6, 182, 212, 0.5)",
                     badgeColor: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/30"
@@ -534,6 +593,7 @@ const Home = () => {
                     desc: "Chỉ cần ghi âm hoặc tải file PDF/Word. Trợ lý Gemini AI tự động bóc tách thành các đầu việc nhỏ, gắn deadline và mức độ ưu tiên.",
                     image: "/images/step_ai_planner_3d.jpg",
                     tag: "Gemini Neural Core",
+                    icon: "🧠",
                     spotlight: "rgba(168, 85, 247, 0.25)",
                     border: "rgba(168, 85, 247, 0.5)",
                     badgeColor: "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
@@ -544,6 +604,7 @@ const Home = () => {
                     desc: "Theo dõi tiến độ Kanban 3D mượt mà, bật Pomodoro tập trung sâu và thu thập XP thăng cấp huy hiệu vinh quang.",
                     image: "/images/step_gamification_3d.jpg",
                     tag: "Gamification & XP",
+                    icon: "🏆",
                     spotlight: "rgba(245, 158, 11, 0.25)",
                     border: "rgba(245, 158, 11, 0.5)",
                     badgeColor: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
@@ -553,17 +614,27 @@ const Home = () => {
                     key={idx}
                     spotlightColor={item.spotlight}
                     borderColor={item.border}
-                    className="p-6 sm:p-7 flex flex-col justify-between group"
+                    className="p-5 sm:p-7 flex flex-col justify-between group"
                   >
                     <div>
                       {/* 3D Image Showcase Container */}
-                      <div className="w-full aspect-square rounded-2xl overflow-hidden relative mb-6 border border-zinc-200/80 dark:border-white/10 bg-black/60 shadow-lg">
-                        <img 
-                          src={item.image} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80" />
+                      <div className="w-full aspect-square rounded-2xl overflow-hidden relative mb-6 border border-zinc-200/80 dark:border-white/10 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 shadow-lg flex items-center justify-center">
+                        {!failedStepImages[idx] ? (
+                          <img 
+                            src={item.image} 
+                            alt={item.title} 
+                            loading="lazy"
+                            decoding="async"
+                            onError={() => setFailedStepImages((prev) => ({ ...prev, [idx]: true }))}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center p-6 text-center">
+                            <span className="text-5xl mb-3">{item.icon}</span>
+                            <span className="text-sm font-bold text-white/90">{item.tag}</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 pointer-events-none" />
                         
                         {/* Step Pill Overlay */}
                         <div className="absolute top-4 left-4">
@@ -603,22 +674,22 @@ const Home = () => {
         </section>
 
         {/* 8. Pricing Plans */}
-        <section id="pricing" className="py-28 px-4 sm:px-6 relative z-20">
+        <section id="pricing" className="py-20 sm:py-28 px-4 sm:px-6 relative z-20">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">Minh bạch. Không rủi ro.</h2>
-              <p className="text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">Gói miễn phí đầy đủ tính năng cốt lõi. Nâng cấp bất cứ lúc nào khi nhóm của bạn sẵn sàng bứt phá.</p>
+            <div className="text-center mb-14 sm:mb-20">
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">Minh bạch. Không rủi ro.</h2>
+              <p className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">Gói miễn phí đầy đủ tính năng cốt lõi. Nâng cấp bất cứ lúc nào khi nhóm của bạn sẵn sàng bứt phá.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 max-w-5xl mx-auto items-stretch">
                
-               <SpotlightCard className="p-8 sm:p-12">
-                 <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">Gói Khởi Động (Starter)</h3>
+               <SpotlightCard className="p-6 sm:p-10 lg:p-12">
+                 <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">Gói Khởi Động (Starter)</h3>
                  <div className="flex items-baseline gap-2 mb-6">
-                   <span className="text-6xl font-black text-zinc-900 dark:text-white">$0</span>
-                   <span className="text-zinc-500 text-base font-medium">/ trọn đời</span>
+                   <span className="text-5xl sm:text-6xl font-black text-zinc-900 dark:text-white">$0</span>
+                   <span className="text-zinc-500 text-sm sm:text-base font-medium">/ trọn đời</span>
                  </div>
-                 <p className="text-zinc-600 dark:text-zinc-400 text-base mb-8 border-b border-zinc-200 dark:border-white/10 pb-6">Hoàn hảo cho sinh viên, cá nhân quản lý công việc và mục tiêu hàng ngày.</p>
+                 <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mb-8 border-b border-zinc-200 dark:border-white/10 pb-6">Hoàn hảo cho sinh viên, cá nhân quản lý công việc và mục tiêu hàng ngày.</p>
                  <ul className="flex flex-col gap-4 mb-10 flex-1">
                    {["Không giới hạn số lượng Task", "Bảng Kanban kéo thả mượt mà", "Đồng hồ Pomodoro tập trung", "Trợ lý AI cơ bản", "Lịch trực quan & Dark mode"].map((item, i) => (
                      <li key={i} className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300 font-medium text-sm">
@@ -629,13 +700,13 @@ const Home = () => {
                      </li>
                    ))}
                  </ul>
-                 <Link to="/register" className="block w-full py-4 text-center rounded-2xl bg-zinc-100 dark:bg-white/10 text-zinc-900 dark:text-white font-bold hover:bg-zinc-200 dark:hover:bg-white/15 transition-colors">
+                 <Link to="/register" className="block w-full py-3.5 sm:py-4 text-center rounded-2xl bg-zinc-100 dark:bg-white/10 text-zinc-900 dark:text-white font-bold hover:bg-zinc-200 dark:hover:bg-white/15 transition-colors">
                    Bắt Đầu Miễn Phí
                  </Link>
                </SpotlightCard>
 
                <SpotlightCard 
-                 className="p-8 sm:p-12 md:scale-105 z-10"
+                 className="p-6 sm:p-10 lg:p-12 lg:scale-105 z-10"
                  spotlightColor="rgba(99, 102, 241, 0.3)"
                  borderColor="rgba(129, 140, 248, 0.6)"
                >
@@ -643,10 +714,10 @@ const Home = () => {
                    Khuyên Dùng • Pro AI
                  </div>
                  <div className="flex items-baseline gap-2 mb-6">
-                   <span className="text-6xl font-black text-zinc-900 dark:text-white">$12</span>
-                   <span className="text-zinc-400 text-base font-medium">/ người dùng / tháng</span>
+                   <span className="text-5xl sm:text-6xl font-black text-zinc-900 dark:text-white">$12</span>
+                   <span className="text-zinc-500 dark:text-zinc-400 text-sm sm:text-base font-medium">/ người dùng / tháng</span>
                  </div>
-                 <p className="text-zinc-600 dark:text-zinc-400 text-base mb-8 border-b border-zinc-200 dark:border-white/10 pb-6">Dành cho các chuyên gia và team đòi hỏi AI siêu tốc, phân tích chuyên sâu.</p>
+                 <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mb-8 border-b border-zinc-200 dark:border-white/10 pb-6">Dành cho các chuyên gia và team đòi hỏi AI siêu tốc, phân tích chuyên sâu.</p>
                  <ul className="flex flex-col gap-4 mb-10 flex-1">
                    {["Toàn bộ tính năng gói Starter", "Trợ lý AI Gemini 3.6 Flash không giới hạn", "Tải file PDF/Word/Excel tự lên Timeline", "Email nhắc việc tự động 8:00 AM mỗi ngày", "Gamification đầy đủ & Thống kê chuyên sâu", "Hỗ trợ ưu tiên 24/7"].map((item, i) => (
                      <li key={i} className="flex items-center gap-3 text-zinc-800 dark:text-zinc-200 font-medium text-sm">
@@ -657,7 +728,7 @@ const Home = () => {
                      </li>
                    ))}
                  </ul>
-                 <Link to="/register" className="block w-full py-4 text-center rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:from-indigo-500 hover:to-purple-500 transition-all shadow-[0_10px_25px_rgba(99,102,241,0.4)]">
+                 <Link to="/register" className="block w-full py-3.5 sm:py-4 text-center rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:from-indigo-500 hover:to-purple-500 transition-all shadow-[0_10px_25px_rgba(99,102,241,0.4)]">
                    Nâng Cấp Gói Pro
                  </Link>
                </SpotlightCard>
@@ -666,10 +737,10 @@ const Home = () => {
         </section>
 
         {/* 9. FAQs Section */}
-        <section className="py-24 px-6 max-w-4xl mx-auto relative z-20">
-          <div className="text-center mb-14">
+        <section className="py-16 sm:py-24 px-4 sm:px-6 max-w-4xl mx-auto relative z-20">
+          <div className="text-center mb-10 sm:mb-14">
             <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white mb-3">Câu Hỏi Thường Gặp</h2>
-            <p className="text-zinc-600 dark:text-zinc-400 text-base">Giải đáp nhanh các thắc mắc về bảo mật, tính năng và lộ trình sử dụng.</p>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">Giải đáp nhanh các thắc mắc về bảo mật, tính năng và lộ trình sử dụng.</p>
           </div>
 
           <div className="space-y-4">
@@ -680,10 +751,10 @@ const Home = () => {
               >
                 <button
                   onClick={() => toggleFaq(i)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 font-bold text-zinc-900 dark:text-white text-base hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-bold text-zinc-900 dark:text-white text-sm sm:text-base hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
                   <span>{faq.question}</span>
-                  <span className={`transform transition-transform duration-300 text-xl ${activeFaq === i ? 'rotate-180 text-indigo-500' : 'text-zinc-400'}`}>
+                  <span className={`transform transition-transform duration-300 text-xl shrink-0 ${activeFaq === i ? 'rotate-180 text-indigo-500' : 'text-zinc-400'}`}>
                     ▾
                   </span>
                 </button>
@@ -694,7 +765,7 @@ const Home = () => {
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="px-6 pb-6 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-zinc-100 dark:border-white/5 pt-3"
+                      className="px-5 sm:px-6 pb-5 sm:pb-6 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-zinc-100 dark:border-white/5 pt-3"
                     >
                       {faq.answer}
                     </motion.div>
@@ -706,17 +777,17 @@ const Home = () => {
         </section>
 
         {/* 10. Massive CTA Banner */}
-        <section className="py-20 px-4 sm:px-6 relative z-20">
-          <div className="max-w-6xl mx-auto rounded-[3rem] bg-gradient-to-tr from-indigo-950/80 via-black to-purple-950/70 border border-indigo-500/30 p-10 sm:p-16 text-center relative overflow-hidden shadow-[0_30px_90px_rgba(99,102,241,0.3)]">
+        <section className="py-14 sm:py-20 px-4 sm:px-6 relative z-20">
+          <div className="max-w-6xl mx-auto rounded-3xl sm:rounded-[3rem] bg-gradient-to-tr from-indigo-950/90 via-black to-purple-950/80 border border-indigo-500/30 p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-[0_30px_90px_rgba(99,102,241,0.3)]">
             <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
             <div className="relative z-10 max-w-3xl mx-auto">
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight mb-6">
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight mb-5 sm:mb-6">
                 Sẵn sàng nâng tầm quy trình làm việc của bạn?
               </h2>
-              <p className="text-lg sm:text-xl text-zinc-300 mb-10 leading-relaxed font-normal">
+              <p className="text-base sm:text-xl text-zinc-300 mb-8 sm:mb-10 leading-relaxed font-normal">
                 Tham gia cùng hàng nghìn người dùng đã tăng 200% năng suất mỗi ngày với TaskFlow.
               </p>
-              <Link to="/register" className="inline-flex items-center justify-center px-10 py-5 text-base sm:text-lg font-bold text-zinc-900 bg-white hover:bg-zinc-100 rounded-full hover:scale-105 transition-transform duration-300 shadow-[0_20px_40px_rgba(255,255,255,0.25)]">
+              <Link to="/register" className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-lg font-bold text-zinc-900 bg-white hover:bg-zinc-100 rounded-full hover:scale-105 transition-transform duration-300 shadow-[0_20px_40px_rgba(255,255,255,0.25)]">
                 Bắt Đầu Ngay Hôm Nay
               </Link>
             </div>
@@ -727,16 +798,16 @@ const Home = () => {
 
       {/* 11. Minimalist Footer */}
       <footer className="border-t border-zinc-200 dark:border-white/10 bg-zinc-100/60 dark:bg-black/80 relative z-20">
-        <div className="max-w-7xl mx-auto px-6 py-14 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 sm:gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
-            <span className="text-xs text-zinc-500 ml-2">© {new Date().getFullYear()} All rights reserved.</span>
+            <span className="text-xs text-zinc-500 sm:ml-2">© {new Date().getFullYear()} All rights reserved.</span>
           </div>
 
-          <div className="flex gap-6 text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="flex flex-wrap justify-center gap-5 sm:gap-6 text-sm text-zinc-500 dark:text-zinc-400">
             <a href="#features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Features</a>
             <a href="#pricing" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Pricing</a>
             <Link to="/login" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Login</Link>

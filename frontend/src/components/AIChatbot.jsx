@@ -196,7 +196,7 @@ const AIChatbot = () => {
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: isOpen ? 0 : 1 }}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-3"
+        className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-40 flex items-center gap-3"
       >
         {/* Tooltip on hover */}
         <motion.div
@@ -216,8 +216,9 @@ const AIChatbot = () => {
           }}
           whileHover={{ scale: 1.12, rotate: 5 }}
           whileTap={{ scale: 0.92 }}
-          className="relative w-16 h-16 rounded-full flex items-center justify-center cursor-pointer group focus:outline-none"
+          className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center cursor-pointer group focus:outline-none"
           title="Trò chuyện cùng TaskFlow AI"
+          aria-label="Mở trợ lý AI"
         >
           {/* 3D Quantum Orb */}
           <HolographicOrb3D size="sm" isThinking={isLoading} />
@@ -232,7 +233,7 @@ const AIChatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.88 }}
             transition={{ type: "spring", damping: 25, stiffness: 320 }}
-            className="fixed bottom-6 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[420px] bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_60px_-15px_rgba(99,102,241,0.35)] border border-cyan-500/30 dark:border-white/15 z-50 overflow-hidden flex flex-col h-[560px] max-h-[85vh]"
+            className="fixed bottom-24 lg:bottom-6 right-3 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-[420px] bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_60px_-15px_rgba(99,102,241,0.35)] border border-cyan-500/30 dark:border-white/15 z-50 overflow-hidden flex flex-col h-[500px] sm:h-[560px] max-h-[calc(100vh-8.5rem)] lg:max-h-[85vh]"
           >
             {/* Holographic Header */}
             <div className="bg-gradient-to-r from-slate-900 via-indigo-950/90 to-purple-950/90 p-4 border-b border-white/10 flex items-center justify-between relative overflow-hidden">

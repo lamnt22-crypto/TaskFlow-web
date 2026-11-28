@@ -269,8 +269,8 @@ const Dashboard = () => {
             
             {/* NEW SMART INPUT TOP BAR */}
             <motion.div variants={itemVariants} className="w-full">
-              <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-[2px] bg-gradient-to-r from-blue-100 via-purple-100 to-emerald-100">
-                <div className="bg-white rounded-[14px] w-full h-full p-2">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-[2px] bg-gradient-to-r from-blue-100 via-purple-100 to-emerald-100 dark:from-indigo-500/30 dark:via-purple-500/30 dark:to-cyan-500/30">
+                <div className="bg-white dark:bg-slate-900 rounded-[14px] w-full h-full p-2">
                   <SmartTaskInput 
                   onSubmit={async (taskData) => {
                     try {
@@ -302,44 +302,44 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
               {/* LEFT COLUMN (Approx 70% / 8 cols) */}
-              <div className="lg:col-span-8 flex flex-col gap-6">
+              <div className="lg:col-span-8 flex flex-col gap-6 min-w-0">
                 
                 {/* 4 STAT CARDS ROW */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   {[
-                    { label: 'Total Tasks', value: stats.totalTasks || 0, icon: 'M4 6h16M4 10h16M4 14h16M4 18h16', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-blue-400 to-indigo-500 shadow-blue-500/30', trend: '+12% ⭡', trendColor: 'text-emerald-600 bg-emerald-50' },
-                    { label: 'In Progress', value: stats.inProgressTasks || 0, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-orange-500/30', trend: '+5% ⭡', trendColor: 'text-emerald-600 bg-emerald-50' },
-                    { label: 'Completed', value: stats.completedTasks || 0, icon: 'M5 13l4 4L19 7', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-emerald-500/30', trend: '-2% ⭣', trendColor: 'text-rose-600 bg-rose-50' },
-                    { label: 'Overdue', value: stats.overdueTasks || 0, icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-rose-400 to-pink-500 shadow-rose-500/30', trend: '+1% ⭡', trendColor: 'text-emerald-600 bg-emerald-50' },
+                    { label: 'Total Tasks', value: stats.totalTasks || 0, icon: 'M4 6h16M4 10h16M4 14h16M4 18h16', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-blue-400 to-indigo-500 shadow-blue-500/30', trend: '+12% ⭡', trendColor: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/15 dark:text-emerald-400' },
+                    { label: 'In Progress', value: stats.inProgressTasks || 0, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-orange-500/30', trend: '+5% ⭡', trendColor: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/15 dark:text-emerald-400' },
+                    { label: 'Completed', value: stats.completedTasks || 0, icon: 'M5 13l4 4L19 7', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-emerald-500/30', trend: '-2% ⭣', trendColor: 'text-rose-600 bg-rose-50 dark:bg-rose-500/15 dark:text-rose-400' },
+                    { label: 'Overdue', value: stats.overdueTasks || 0, icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', iconColor: 'text-white', iconBg: 'bg-gradient-to-br from-rose-400 to-pink-500 shadow-rose-500/30', trend: '+1% ⭡', trendColor: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/15 dark:text-emerald-400' },
                   ].map((stat, idx) => (
-                    <motion.div variants={itemVariants} key={idx} className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 flex flex-col justify-between shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${stat.iconBg} ${stat.iconColor}`}>
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={stat.icon} /></svg>
+                    <motion.div variants={itemVariants} key={idx} className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1">
+                      <div className="flex justify-between items-start mb-3 sm:mb-4 gap-2">
+                        <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shadow-lg shrink-0 ${stat.iconBg} ${stat.iconColor}`}>
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={stat.icon} /></svg>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${stat.trendColor}`}>{stat.trend}</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap ${stat.trendColor}`}>{stat.trend}</span>
                       </div>
                       <div>
-                        <p className="text-3xl font-bold text-slate-800 tracking-tight mb-1">{stat.value}</p>
-                        <p className="text-slate-400 text-xs font-semibold">{stat.label}</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white tracking-tight mb-1">{stat.value}</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold truncate">{stat.label}</p>
                       </div>
                     </motion.div>
                   ))}
                 </div>
 
                 {/* CHART SECTION */}
-                <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg font-bold text-slate-800">Task Analytics</h2>
+                <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/90 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+                  <div className="flex justify-between items-center mb-4 sm:mb-6 gap-3">
+                    <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Task Analytics</h2>
                     <select 
                       value={barChartMode} 
                       onChange={e => setBarChartMode(e.target.value)}
-                      className="text-xs font-semibold px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-600 outline-none cursor-pointer"
+                      className="text-xs font-semibold px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 outline-none cursor-pointer"
                     >
                       <option value="updated_at">This week</option>
                     </select>
                   </div>
-                  <div className="h-72 w-full">
+                  <div className="h-60 sm:h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <defs>
@@ -370,59 +370,59 @@ const Dashboard = () => {
                 </motion.div>
 
                 {/* TABLE SECTION: TODAY'S TASKS */}
-                <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-                  <div className="p-6 flex justify-between items-center border-b border-slate-50">
-                    <h2 className="text-lg font-bold text-slate-800">Today's Tasks</h2>
-                    <div className="flex gap-2">
-                      <button onClick={() => setIsAIFilePlannerModalOpen(true)} className="text-xs font-semibold px-3 py-1.5 bg-violet-50 border border-violet-200 rounded-lg text-violet-600 hover:bg-violet-100 transition-colors flex items-center gap-1.5">
+                <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/90 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                  <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-slate-100 dark:border-slate-800">
+                    <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Today's Tasks</h2>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => setIsAIFilePlannerModalOpen(true)} className="text-xs font-semibold px-3 py-1.5 bg-violet-50 dark:bg-violet-500/15 border border-violet-200 dark:border-violet-500/30 rounded-lg text-violet-600 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-500/25 transition-colors flex items-center gap-1.5">
                         <span className="text-sm">📄</span> AI File Plan
                       </button>
-                      <button onClick={() => setIsAIPlannerModalOpen(true)} className="text-xs font-semibold px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-600 hover:bg-indigo-100 transition-colors flex items-center gap-1.5">
+                      <button onClick={() => setIsAIPlannerModalOpen(true)} className="text-xs font-semibold px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200 dark:border-indigo-500/30 rounded-lg text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/25 transition-colors flex items-center gap-1.5">
                         <span className="text-sm">🪄</span> AI Smart Plan
                       </button>
-                      <button onClick={handleOpenCreate} className="text-xs font-semibold px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
+                      <button onClick={handleOpenCreate} className="text-xs font-semibold px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                         + New Task
                       </button>
                     </div>
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full min-w-[540px] text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold bg-white">
-                          <th className="px-6 py-4 font-bold">Task Title</th>
-                          <th className="px-6 py-4 font-bold">Due Date</th>
-                          <th className="px-6 py-4 font-bold">Category</th>
-                          <th className="px-6 py-4 font-bold">Priority</th>
-                          <th className="px-6 py-4 font-bold">Status</th>
+                        <tr className="border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase tracking-wider text-slate-400 font-bold bg-white dark:bg-slate-900">
+                          <th className="px-4 sm:px-6 py-4 font-bold">Task Title</th>
+                          <th className="px-4 sm:px-6 py-4 font-bold">Due Date</th>
+                          <th className="px-4 sm:px-6 py-4 font-bold">Category</th>
+                          <th className="px-4 sm:px-6 py-4 font-bold">Priority</th>
+                          <th className="px-4 sm:px-6 py-4 font-bold">Status</th>
                         </tr>
                       </thead>
                       <tbody>
                         {todayTasks.length > 0 ? todayTasks.map((task) => (
-                          <tr key={task.id} onClick={() => handleOpenEdit(task)} className="border-b border-slate-50 hover:bg-blue-50/50 cursor-pointer transition-colors group">
-                            <td className="px-6 py-4">
-                              <p className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors truncate max-w-[200px]">{task.title}</p>
+                          <tr key={task.id} onClick={() => handleOpenEdit(task)} className="border-b border-slate-50 dark:border-slate-800/70 hover:bg-blue-50/50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group">
+                            <td className="px-4 sm:px-6 py-4">
+                              <p className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-indigo-400 transition-colors truncate max-w-[200px]">{task.title}</p>
                             </td>
-                            <td className="px-6 py-4 text-xs font-medium text-slate-500">
+                            <td className="px-4 sm:px-6 py-4 text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
                               {new Date(task.due_date).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', day: 'numeric' })}
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-4 sm:px-6 py-4">
                               {task.category ? (
-                                <span className="text-xs font-bold text-slate-600">{task.category.name}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{task.category.name}</span>
                               ) : (
                                 <span className="text-xs font-medium text-slate-400">-</span>
                               )}
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-4 sm:px-6 py-4">
                               <PriorityBadge priority={task.priority} />
                             </td>
-                            <td className="px-6 py-4 flex items-center">
+                            <td className="px-4 sm:px-6 py-4 flex items-center">
                               {task.status === 'COMPLETED' ? (
-                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider">
-                                  <span className="w-1 h-1 rounded-full bg-emerald-600"></span> Completed
+                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+                                  <span className="w-1 h-1 rounded-full bg-emerald-600 dark:bg-emerald-400"></span> Completed
                                 </span>
                               ) : (
-                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider">
-                                  <span className="w-1 h-1 rounded-full bg-amber-500"></span> Pending
+                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                                  <span className="w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400"></span> Pending
                                 </span>
                               )}
                             </td>
@@ -441,13 +441,13 @@ const Dashboard = () => {
               </div>
 
               {/* RIGHT COLUMN (Approx 30% / 4 cols) */}
-              <div className="lg:col-span-4 flex flex-col gap-6">
+              <div className="lg:col-span-4 flex flex-col gap-6 min-w-0">
                 
                 {/* UPCOMING DEADLINES LIST */}
-                <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-[400px]">
+                <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/90 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col min-h-[340px] lg:h-[400px]">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg font-bold text-slate-800">Upcoming Deadlines</h2>
-                    <span className="text-xs font-bold text-blue-500 cursor-pointer hover:text-blue-600">See all</span>
+                    <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Upcoming Deadlines</h2>
+                    <Link to="/my-tasks" className="text-xs font-bold text-blue-500 cursor-pointer hover:text-blue-600">See all</Link>
                   </div>
                   <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
                     {upcomingTasks.length > 0 ? (
@@ -456,25 +456,25 @@ const Dashboard = () => {
                           <div 
                             key={task.id} 
                             onClick={() => handleOpenEdit(task)}
-                            className="flex items-center gap-4 cursor-pointer group"
+                            className="flex items-center gap-3.5 cursor-pointer group"
                           >
-                             <div className="flex items-center justify-center w-10 h-10 bg-blue-50 text-blue-500 rounded-full shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                             <div className="flex items-center justify-center w-10 h-10 bg-blue-50 dark:bg-blue-500/15 text-blue-500 dark:text-blue-400 rounded-full shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                              </div>
                              <div className="flex-1 min-w-0">
-                               <p className="font-bold text-slate-800 text-sm truncate group-hover:text-blue-600 transition-colors">{task.title}</p>
+                               <p className="font-bold text-slate-800 dark:text-slate-100 text-sm truncate group-hover:text-blue-600 dark:group-hover:text-indigo-400 transition-colors">{task.title}</p>
                                <p className="text-xs font-medium text-slate-400 truncate mt-0.5">
                                  {task.category ? task.category.name : 'No category'}
                                </p>
                              </div>
                              <div className="text-right shrink-0">
-                               <p className="text-xs font-bold text-slate-500">
+                               <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
                                  {new Date(task.due_date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })}
                                </p>
                              </div>
                           </div>
                         ))}
-                        <button className="w-full mt-2 py-2.5 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <button onClick={handleOpenCreate} className="w-full mt-2 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                           New Task
                         </button>
                       </div>
@@ -487,14 +487,14 @@ const Dashboard = () => {
                 </motion.div>
 
                 {/* CATEGORIES PIE CHART (Like Top Sales) */}
-                <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-[400px]">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg font-bold text-slate-800">
+                <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/90 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-[360px] sm:h-[400px]">
+                  <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+                    <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white truncate">
                       {pieChartMode === 'time' ? 'Time Analytics (Mins)' : 'Category Distribution'}
                     </h2>
-                    <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
-                      <button onClick={() => setPieChartMode('time')} className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${pieChartMode === 'time' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>TIME</button>
-                      <button onClick={() => setPieChartMode('tasks')} className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${pieChartMode === 'tasks' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>TASKS</button>
+                    <div className="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0">
+                      <button onClick={() => setPieChartMode('time')} className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${pieChartMode === 'time' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>TIME</button>
+                      <button onClick={() => setPieChartMode('tasks')} className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${pieChartMode === 'tasks' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>TASKS</button>
                     </div>
                   </div>
                   <div className="flex-1 w-full flex items-center justify-center">

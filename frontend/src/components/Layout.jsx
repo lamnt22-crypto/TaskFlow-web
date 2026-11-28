@@ -1,9 +1,8 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { ThemeContext } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import PomodoroWidget from './PomodoroWidget';
@@ -15,21 +14,56 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useContext(AuthContext);
-  const { isDarkMode } = useContext(ThemeContext);
   const { t } = useTranslation();
   
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [avatarLoadError, setAvatarLoadError] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('taskflow_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const dropdownRef = useRef(null);
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('taskflow_sidebar_collapsed', String(next));
+      } catch {
+        // Ignore storage restrictions
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     setAvatarLoadError(false);
   }, [user?.avatar_url]);
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const getInitials = (name) => {
     return name ? name.charAt(0).toUpperCase() : 'U';
   };
+
+  const getPageTitle = (pathname) => {
+    if (pathname.startsWith('/dashboard')) return t('nav.dashboard') || 'Dashboard';
+    if (pathname.startsWith('/my-tasks')) return t('nav.myTasks') || 'My Tasks';
+    if (pathname.startsWith('/kanban')) return t('nav.kanban') || 'Kanban Board';
+    if (pathname.startsWith('/calendar')) return t('nav.calendar') || 'Calendar';
+    if (pathname.startsWith('/profile')) return t('nav.profile') || 'Profile';
+    if (pathname.startsWith('/tasks/')) return t('tasks.details') || 'Task Details';
+    return 'Workspace';
+  };
+
+  const pageTitle = getPageTitle(location.pathname);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -99,27 +133,49 @@ const Layout = ({ children }) => {
 
   const handleNotificationClick = (taskId) => {
     setShowNotifications(false);
-    navigate(`/tasks?highlight=${taskId}`);
+    navigate(`/tasks/${taskId}`);
   };
 
   return (
-    <div 
-      className={`flex min-h-screen font-sans transition-colors duration-300 text-slate-900 dark:text-slate-100 ${!user?.theme_color ? 'bg-slate-50 dark:bg-slate-900' : ''}`}
-      style={user?.theme_color ? { backgroundColor: user.theme_color } : {}}
+    <div
+      className="flex min-h-screen font-sans transition-colors duration-300 text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
+      style={user?.theme_color ? { '--workspace-accent': user.theme_color } : {}}
     >
-      <Sidebar />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-16 glass-effect flex items-center justify-between px-8 shrink-0 z-20">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Workspace</h2>
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={toggleSidebarCollapse}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+      />
+      <div className="flex-1 flex flex-col min-h-screen min-w-0">
+        <header className="h-16 glass-effect sticky top-0 flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0 z-20 relative">
+          {user?.theme_color && (
+            <div
+              className="absolute top-0 left-0 right-0 h-0.5 pointer-events-none"
+              style={{ backgroundColor: user.theme_color }}
+            />
+          )}
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 -ml-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+              aria-label="Open navigation menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{pageTitle}</h2>
           </div>
-          <div className="flex items-center gap-4 relative">
+          <div className="flex items-center gap-2.5 sm:gap-4 relative shrink-0">
             
             {/* Notification Bell */}
             <div ref={dropdownRef} className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className={`p-2 rounded-full transition-colors relative ${showNotifications ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                aria-label={t('notifications.title')}
+                className={`p-2 rounded-full transition-colors relative ${showNotifications ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                 
@@ -140,7 +196,7 @@ const Layout = ({ children }) => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 origin-top-right"
+                    className="fixed sm:absolute right-4 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 origin-top-right"
                   >
                     <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
                       <h3 className="font-semibold text-slate-800 dark:text-slate-100">{t('notifications.title')}</h3>
@@ -190,22 +246,28 @@ const Layout = ({ children }) => {
               </AnimatePresence>
             </div>
 
-            {resolveAvatarUrl(user?.avatar_url) && !avatarLoadError ? (
-              <img
-                src={resolveAvatarUrl(user.avatar_url)}
-                alt={user.username}
-                onError={() => setAvatarLoadError(true)}
-                className="w-9 h-9 rounded-full object-cover shadow-sm shadow-indigo-500/20 border border-white dark:border-slate-800"
-              />
-            ) : (
-              <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-sm shadow-indigo-500/20">
-                {getInitials(user?.username)}
-              </div>
-            )}
+            <Link to="/profile" title={user?.username || 'Profile'} className="shrink-0">
+              {resolveAvatarUrl(user?.avatar_url) && !avatarLoadError ? (
+                <img
+                  src={resolveAvatarUrl(user.avatar_url)}
+                  alt={user.username}
+                  onError={() => setAvatarLoadError(true)}
+                  className="w-9 h-9 rounded-full object-cover shadow-sm shadow-indigo-500/20 border-2 border-white dark:border-slate-800 hover:scale-105 transition-transform"
+                  style={user?.theme_color ? { borderColor: user.theme_color } : {}}
+                />
+              ) : (
+                <div
+                  className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-sm shadow-indigo-500/20 hover:scale-105 transition-transform"
+                  style={user?.theme_color ? { backgroundColor: user.theme_color } : {}}
+                >
+                  {getInitials(user?.username)}
+                </div>
+              )}
+            </Link>
           </div>
         </header>
         
-        <main className="flex-1 overflow-auto bg-slate-50/50 dark:bg-slate-900/50 p-4 sm:p-8 pb-28 sm:pb-8 relative z-0">
+        <main className="flex-1 overflow-x-hidden bg-slate-50/50 dark:bg-slate-950/50 p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8 relative z-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

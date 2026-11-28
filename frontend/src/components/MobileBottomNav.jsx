@@ -40,6 +40,15 @@ const navItems = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     )
+  },
+  {
+    to: '/profile',
+    label: 'Hồ sơ',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    )
   }
 ];
 
@@ -47,8 +56,8 @@ const MobileBottomNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-3 left-4 right-4 z-40 md:hidden">
-      <div className="bg-slate-900/90 dark:bg-slate-950/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-1.5 shadow-[0_10px_35px_rgba(0,0,0,0.5)] flex items-center justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 px-3 pb-safe pt-1 z-40 lg:hidden pointer-events-none">
+      <div className="pointer-events-auto max-w-md mx-auto bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-1.5 shadow-[0_10px_35px_rgba(0,0,0,0.5)] flex items-center justify-around">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
@@ -59,7 +68,7 @@ const MobileBottomNav = () => {
                 triggerHaptic('light');
                 sounds.playPop();
               }}
-              className="relative flex flex-col items-center justify-center py-2 px-3 rounded-2xl flex-1 text-center transition-colors"
+              className="relative flex flex-col items-center justify-center py-2 px-2 rounded-2xl flex-1 min-w-0 text-center transition-colors"
             >
               {isActive && (
                 <motion.div
@@ -71,7 +80,7 @@ const MobileBottomNav = () => {
               <div className={`relative z-10 ${isActive ? 'text-indigo-400 scale-110' : 'text-slate-400'} transition-all`}>
                 {item.icon}
               </div>
-              <span className={`relative z-10 text-[10px] font-bold mt-1 tracking-tight ${isActive ? 'text-white' : 'text-slate-400'}`}>
+              <span className={`relative z-10 text-[10px] font-bold mt-1 tracking-tight truncate max-w-full ${isActive ? 'text-white' : 'text-slate-400'}`}>
                 {item.label}
               </span>
             </NavLink>

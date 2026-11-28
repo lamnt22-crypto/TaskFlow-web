@@ -25,27 +25,27 @@ const COLUMN_CONFIG = {
     emoji: '📋',
     dotColor: 'bg-slate-400',
     headerGradient: 'from-slate-500 to-slate-600',
-    dropAura: 'ring-slate-400/40 border-slate-400 bg-slate-50/50 shadow-[0_0_40px_-8px_rgba(100,116,139,0.25)]',
-    columnBg: 'bg-gradient-to-b from-slate-50/80 to-white/40',
-    countBg: 'bg-slate-100 text-slate-600',
+    dropAura: 'ring-slate-400/40 border-slate-400 bg-slate-50/50 dark:bg-slate-800/60 shadow-[0_0_40px_-8px_rgba(100,116,139,0.25)]',
+    columnBg: 'bg-gradient-to-b from-slate-50/80 to-white/40 dark:from-slate-900/80 dark:to-slate-900/40 border-slate-200/80 dark:border-slate-800',
+    countBg: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
   },
   IN_PROGRESS: {
     title: 'ĐANG TIẾN HÀNH',
     emoji: '⚡',
     dotColor: 'bg-indigo-500',
     headerGradient: 'from-indigo-500 to-purple-600',
-    dropAura: 'ring-indigo-500/40 border-indigo-400 bg-indigo-50/50 shadow-[0_0_40px_-8px_rgba(99,102,241,0.25)]',
-    columnBg: 'bg-gradient-to-b from-indigo-50/60 to-white/40',
-    countBg: 'bg-indigo-100 text-indigo-600',
+    dropAura: 'ring-indigo-500/40 border-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 shadow-[0_0_40px_-8px_rgba(99,102,241,0.25)]',
+    columnBg: 'bg-gradient-to-b from-indigo-50/60 to-white/40 dark:from-indigo-950/30 dark:to-slate-900/40 border-indigo-100 dark:border-indigo-900/40',
+    countBg: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300',
   },
   COMPLETED: {
     title: 'XONG',
     emoji: '✅',
     dotColor: 'bg-emerald-500',
     headerGradient: 'from-emerald-500 to-teal-600',
-    dropAura: 'ring-emerald-500/40 border-emerald-400 bg-emerald-50/50 shadow-[0_0_40px_-8px_rgba(16,185,129,0.25)]',
-    columnBg: 'bg-gradient-to-b from-emerald-50/60 to-white/40',
-    countBg: 'bg-emerald-100 text-emerald-600',
+    dropAura: 'ring-emerald-500/40 border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/40 shadow-[0_0_40px_-8px_rgba(16,185,129,0.25)]',
+    columnBg: 'bg-gradient-to-b from-emerald-50/60 to-white/40 dark:from-emerald-950/30 dark:to-slate-900/40 border-emerald-100 dark:border-emerald-900/40',
+    countBg: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300',
   }
 };
 
@@ -85,13 +85,13 @@ const KanbanColumn = ({ statusKey, tasks, onEdit, onDelete, onAddTask }) => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: statusKey === 'TODO' ? 0.1 : statusKey === 'IN_PROGRESS' ? 0.2 : 0.3, type: 'spring', stiffness: 200, damping: 25 }}
-      className="flex flex-col min-w-[340px] flex-1"
+      className="flex flex-col min-w-[290px] sm:min-w-[340px] flex-1"
     >
       {/* Column Header */}
       <div className="flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-3">
           <div className={`w-3 h-3 rounded-full ${config.dotColor} shadow-sm`} />
-          <h3 className="font-black text-sm tracking-widest uppercase text-slate-700">
+          <h3 className="font-black text-sm tracking-widest uppercase text-slate-700 dark:text-slate-200">
             {config.title}
           </h3>
           <span className={`${config.countBg} text-xs font-black px-2.5 py-0.5 rounded-full`}>

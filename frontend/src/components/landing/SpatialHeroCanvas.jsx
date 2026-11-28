@@ -11,6 +11,7 @@ const SpatialHeroCanvas = () => {
   const [activeTab, setActiveTab] = useState('spatial_ui'); // 'spatial_ui' | 'kanban' | 'ai' | 'pomodoro'
   const [isHovered, setIsHovered] = useState(false);
   const [hasHoverSupport, setHasHoverSupport] = useState(true);
+  const [heroImageError, setHeroImageError] = useState(false);
 
   // Mouse coordinate values normalized between -0.5 and 0.5
   const mouseX = useMotionValue(0);
@@ -142,7 +143,7 @@ const SpatialHeroCanvas = () => {
           </div>
 
           {/* Interactive Mode Tabs */}
-          <div className="flex items-center bg-white/5 p-1 rounded-xl border border-white/10 backdrop-blur-md">
+          <div className="w-full sm:w-auto flex items-center bg-white/5 p-1 rounded-xl border border-white/10 backdrop-blur-md overflow-x-auto hide-scrollbar">
             {[
               { id: 'spatial_ui', label: '3D Spatial OS', icon: '🌌' },
               { id: 'kanban', label: 'Kanban Flow', icon: '📋' },
@@ -152,7 +153,7 @@ const SpatialHeroCanvas = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 ${
+                className={`relative shrink-0 whitespace-nowrap px-2.5 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 ${
                   activeTab === tab.id
                     ? 'text-white shadow-md'
                     : 'text-zinc-400 hover:text-white'
@@ -181,7 +182,7 @@ const SpatialHeroCanvas = () => {
         {/* --- Main 3D Canvas Content Stage --- */}
         <div 
           style={{ transformStyle: 'preserve-3d' }}
-          className="relative min-h-[380px] sm:min-h-[460px] pt-6 flex items-center justify-center"
+          className="relative min-h-[210px] sm:min-h-[380px] lg:min-h-[460px] pt-5 sm:pt-6 flex items-center justify-center"
         >
           <AnimatePresence mode="wait">
             {activeTab === 'spatial_ui' && (
@@ -194,12 +195,21 @@ const SpatialHeroCanvas = () => {
                 style={{ transformStyle: 'preserve-3d' }}
                 className="w-full relative rounded-2xl md:rounded-3xl overflow-hidden border border-white/15 group shadow-[0_25px_60px_rgba(0,0,0,0.6)]"
               >
-                <div className="relative aspect-[16/9] w-full overflow-hidden bg-black">
-                  <img
-                    src="/images/hero_spatial_3d.jpg"
-                    alt="TaskFlow 3D Spatial OS Interface"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-                  />
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center">
+                  {!heroImageError ? (
+                    <img
+                      src="/images/hero_spatial_3d.jpg"
+                      alt="TaskFlow 3D Spatial OS Interface"
+                      decoding="async"
+                      onError={() => setHeroImageError(true)}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                    />
+                  ) : (
+                    <div className="text-center p-6">
+                      <div className="text-4xl mb-2">🌌</div>
+                      <p className="text-sm font-bold text-white">TaskFlow 3D Spatial OS</p>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
                   {/* Floating Holographic Callout 1 (Top Left) */}
@@ -431,8 +441,8 @@ const SpatialHeroCanvas = () => {
                 style={{ transform: 'translateZ(40px)' }}
                 className="w-full max-w-lg mx-auto rounded-2xl bg-gradient-to-b from-rose-950/40 via-black to-slate-900 border border-rose-500/30 p-8 text-center"
               >
-                <div className="relative w-44 h-44 mx-auto mb-6 flex items-center justify-center">
-                  <svg className="w-full h-full -rotate-90">
+                <div className="relative w-36 h-36 sm:w-44 sm:h-44 mx-auto mb-6 flex items-center justify-center">
+                  <svg viewBox="0 0 176 176" className="w-full h-full -rotate-90">
                     <circle cx="88" cy="88" r="76" stroke="rgba(255,255,255,0.1)" strokeWidth="8" fill="none" />
                     <circle
                       cx="88"
@@ -453,15 +463,15 @@ const SpatialHeroCanvas = () => {
                     </defs>
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-black text-white font-mono tracking-tight">24:18</span>
+                    <span className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight">24:18</span>
                     <span className="text-xs uppercase tracking-widest text-rose-400 font-semibold mt-1">Focus Flow</span>
                   </div>
                 </div>
 
-                <h4 className="text-lg font-bold text-white mb-1">Target: Complete Spatial Landing Page</h4>
+                <h4 className="text-base sm:text-lg font-bold text-white mb-1">Target: Complete Spatial Landing Page</h4>
                 <p className="text-xs text-zinc-400 mb-6">Pomodoro #3 of 4 • Ambient Brown Noise Active 🎧</p>
 
-                <div className="flex justify-center gap-3">
+                <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <button className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all">
                     Take Short Break
                   </button>
@@ -474,13 +484,13 @@ const SpatialHeroCanvas = () => {
           </AnimatePresence>
         </div>
 
-        {/* --- Layer 2: Floating 3D Depth Badges (Spatial Parallax) --- */}
+        {/* --- Layer 2: Floating 3D Depth Badges (Spatial Parallax - Desktop only to prevent mobile/tablet clipping) --- */}
         {/* Floating Pomodoro Badge (Top-Right) */}
         <motion.div
           style={{ transform: 'translateZ(85px)' }}
           animate={{ y: [0, -6, 0] }}
           transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-6 -right-3 sm:-right-8 px-4 py-3 rounded-2xl bg-slate-900/90 dark:bg-black/90 backdrop-blur-xl border border-rose-500/40 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center gap-3 z-30"
+          className="hidden lg:flex absolute -top-6 -right-8 px-4 py-3 rounded-2xl bg-slate-900/90 dark:bg-black/90 backdrop-blur-xl border border-rose-500/40 shadow-[0_20px_40px_rgba(0,0,0,0.6)] items-center gap-3 z-30"
         >
           <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-lg shadow-[0_0_15px_rgba(244,63,94,0.4)]">
             🍅
@@ -499,7 +509,7 @@ const SpatialHeroCanvas = () => {
           style={{ transform: 'translateZ(95px)' }}
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          className="absolute -bottom-7 -left-3 sm:-left-8 px-4 py-3 rounded-2xl bg-slate-900/95 dark:bg-black/95 backdrop-blur-xl border border-indigo-500/40 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center gap-3 z-30"
+          className="hidden lg:flex absolute -bottom-7 -left-8 px-4 py-3 rounded-2xl bg-slate-900/95 dark:bg-black/95 backdrop-blur-xl border border-indigo-500/40 shadow-[0_20px_40px_rgba(0,0,0,0.6)] items-center gap-3 z-30"
         >
           <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-lg shadow-[0_0_15px_rgba(99,102,241,0.5)]">
             ✨
@@ -518,7 +528,7 @@ const SpatialHeroCanvas = () => {
           style={{ transform: 'translateZ(105px)' }}
           animate={{ y: [0, -7, 0] }}
           transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          className="absolute -bottom-8 right-8 sm:right-16 hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/90 dark:bg-black/90 backdrop-blur-xl border border-amber-500/40 shadow-[0_20px_40px_rgba(0,0,0,0.6)] z-30"
+          className="hidden lg:flex absolute -bottom-8 right-16 items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/90 dark:bg-black/90 backdrop-blur-xl border border-amber-500/40 shadow-[0_20px_40px_rgba(0,0,0,0.6)] z-30"
         >
           <span className="text-2xl animate-bounce">🔥</span>
           <div>
@@ -526,6 +536,31 @@ const SpatialHeroCanvas = () => {
             <p className="text-[10px] text-zinc-400 font-mono">+250 XP • Level 8 Master</p>
           </div>
         </motion.div>
+
+        {/* Compact Status Strip for Mobile & Tablet */}
+        <div className="lg:hidden mt-4 pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left">
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/5 border border-rose-500/25">
+            <span className="text-base">🍅</span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-white truncate">Deep Work • 24:18</p>
+              <p className="text-[10px] text-zinc-400">98% focus rate</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/5 border border-indigo-500/25">
+            <span className="text-base">✨</span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-white truncate">AI Auto-Planner</p>
+              <p className="text-[10px] text-zinc-400">4 tasks in 0.8s</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/5 border border-amber-500/25">
+            <span className="text-base">🔥</span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-amber-300 truncate">14-Day Streak</p>
+              <p className="text-[10px] text-zinc-400">+250 XP • Level 8</p>
+            </div>
+          </div>
+        </div>
 
       </motion.div>
     </div>

@@ -74,21 +74,18 @@ const Login = () => {
     <div className="min-h-screen flex bg-white dark:bg-[#0a0a0a] transition-colors duration-500">
 
       {/* Left Column: Form */}
-      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 relative z-10 w-full lg:w-1/2">
-        <div className="absolute top-8 left-8 sm:left-12 flex items-center gap-4 z-20">
+      <div className="flex-1 flex flex-col justify-between py-6 sm:py-10 px-4 sm:px-8 lg:flex-none lg:px-16 xl:px-24 relative z-10 w-full lg:w-1/2">
+        <div className="flex items-center justify-between w-full mb-8">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-white flex items-center justify-center group-hover:scale-105 transition-transform">
               <svg className="w-4 h-4 text-white dark:text-zinc-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
           </Link>
-        </div>
-
-        <div className="absolute top-8 right-8 sm:right-12 z-20">
           <LanguageToggle />
         </div>
 
-        <div className="mx-auto w-full max-w-sm lg:w-[400px]">
+        <div className="mx-auto w-full max-w-sm lg:w-[400px] my-auto py-4">
           <div>
             <h2 className="mt-6 text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
               {t("auth.loginTitle")}
@@ -214,6 +211,7 @@ const Login = () => {
             </div>
           </div>
         </div>
+        <div className="h-4" />
       </div>
 
       {/* Right Column: Image Cover */}
