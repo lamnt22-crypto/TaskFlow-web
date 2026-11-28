@@ -8,6 +8,30 @@ import AmbientBackground from '../components/landing/AmbientBackground';
 import SpotlightCard from '../components/landing/SpotlightCard';
 import SpatialHeroCanvas from '../components/landing/SpatialHeroCanvas';
 
+const STEP_MEDIA = [
+  {
+    image: '/images/step_workspace_3d.jpg',
+    icon: '🗂️',
+    spotlight: 'rgba(6, 182, 212, 0.22)',
+    border: 'rgba(6, 182, 212, 0.5)',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40',
+  },
+  {
+    image: '/images/step_ai_planner_3d.jpg',
+    icon: '🧠',
+    spotlight: 'rgba(168, 85, 247, 0.22)',
+    border: 'rgba(168, 85, 247, 0.5)',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+  },
+  {
+    image: '/images/step_gamification_3d.jpg',
+    icon: '🏆',
+    spotlight: 'rgba(245, 158, 11, 0.22)',
+    border: 'rgba(245, 158, 11, 0.5)',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-400/40',
+  },
+];
+
 const Home = () => {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const { t } = useTranslation();
@@ -16,78 +40,97 @@ const Home = () => {
   const [failedStepImages, setFailedStepImages] = useState({});
   const containerRef = useRef(null);
 
-  // Parallax Scroll Effects
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"]
+    offset: ['start start', 'end end'],
   });
 
   const heroY = useTransform(scrollYProgress, [0, 0.4], [0, -60]);
 
   const fadeIn = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] } },
   };
 
   const staggerContainer = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.12, delayChildren: 0.08 }
-    }
+      transition: { staggerChildren: 0.1, delayChildren: 0.06 },
+    },
   };
 
-  const faqs = [
-    { question: "Is TaskFlow really free?", answer: "Yes! We offer a generous free tier that includes unlimited tasks, basic boards, and up to 3 collaborators." },
-    { question: "Can I upgrade or downgrade anytime?", answer: "Absolutely. You can change your plan at any time. Your prorated balance will be applied to your next billing cycle." },
-    { question: "Does TaskFlow support dark mode?", answer: "Yes, TaskFlow comes with an ultra-premium crafted dark mode that syncs with your system preferences." },
-    { question: "How secure is my data?", answer: "We use industry-standard AES-256 encryption for data at rest and TLS 1.3 for data in transit. Your data is safe with us." }
-  ];
+  const translatedSteps = t('landing.howItWorks.steps', { returnObjects: true });
+  const stepsList = Array.isArray(translatedSteps) ? translatedSteps : [];
+
+  const translatedStarterFeatures = t('landing.pricing.starter.features', { returnObjects: true });
+  const starterFeatures = Array.isArray(translatedStarterFeatures) ? translatedStarterFeatures : [];
+
+  const translatedProFeatures = t('landing.pricing.pro.features', { returnObjects: true });
+  const proFeatures = Array.isArray(translatedProFeatures) ? translatedProFeatures : [];
+
+  const translatedFaqs = t('landing.faq.items', { returnObjects: true });
+  const faqs = Array.isArray(translatedFaqs) ? translatedFaqs : [];
 
   const toggleFaq = (index) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-slate-50 dark:bg-[#07080b] text-zinc-900 dark:text-zinc-50 font-sans transition-colors duration-500 overflow-x-hidden relative selection:bg-indigo-500/30 selection:text-indigo-900 dark:selection:text-indigo-200">
-      
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-slate-50 dark:bg-[#07080b] text-zinc-900 dark:text-zinc-50 font-sans transition-colors duration-500 overflow-x-clip relative selection:bg-indigo-500/30 selection:text-indigo-900 dark:selection:text-indigo-200"
+    >
       {/* 1. Spatial Ambient Lighting & 3D Perspective Grid Background */}
       <AmbientBackground />
 
       {/* 2. Ultra-Luxury Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#07080b]/80 backdrop-blur-2xl border-b border-zinc-200/80 dark:border-white/10 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
-          
           <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)] group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
-            <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hidden sm:inline-block">
+            <span translate="no" className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
+              TaskFlow
+            </span>
+            <span translate="no" className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hidden sm:inline-block">
               3D Spatial
             </span>
           </Link>
-          
+
           <div className="hidden md:flex items-center gap-2 lg:gap-8">
-            <a href="#features" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">Features</a>
-            <a href="#how-it-works" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">How it Works</a>
-            <a href="#pricing" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">Pricing</a>
+            <a href="#features" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
+              {t('landing.nav.features')}
+            </a>
+            <a href="#how-it-works" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
+              {t('landing.nav.howItWorks')}
+            </a>
+            <a href="#pricing" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
+              {t('landing.nav.pricing')}
+            </a>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4">
-            <div className="hidden xs:block sm:block">
+            <div className="hidden sm:block">
               <LanguageToggle />
             </div>
-            <div className="w-px h-5 bg-zinc-200 dark:bg-white/10 hidden sm:block"></div>
-            <button 
+            <div className="w-px h-5 bg-zinc-200 dark:bg-white/10 hidden sm:block" />
+            <button
               onClick={toggleTheme}
               className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white rounded-full hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors duration-200"
               aria-label="Toggle Dark Mode"
             >
               {isDarkMode ? (
-                <svg className="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                <svg className="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
               )}
             </button>
             <Link to="/login" className="hidden md:block text-sm font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors px-2">
@@ -104,9 +147,13 @@ const Home = () => {
               aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               )}
             </button>
           </div>
@@ -124,17 +171,17 @@ const Home = () => {
             >
               <div className="px-4 py-4 space-y-2">
                 <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5">
-                  Features
+                  {t('landing.nav.features')}
                 </a>
                 <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5">
-                  How it Works
+                  {t('landing.nav.howItWorks')}
                 </a>
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5">
-                  Pricing
+                  {t('landing.nav.pricing')}
                 </a>
                 <div className="pt-2 border-t border-zinc-200/80 dark:border-white/10 flex flex-col gap-2">
                   <div className="flex items-center justify-between px-3 py-1 sm:hidden">
-                    <span className="text-xs font-semibold text-zinc-500">Language</span>
+                    <span className="text-xs font-semibold text-zinc-500">{t('landing.nav.language')}</span>
                     <LanguageToggle />
                   </div>
                   <div className="grid grid-cols-2 gap-2 pt-1">
@@ -153,10 +200,9 @@ const Home = () => {
       </nav>
 
       <main className="pt-20 sm:pt-24 pb-16 relative z-10">
-        
         {/* 3. Flagship 3D Spatial Hero Section */}
         <section className="px-4 sm:px-6 lg:min-h-[88vh] flex flex-col items-center justify-center text-center pt-8 sm:pt-14 pb-10 sm:pb-12">
-          <motion.div 
+          <motion.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
@@ -164,45 +210,53 @@ const Home = () => {
           >
             {/* 3D Introducing Pill Badge */}
             <motion.div variants={fadeIn} className="inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-white/85 dark:bg-zinc-900/70 backdrop-blur-xl border border-indigo-500/20 dark:border-white/10 text-zinc-800 dark:text-zinc-200 text-xs sm:text-sm font-bold tracking-wide mb-6 sm:mb-8 shadow-sm max-w-full">
-              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-indigo-500 animate-ping shrink-0"></span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 font-extrabold">TaskFlow 3D Spatial</span>
-              <span className="text-zinc-400 dark:text-zinc-500 hidden xs:inline">•</span>
-              <span className="text-[11px] sm:text-sm text-zinc-600 dark:text-zinc-300">Next-Gen AI Workspace</span>
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-indigo-500 animate-ping shrink-0" />
+              <span translate="no" className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 font-extrabold">
+                {t('landing.hero.badgeBrand')}
+              </span>
+              <span className="text-zinc-400 dark:text-zinc-500 hidden sm:inline">•</span>
+              <span className="text-[11px] sm:text-sm text-zinc-600 dark:text-zinc-300">{t('landing.hero.badgeTag')}</span>
             </motion.div>
-            
+
             {/* Hero Main Headline */}
-            <motion.h1 variants={fadeIn} className="text-[2.25rem] leading-[1.12] sm:text-6xl md:text-7xl lg:text-[5.25rem] font-black tracking-tight text-zinc-900 dark:text-white sm:leading-[1.08] mb-5 sm:mb-8">
-              Work moves faster <br className="hidden sm:block"/>
+            <motion.h1 variants={fadeIn} className="text-[2.25rem] leading-[1.12] sm:text-6xl md:text-7xl lg:text-[5rem] font-black tracking-tight text-zinc-900 dark:text-white sm:leading-[1.08] mb-5 sm:mb-8">
+              {t('landing.hero.headlineTop')} <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-500 to-cyan-400 dark:from-indigo-400 dark:via-purple-300 dark:to-cyan-400">
-                in three dimensions.
+                {t('landing.hero.headlineGradient')}
               </span>
             </motion.h1>
-            
+
             {/* Hero Subtitle */}
             <motion.p variants={fadeIn} className="text-base sm:text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed font-normal px-1">
-              Đỉnh cao quản trị công việc kết hợp <strong className="text-zinc-900 dark:text-white font-semibold">Trí tuệ nhân tạo Gemini</strong>, không gian tương tác 3D đa tầng và hệ thống Gamification tạo động lực tức thì.
+              {t('landing.hero.subtitlePrefix')}{' '}
+              <strong translate="no" className="text-zinc-900 dark:text-white font-semibold">
+                {t('landing.hero.subtitleBrand')}
+              </strong>
+              {t('landing.hero.subtitleSuffix')}
             </motion.p>
-            
+
             {/* CTA Action Buttons */}
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row gap-3.5 sm:gap-6 justify-center items-center w-full max-w-md sm:max-w-none">
-              <Link to="/register" className="w-full sm:w-auto px-7 sm:px-9 py-3.5 sm:py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm sm:text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-[0_15px_35px_rgba(99,102,241,0.4)] flex items-center justify-center gap-2.5 sm:gap-3 group">
-                Bắt đầu Trải Nghiệm Miễn Phí
-                <svg className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+              <Link to="/register" className="w-full sm:w-auto px-7 sm:px-9 py-3.5 sm:py-4.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm sm:text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-[0_15px_35px_rgba(99,102,241,0.4)] flex items-center justify-center gap-2.5 sm:gap-3 group">
+                {t('landing.hero.ctaPrimary')}
+                <svg className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
               </Link>
-              <a href="#features" className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-5 bg-white/85 dark:bg-zinc-900/80 text-zinc-900 dark:text-white border border-zinc-200 dark:border-white/10 font-bold text-sm sm:text-lg rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/80 backdrop-blur-md transition-all duration-300 shadow-sm flex items-center justify-center gap-2">
-                Khám phá Tính năng 3D
+              <a href="#features" className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4.5 bg-white/85 dark:bg-zinc-900/80 text-zinc-900 dark:text-white border border-zinc-200 dark:border-white/10 font-bold text-sm sm:text-lg rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/80 backdrop-blur-md transition-all duration-300 shadow-sm flex items-center justify-center gap-2">
+                {t('landing.hero.ctaSecondary')}
               </a>
             </motion.div>
-            
+
             <motion.div variants={fadeIn} className="mt-6 sm:mt-8 text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-              <span>⚡ Không cần thẻ tín dụng</span>
-              <span className="hidden xs:inline">•</span>
-              <span>🎁 Tặng trọn gói trợ lý Gemini AI</span>
+              <span>{t('landing.hero.hintNoCard')}</span>
+              <span className="hidden sm:inline">•</span>
+              <span>{t('landing.hero.hintGemini')}</span>
             </motion.div>
           </motion.div>
 
           {/* 4. Interactive 3D Spatial Canvas Stage */}
-          <motion.div 
+          <motion.div
             style={{ y: heroY }}
             initial={{ opacity: 0, y: 50, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -216,177 +270,176 @@ const Home = () => {
         {/* 5. Trusted By Social Proof */}
         <section className="py-10 sm:py-14 bg-zinc-100/60 dark:bg-black/40 border-y border-zinc-200/80 dark:border-white/5 overflow-hidden relative z-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6 sm:mb-8 text-center flex flex-col items-center">
-             <p className="text-[11px] sm:text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-3">Được tin dùng bởi hơn 10,000+ chuyên gia công nghệ & doanh nghiệp</p>
-             <div className="flex gap-1 mb-2 text-amber-400">
-               {[1,2,3,4,5].map(star => (
-                 <svg key={star} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-               ))}
-             </div>
-             <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm font-medium">4.9/5 điểm đánh giá từ 2,000+ phản hồi trên Product Hunt & G2</p>
+            <p className="text-[11px] sm:text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-3">
+              {t('landing.proof.trustedBy')}
+            </p>
+            <div className="flex gap-1 mb-2 text-amber-400">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <svg key={star} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </div>
+            <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm font-medium">{t('landing.proof.rating')}</p>
           </div>
           <div className="overflow-hidden relative [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-            <div className="flex w-max gap-12 sm:gap-20 whitespace-nowrap px-6 opacity-60 dark:opacity-40 hover:opacity-100 transition-opacity duration-500 grayscale">
+            <div translate="no" className="flex w-max gap-12 sm:gap-20 whitespace-nowrap px-6 opacity-60 dark:opacity-40 hover:opacity-100 transition-opacity duration-500 grayscale">
               <div className="animate-[marquee_25s_linear_infinite] flex gap-12 sm:gap-24 items-center">
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
               </div>
               <div className="animate-[marquee_25s_linear_infinite] flex gap-12 sm:gap-24 items-center" aria-hidden="true">
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
-                 <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">VORTEX</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">NEXUS</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">HYPERION</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">SYNTHEX</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">ORBITAL</span>
+                <span className="text-xl sm:text-3xl font-black text-zinc-800 dark:text-white tracking-wider">AETHER</span>
               </div>
             </div>
           </div>
         </section>
 
         {/* 6. Spotlight Bento Grid Features (3D Glowing Architecture) */}
-        <section id="features" className="py-16 sm:py-28 px-4 sm:px-6 max-w-7xl mx-auto relative z-20">
-          <div className="max-w-3xl mb-12 sm:mb-20 text-center md:text-left">
+        <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 max-w-7xl mx-auto relative z-20">
+          <div className="max-w-3xl mb-12 sm:mb-16 text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-500/20">
-              💎 Kiến trúc triệu đô
+              {t('landing.features.eyebrow')}
             </div>
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, margin: '-80px' }}
               className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-5 sm:mb-6"
             >
-              Mọi thứ bạn cần.<br/> 
+              {t('landing.features.titleLine1')}
+              <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500">
-                Chính xác từng miligiây.
+                {t('landing.features.titleLine2')}
               </span>
             </motion.h2>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, margin: '-80px' }}
               transition={{ delay: 0.1 }}
               className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed"
             >
-              Thiết kế theo triết lý tối giản công thái học, loại bỏ hoàn toàn các nút bấm thừa. Mọi thao tác đều được tính toán để mang lại cảm giác thỏa mãn nhất.
+              {t('landing.features.subtitle')}
             </motion.p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-7">
-            
-            {/* Feature 1: AI Copilot (Voice & Document-to-Task) - 7 Cols */}
-            <SpotlightCard 
+            {/* Feature 1: AI Copilot - 7 Cols */}
+            <SpotlightCard
               className="md:col-span-7"
-              spotlightColor="rgba(129, 140, 248, 0.22)"
+              contentClassName="p-6 sm:p-9 flex flex-col justify-between h-full"
+              spotlightColor="rgba(129, 140, 248, 0.2)"
               borderColor="rgba(99, 102, 241, 0.5)"
             >
-              <div className="p-6 sm:p-10 flex flex-col h-full justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 flex items-center gap-1.5">
-                      <span>✨</span> Gemini 3.6 Flash
-                    </span>
-                    <span className="text-xs font-mono text-zinc-400">Response ~400ms</span>
+              <div>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <span translate="no" className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 flex items-center gap-1.5">
+                    <span>✨</span> {t('landing.features.ai.badge')}
+                  </span>
+                  <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">{t('landing.features.ai.latency')}</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
+                  {t('landing.features.ai.title')}
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base leading-relaxed mb-6">
+                  {t('landing.features.ai.desc')}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-zinc-50 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-4 sm:p-5 backdrop-blur-md">
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-white/10 mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-rose-500/15 text-rose-500 flex items-center justify-center text-sm">
+                      🎙️
+                    </div>
+                    <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('landing.features.ai.voiceLabel')}</span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
-                    Trợ Lý AI Ghi Âm & Phân Rã Tài Liệu
-                  </h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-base leading-relaxed mb-6">
-                    Không cần gõ phím. Bấm ghi âm hoặc tải lên file PDF/Word/Excel, AI sẽ tự động phân tích ngữ cảnh, bóc tách Tiêu đề, Hạn chót, Mức độ ưu tiên và lên Timeline chi tiết.
-                  </p>
+                  <div className="flex items-center gap-1 h-5">
+                    {[18, 28, 14, 32, 22, 12, 26, 16].map((h, i) => (
+                      <motion.span
+                        key={i}
+                        animate={{ height: [6, h, 6] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1, ease: 'easeInOut' }}
+                        className="w-1 bg-indigo-500 rounded-full"
+                      />
+                    ))}
+                  </div>
                 </div>
 
-                {/* Interactive Simulated Voice & NLP Box */}
-                <div className="rounded-2xl bg-zinc-100/90 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-5 backdrop-blur-md">
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-white/10 mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center text-sm shadow-[0_0_12px_rgba(244,63,94,0.4)]">
-                        🎙️
-                      </div>
-                      <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Live Voice Input</span>
-                    </div>
-                    {/* Simulated Dancing Audio Waveform */}
-                    <div className="flex items-center gap-1 h-5">
-                      {[18, 28, 14, 32, 22, 12, 26, 16].map((h, i) => (
-                        <motion.span
-                          key={i}
-                          animate={{ height: [6, h, 6] }}
-                          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1, ease: 'easeInOut' }}
-                          className="w-1 bg-indigo-500 rounded-full"
-                        />
-                      ))}
-                    </div>
+                <p className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200 italic mb-4">
+                  {t('landing.features.ai.sampleQuote')}
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
+                    <span className="text-[10px] text-zinc-400 block font-mono">{t('landing.features.ai.taskLabel')}</span>
+                    <span className="font-semibold text-zinc-900 dark:text-white truncate block">{t('landing.features.ai.taskValue')}</span>
                   </div>
-
-                  <p className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200 italic mb-4">
-                    "Nhắc tôi gửi báo cáo quý cho anh Hưng lúc 3 giờ chiều mai, mức độ khẩn cấp."
-                  </p>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                    <div className="p-2 rounded-lg bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
-                      <span className="text-[10px] text-zinc-400 block font-mono">TASK</span>
-                      <span className="font-semibold text-zinc-900 dark:text-white truncate block">Gửi báo cáo Q3</span>
-                    </div>
-                    <div className="p-2 rounded-lg bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
-                      <span className="text-[10px] text-zinc-400 block font-mono">DUE TIME</span>
-                      <span className="font-semibold text-indigo-500 dark:text-indigo-400">15:00 Ngày Mai</span>
-                    </div>
-                    <div className="p-2 rounded-lg bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5 col-span-2 sm:col-span-1">
-                      <span className="text-[10px] text-zinc-400 block font-mono">PRIORITY</span>
-                      <span className="font-semibold text-rose-500 flex items-center gap-1">🔥 Khẩn cấp</span>
-                    </div>
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
+                    <span className="text-[10px] text-zinc-400 block font-mono">{t('landing.features.ai.dueLabel')}</span>
+                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">{t('landing.features.ai.dueValue')}</span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5 col-span-2 sm:col-span-1">
+                    <span className="text-[10px] text-zinc-400 block font-mono">{t('landing.features.ai.priorityLabel')}</span>
+                    <span className="font-semibold text-rose-500 flex items-center gap-1">{t('landing.features.ai.priorityValue')}</span>
                   </div>
                 </div>
               </div>
             </SpotlightCard>
 
             {/* Feature 2: 3D Spatial Kanban - 5 Cols */}
-            <SpotlightCard 
+            <SpotlightCard
               className="md:col-span-5"
+              contentClassName="p-6 sm:p-9 flex flex-col justify-between h-full"
               spotlightColor="rgba(45, 212, 191, 0.2)"
               borderColor="rgba(20, 184, 166, 0.5)"
             >
-              <div className="p-8 sm:p-10 flex flex-col h-full justify-between">
-                <div>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30 inline-block mb-4">
-                    📋 120 FPS Fluid Drag
-                  </span>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
-                    Kanban Kéo & Thả 3D
-                  </h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-base leading-relaxed mb-6">
-                    Tương tác kéo thả xúc giác mượt mà được tăng tốc bằng GPU. Card nhấc bổng khỏi mặt phẳng và nghiêng theo gia tốc ngón tay.
-                  </p>
-                </div>
+              <div>
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30 inline-block mb-4">
+                  {t('landing.features.kanban.badge')}
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
+                  {t('landing.features.kanban.title')}
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base leading-relaxed mb-6">
+                  {t('landing.features.kanban.desc')}
+                </p>
+              </div>
 
-                {/* Mini Kanban Columns Preview */}
-                <div className="rounded-2xl bg-zinc-100/90 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl p-3 bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-[11px] font-bold text-zinc-500">Đang làm</span>
-                        <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                      </div>
-                      <motion.div 
-                        whileHover={{ y: -4, rotateZ: 1 }}
-                        className="p-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/40 shadow-sm cursor-grab"
-                      >
-                        <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200">Audit UI/UX Mobile</p>
-                        <span className="text-[10px] text-indigo-500 font-mono mt-1 block">⏱️ 2h còn lại</span>
-                      </motion.div>
+              <div className="rounded-2xl bg-zinc-50 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl p-3 bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">{t('landing.features.kanban.colDoing')}</span>
+                      <span className="w-2 h-2 rounded-full bg-indigo-500" />
                     </div>
+                    <motion.div
+                      whileHover={{ y: -4, rotateZ: 1 }}
+                      className="p-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/40 shadow-sm cursor-grab"
+                    >
+                      <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200">{t('landing.features.kanban.card1')}</p>
+                      <span className="text-[10px] text-indigo-500 font-mono mt-1 block">{t('landing.features.kanban.card1Time')}</span>
+                    </motion.div>
+                  </div>
 
-                    <div className="rounded-xl p-3 bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-[11px] font-bold text-zinc-500">Hoàn thành</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      </div>
-                      <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-500/30 opacity-80">
-                        <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300 line-through">Release v2.0</p>
-                        <span className="text-[10px] text-emerald-500 font-mono mt-1 block">🎉 +120 XP</span>
-                      </div>
+                  <div className="rounded-xl p-3 bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/5">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">{t('landing.features.kanban.colDone')}</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-500/30 opacity-85">
+                      <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300 line-through">{t('landing.features.kanban.card2')}</p>
+                      <span translate="no" className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono mt-1 block">{t('landing.features.kanban.card2Xp')}</span>
                     </div>
                   </div>
                 </div>
@@ -394,235 +447,204 @@ const Home = () => {
             </SpotlightCard>
 
             {/* Feature 3: Pomodoro & Time Analytics - 5 Cols */}
-            <SpotlightCard 
+            <SpotlightCard
               className="md:col-span-5"
+              contentClassName="p-6 sm:p-9 flex flex-col justify-between h-full"
               spotlightColor="rgba(244, 63, 94, 0.2)"
               borderColor="rgba(244, 63, 94, 0.5)"
             >
-              <div className="p-8 sm:p-10 flex flex-col h-full justify-between">
-                <div>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 inline-block mb-4">
-                    🍅 Đồng Hồ Tập Trung
-                  </span>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
-                    Pomodoro & Phân Tích Giờ
-                  </h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-base leading-relaxed mb-6">
-                    Ghi nhận tự động số phiên tập trung cho từng Task. Biểu đồ thời gian trực quan giúp bạn nhận diện chính xác nguồn năng lượng đã tiêu hao.
-                  </p>
-                </div>
+              <div>
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 inline-block mb-4">
+                  {t('landing.features.pomodoro.badge')}
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
+                  {t('landing.features.pomodoro.title')}
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base leading-relaxed mb-6">
+                  {t('landing.features.pomodoro.desc')}
+                </p>
+              </div>
 
-                {/* Mini Pomodoro Graphic */}
-                <div className="rounded-2xl bg-zinc-100/90 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-5 flex items-center justify-between gap-4">
-                  <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-                    <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
-                      <circle cx="40" cy="40" r="32" stroke="rgba(244,63,94,0.15)" strokeWidth="6" fill="none" />
-                      <circle cx="40" cy="40" r="32" stroke="#f43f5e" strokeWidth="6" strokeDasharray="200" strokeDashoffset="50" strokeLinecap="round" fill="none" />
-                    </svg>
-                    <span className="absolute text-sm font-black font-mono text-zinc-900 dark:text-white">25:00</span>
+              <div className="rounded-2xl bg-zinc-50 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-4 sm:p-5 flex items-center justify-between gap-4">
+                <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+                  <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
+                    <circle cx="40" cy="40" r="32" stroke="rgba(244,63,94,0.15)" strokeWidth="6" fill="none" />
+                    <circle cx="40" cy="40" r="32" stroke="#f43f5e" strokeWidth="6" strokeDasharray="200" strokeDashoffset="50" strokeLinecap="round" fill="none" />
+                  </svg>
+                  <span translate="no" className="absolute text-sm font-black font-mono text-zinc-900 dark:text-white">25:00</span>
+                </div>
+                <div className="space-y-1.5 flex-1 min-w-0 text-xs">
+                  <div className="flex justify-between font-medium">
+                    <span className="text-zinc-600 dark:text-zinc-400 truncate">{t('landing.features.pomodoro.category')}</span>
+                    <span translate="no" className="font-bold text-zinc-800 dark:text-zinc-200">65%</span>
                   </div>
-                  <div className="space-y-1.5 flex-1 min-w-0 text-xs">
-                    <div className="flex justify-between font-medium">
-                      <span className="text-zinc-500">Học tập & R&D</span>
-                      <span className="font-bold text-zinc-800 dark:text-zinc-200">65%</span>
-                    </div>
-                    <div className="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
-                      <div className="w-[65%] h-full bg-rose-500 rounded-full" />
-                    </div>
-                    <p className="text-[11px] text-zinc-400 pt-1">Đã hoàn thành 6 phiên hôm nay</p>
+                  <div className="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
+                    <div className="w-[65%] h-full bg-rose-500 rounded-full" />
                   </div>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 pt-1">{t('landing.features.pomodoro.sessionsDone')}</p>
                 </div>
               </div>
             </SpotlightCard>
 
             {/* Feature 4: Gamification & Dopamine Rewards - 7 Cols */}
-            <SpotlightCard 
+            <SpotlightCard
               className="md:col-span-7"
+              contentClassName="p-6 sm:p-9 flex flex-col justify-between h-full"
               spotlightColor="rgba(245, 158, 11, 0.22)"
               borderColor="rgba(245, 158, 11, 0.5)"
             >
-              <div className="p-8 sm:p-10 flex flex-col h-full justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
-                      <span>🏆</span> Gamification Engine
-                    </span>
-                    <span className="text-xs font-mono text-amber-500 font-bold">14-Day Streak 🔥</span>
+              <div>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <span translate="no" className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                    <span>🏆</span> {t('landing.features.gamification.badge')}
+                  </span>
+                  <span className="text-xs font-mono text-amber-600 dark:text-amber-400 font-bold">{t('landing.features.gamification.streak')}</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
+                  {t('landing.features.gamification.title')}
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base leading-relaxed mb-6">
+                  {t('landing.features.gamification.desc')}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-zinc-50 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-4 sm:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.45)] shrink-0">
+                      🏅
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-zinc-900 dark:text-white">{t('landing.features.gamification.rank')}</h4>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400">{t('landing.features.gamification.rankSub')}</p>
+                    </div>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
-                    Trò Chơi Hóa & Thưởng Dopamine Đã Mắt
-                  </h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-base leading-relaxed mb-6">
-                    Biến việc hoàn thành task thành trò chơi hào hứng. Pháo hoa bung nổ, âm thanh "Ting" tinh tế, tích lũy điểm kinh nghiệm và thăng cấp huy hiệu mỗi ngày.
-                  </p>
+                  <span translate="no" className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                    1,850 / 2,000 XP
+                  </span>
                 </div>
 
-                {/* Gamification Dashboard Widget */}
-                <div className="rounded-2xl bg-zinc-100/90 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.5)]">
-                        🏅
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-zinc-900 dark:text-white">Cấp 8: Bậc Thầy Năng Suất</h4>
-                        <p className="text-[11px] text-zinc-500">Top 1% người dùng tuần này</p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-mono font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-                      1,850 / 2,000 XP
-                    </span>
-                  </div>
-
-                  <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      whileInView={{ width: '92%' }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.5, ease: 'easeOut' }}
-                      className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.6)]"
-                    />
-                  </div>
+                <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: '92%' }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.5, ease: 'easeOut' }}
+                    className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.6)]"
+                  />
                 </div>
               </div>
             </SpotlightCard>
 
             {/* Feature 5: Real-time Collaboration & Shortcuts - 12 Cols */}
-            <SpotlightCard 
+            <SpotlightCard
               className="md:col-span-12"
+              contentClassName="p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
               spotlightColor="rgba(99, 102, 241, 0.18)"
               borderColor="rgba(129, 140, 248, 0.4)"
             >
-              <div className="p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 inline-block mb-4">
-                    ⚡ Zero Latency Productivity
-                  </span>
-                  <h3 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-                    Phím Tắt Thần Tốc & Cộng Tác Trực Tuyến
-                  </h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-lg leading-relaxed mb-6">
-                    Điều khiển mọi luồng công việc mà không cần rời tay khỏi bàn phím như một lập trình viên lão luyện. Nhấn phím để mở menu tìm kiếm, đổi giao diện hoặc thêm nhanh nhiệm vụ.
-                  </p>
-                  
-                  {/* Keyboard Shortcut Badges */}
-                  <div className="flex flex-wrap gap-2.5">
-                    {[
-                      { key: '⌘ + K', label: 'Tìm kiếm đa năng' },
-                      { key: 'C', label: 'Tạo Task mới' },
-                      { key: 'D', label: 'Đổi Dark / Light' },
-                      { key: 'P', label: 'Bật Pomodoro' },
-                    ].map((sc, i) => (
-                      <div key={i} className="px-3.5 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-xs flex items-center gap-2">
-                        <kbd className="px-2 py-0.5 rounded-md bg-white dark:bg-black font-mono font-bold text-zinc-800 dark:text-zinc-200 shadow-sm border border-zinc-200 dark:border-white/10">
-                          {sc.key}
-                        </kbd>
-                        <span className="text-zinc-600 dark:text-zinc-400 font-medium">{sc.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div className="lg:col-span-6">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 inline-block mb-4">
+                  {t('landing.features.shortcuts.badge')}
+                </span>
+                <h3 className="text-2xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
+                  {t('landing.features.shortcuts.title')}
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg leading-relaxed mb-6">
+                  {t('landing.features.shortcuts.desc')}
+                </p>
 
-                <div className="lg:col-span-6 rounded-2xl bg-zinc-100/90 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-6 relative overflow-hidden min-h-[220px] flex items-center justify-center">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-purple-500/5 to-transparent pointer-events-none" />
-                  
-                  {/* Simulated Moving Cursors */}
-                  <motion.div 
-                    animate={{ x: [0, 40, 20, 0], y: [0, -20, 10, 0] }}
-                    transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute top-1/4 left-1/4 flex items-center gap-2 z-10"
-                  >
-                    <svg className="w-5 h-5 text-indigo-500 fill-current drop-shadow" viewBox="0 0 24 24"><path d="M3 3l7 18 3-7 7-3L3 3z"/></svg>
-                    <span className="px-2 py-0.5 rounded-full bg-indigo-500 text-white text-[10px] font-bold shadow">Minh (Tech Lead)</span>
-                  </motion.div>
-
-                  <motion.div 
-                    animate={{ x: [0, -35, -15, 0], y: [0, 25, -10, 0] }}
-                    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                    className="absolute bottom-1/3 right-1/4 flex items-center gap-2 z-10"
-                  >
-                    <svg className="w-5 h-5 text-purple-500 fill-current drop-shadow" viewBox="0 0 24 24"><path d="M3 3l7 18 3-7 7-3L3 3z"/></svg>
-                    <span className="px-2 py-0.5 rounded-full bg-purple-500 text-white text-[10px] font-bold shadow">Sarah (UI Designer)</span>
-                  </motion.div>
-
-                  <div className="text-center relative z-20">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow-[0_0_25px_rgba(99,102,241,0.5)]">
-                      🚀
+                <div className="flex flex-wrap gap-2.5">
+                  {[
+                    { key: '⌘ + K', label: t('landing.features.shortcuts.scSearch') },
+                    { key: 'C', label: t('landing.features.shortcuts.scCreate') },
+                    { key: 'D', label: t('landing.features.shortcuts.scTheme') },
+                    { key: 'P', label: t('landing.features.shortcuts.scPomo') },
+                  ].map((sc, i) => (
+                    <div key={i} className="px-3.5 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-xs flex items-center gap-2">
+                      <kbd translate="no" className="px-2 py-0.5 rounded-md bg-white dark:bg-black font-mono font-bold text-zinc-800 dark:text-zinc-200 shadow-sm border border-zinc-200 dark:border-white/10">
+                        {sc.key}
+                      </kbd>
+                      <span className="text-zinc-600 dark:text-zinc-400 font-medium">{sc.label}</span>
                     </div>
-                    <h4 className="text-lg font-bold text-zinc-900 dark:text-white">Đồng Bộ Trực Tiếp Đa Nền Tảng</h4>
-                    <p className="text-xs text-zinc-500 mt-1">Web, Mobile và Desktop luôn khớp dữ liệu từng giây</p>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-6 rounded-2xl bg-zinc-50 dark:bg-black/60 border border-zinc-200 dark:border-white/10 p-6 relative overflow-hidden min-h-[220px] flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-purple-500/5 to-transparent pointer-events-none" />
+
+                <motion.div
+                  animate={{ x: [0, 30, 15, 0], y: [0, -16, 8, 0] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+                  className="hidden sm:flex absolute top-6 left-8 items-center gap-2 z-10"
+                >
+                  <svg className="w-5 h-5 text-indigo-500 fill-current drop-shadow" viewBox="0 0 24 24">
+                    <path d="M3 3l7 18 3-7 7-3L3 3z" />
+                  </svg>
+                  <span translate="no" className="px-2.5 py-0.5 rounded-full bg-indigo-500 text-white text-[10px] font-bold shadow">
+                    Minh (Tech Lead)
+                  </span>
+                </motion.div>
+
+                <motion.div
+                  animate={{ x: [0, -25, -10, 0], y: [0, 18, -8, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                  className="hidden sm:flex absolute bottom-6 right-8 items-center gap-2 z-10"
+                >
+                  <svg className="w-5 h-5 text-purple-500 fill-current drop-shadow" viewBox="0 0 24 24">
+                    <path d="M3 3l7 18 3-7 7-3L3 3z" />
+                  </svg>
+                  <span translate="no" className="px-2.5 py-0.5 rounded-full bg-purple-500 text-white text-[10px] font-bold shadow">
+                    Sarah (UI Designer)
+                  </span>
+                </motion.div>
+
+                <div className="text-center relative z-20">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow-[0_0_25px_rgba(99,102,241,0.5)]">
+                    🚀
                   </div>
+                  <h4 className="text-lg font-bold text-zinc-900 dark:text-white">{t('landing.features.shortcuts.syncTitle')}</h4>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{t('landing.features.shortcuts.syncSub')}</p>
                 </div>
               </div>
             </SpotlightCard>
-
           </div>
         </section>
 
         {/* 7. How It Works Section (3D Spatial Workflow Steps) */}
-        <section id="how-it-works" className="py-20 sm:py-28 px-4 sm:px-6 relative z-20 bg-zinc-100/60 dark:bg-black/40 border-y border-zinc-200/80 dark:border-white/5">
-           <div className="max-w-7xl mx-auto">
-             <div className="text-center mb-14 sm:mb-20">
-               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-500/20">
-                 ⚡ Quy trình 3 bước tối ưu
-               </div>
-               <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">
-                 Khởi đầu chỉ trong 3 bước
-               </h2>
-               <p className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-                 Từ ý tưởng mơ hồ đến kết quả hoàn hảo. TaskFlow được thiết kế để không làm lãng phí một giây nào của bạn.
-               </p>
-             </div>
-             
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                {[
-                  { 
-                    step: "BƯỚC 01", 
-                    title: "Tạo Không Gian Làm Việc", 
-                    desc: "Khởi tạo workspace thông minh chỉ trong vài giây. Tùy biến các danh mục dự án, phân quyền cộng sự an toàn.",
-                    image: "/images/step_workspace_3d.jpg",
-                    tag: "Isometric Workspace",
-                    icon: "🗂️",
-                    spotlight: "rgba(6, 182, 212, 0.25)",
-                    border: "rgba(6, 182, 212, 0.5)",
-                    badgeColor: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/30"
-                  },
-                  { 
-                    step: "BƯỚC 02", 
-                    title: "Để AI Lập Kế Hoạch & Phân Rã", 
-                    desc: "Chỉ cần ghi âm hoặc tải file PDF/Word. Trợ lý Gemini AI tự động bóc tách thành các đầu việc nhỏ, gắn deadline và mức độ ưu tiên.",
-                    image: "/images/step_ai_planner_3d.jpg",
-                    tag: "Gemini Neural Core",
-                    icon: "🧠",
-                    spotlight: "rgba(168, 85, 247, 0.25)",
-                    border: "rgba(168, 85, 247, 0.5)",
-                    badgeColor: "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
-                  },
-                  { 
-                    step: "BƯỚC 03", 
-                    title: "Chinh Phục & Nhận Thưởng", 
-                    desc: "Theo dõi tiến độ Kanban 3D mượt mà, bật Pomodoro tập trung sâu và thu thập XP thăng cấp huy hiệu vinh quang.",
-                    image: "/images/step_gamification_3d.jpg",
-                    tag: "Gamification & XP",
-                    icon: "🏆",
-                    spotlight: "rgba(245, 158, 11, 0.25)",
-                    border: "rgba(245, 158, 11, 0.5)",
-                    badgeColor: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-                  }
-                ].map((item, idx) => (
+        <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 relative z-20 bg-zinc-100/70 dark:bg-black/40 border-y border-zinc-200/80 dark:border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12 sm:mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-500/20">
+                {t('landing.howItWorks.eyebrow')}
+              </div>
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">
+                {t('landing.howItWorks.title')}
+              </h2>
+              <p className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+                {t('landing.howItWorks.subtitle')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+              {stepsList.map((item, idx) => {
+                const media = STEP_MEDIA[idx] || STEP_MEDIA[0];
+                return (
                   <SpotlightCard
                     key={idx}
-                    spotlightColor={item.spotlight}
-                    borderColor={item.border}
-                    className="p-5 sm:p-7 flex flex-col justify-between group"
+                    spotlightColor={media.spotlight}
+                    borderColor={media.border}
+                    className={`h-full group ${idx === 2 ? 'md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none w-full' : 'w-full'}`}
+                    contentClassName="p-5 sm:p-6 flex flex-col justify-between h-full"
                   >
                     <div>
                       {/* 3D Image Showcase Container */}
-                      <div className="w-full aspect-square rounded-2xl overflow-hidden relative mb-6 border border-zinc-200/80 dark:border-white/10 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 shadow-lg flex items-center justify-center">
+                      <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative mb-5 border border-zinc-200/80 dark:border-white/10 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 shadow-md flex items-center justify-center">
                         {!failedStepImages[idx] ? (
-                          <img 
-                            src={item.image} 
-                            alt={item.title} 
+                          <img
+                            src={media.image}
+                            alt={item.title}
                             loading="lazy"
                             decoding="async"
                             onError={() => setFailedStepImages((prev) => ({ ...prev, [idx]: true }))}
@@ -630,32 +652,32 @@ const Home = () => {
                           />
                         ) : (
                           <div className="flex flex-col items-center justify-center p-6 text-center">
-                            <span className="text-5xl mb-3">{item.icon}</span>
+                            <span className="text-5xl mb-3">{media.icon}</span>
                             <span className="text-sm font-bold text-white/90">{item.tag}</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 pointer-events-none" />
-                        
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent pointer-events-none" />
+
                         {/* Step Pill Overlay */}
-                        <div className="absolute top-4 left-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase backdrop-blur-md border ${item.badgeColor}`}>
+                        <div className="absolute top-3 left-3">
+                          <span className={`px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md border ${media.badgeColor}`}>
                             {item.step}
                           </span>
                         </div>
 
                         {/* Tag Pill Overlay */}
-                        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white/90">
-                          <span className="font-semibold bg-black/60 px-3 py-1 rounded-lg backdrop-blur-md border border-white/10">
+                        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 text-xs text-white">
+                          <span translate="no" className="font-semibold bg-black/65 px-3 py-1 rounded-lg backdrop-blur-md border border-white/15 truncate">
                             {item.tag}
                           </span>
-                          <span className="w-7 h-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:translate-x-1 transition-transform">
+                          <span className="w-7 h-7 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shrink-0 group-hover:translate-x-1 transition-transform">
                             →
                           </span>
                         </div>
                       </div>
 
                       {/* Content */}
-                      <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-3 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
+                      <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mb-2.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {item.title}
                       </h3>
                       <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
@@ -663,75 +685,111 @@ const Home = () => {
                       </p>
                     </div>
 
-                    <div className="pt-6 mt-6 border-t border-zinc-200/80 dark:border-white/10 flex items-center justify-between text-xs text-zinc-500">
-                      <span>✓ Tích hợp sẵn</span>
-                      <span className="font-mono text-indigo-500 dark:text-indigo-400 font-semibold">Tự động 100%</span>
+                    <div className="pt-4 mt-5 border-t border-zinc-200/80 dark:border-white/10 flex items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      <span className="font-medium">{t('landing.howItWorks.footerLeft')}</span>
+                      <span translate="no" className="font-mono text-indigo-600 dark:text-indigo-400 font-semibold whitespace-nowrap">
+                        {t('landing.howItWorks.footerRight')}
+                      </span>
                     </div>
                   </SpotlightCard>
-                ))}
-             </div>
-           </div>
+                );
+              })}
+            </div>
+          </div>
         </section>
 
         {/* 8. Pricing Plans */}
-        <section id="pricing" className="py-20 sm:py-28 px-4 sm:px-6 relative z-20">
+        <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 relative z-20">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14 sm:mb-20">
-              <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">Minh bạch. Không rủi ro.</h2>
-              <p className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">Gói miễn phí đầy đủ tính năng cốt lõi. Nâng cấp bất cứ lúc nào khi nhóm của bạn sẵn sàng bứt phá.</p>
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">
+                {t('landing.pricing.title')}
+              </h2>
+              <p className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+                {t('landing.pricing.subtitle')}
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 max-w-5xl mx-auto items-stretch">
-               
-               <SpotlightCard className="p-6 sm:p-10 lg:p-12">
-                 <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">Gói Khởi Động (Starter)</h3>
-                 <div className="flex items-baseline gap-2 mb-6">
-                   <span className="text-5xl sm:text-6xl font-black text-zinc-900 dark:text-white">$0</span>
-                   <span className="text-zinc-500 text-sm sm:text-base font-medium">/ trọn đời</span>
-                 </div>
-                 <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mb-8 border-b border-zinc-200 dark:border-white/10 pb-6">Hoàn hảo cho sinh viên, cá nhân quản lý công việc và mục tiêu hàng ngày.</p>
-                 <ul className="flex flex-col gap-4 mb-10 flex-1">
-                   {["Không giới hạn số lượng Task", "Bảng Kanban kéo thả mượt mà", "Đồng hồ Pomodoro tập trung", "Trợ lý AI cơ bản", "Lịch trực quan & Dark mode"].map((item, i) => (
-                     <li key={i} className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300 font-medium text-sm">
-                       <div className="w-5 h-5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-500 flex items-center justify-center shrink-0 text-xs">
-                         ✓
-                       </div>
-                       {item}
-                     </li>
-                   ))}
-                 </ul>
-                 <Link to="/register" className="block w-full py-3.5 sm:py-4 text-center rounded-2xl bg-zinc-100 dark:bg-white/10 text-zinc-900 dark:text-white font-bold hover:bg-zinc-200 dark:hover:bg-white/15 transition-colors">
-                   Bắt Đầu Miễn Phí
-                 </Link>
-               </SpotlightCard>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto items-stretch">
+              {/* Starter Card */}
+              <SpotlightCard
+                className="h-full"
+                contentClassName="p-7 sm:p-9 lg:p-10 flex flex-col justify-between h-full"
+              >
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-3">
+                    {t('landing.pricing.starter.name')}
+                  </h3>
+                  <div className="flex items-baseline gap-2 mb-5">
+                    <span translate="no" className="text-5xl font-black text-zinc-900 dark:text-white tabular-nums whitespace-nowrap">
+                      {t('landing.pricing.starter.price')}
+                    </span>
+                    <span className="text-zinc-500 dark:text-zinc-400 text-sm sm:text-base font-medium">
+                      {t('landing.pricing.starter.period')}
+                    </span>
+                  </div>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mb-6 border-b border-zinc-200 dark:border-white/10 pb-6 leading-relaxed">
+                    {t('landing.pricing.starter.desc')}
+                  </p>
+                  <ul className="flex flex-col gap-3.5 mb-8">
+                    {starterFeatures.map((item, i) => (
+                      <li key={i} className="flex items-start gap-3 text-zinc-700 dark:text-zinc-300 font-medium text-sm">
+                        <div className="w-5 h-5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 text-xs mt-0.5">
+                          ✓
+                        </div>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link
+                  to="/register"
+                  className="mt-auto block w-full py-3.5 text-center rounded-xl bg-zinc-100 dark:bg-white/10 text-zinc-900 dark:text-white font-bold text-sm sm:text-base hover:bg-zinc-200 dark:hover:bg-white/15 transition-colors"
+                >
+                  {t('landing.pricing.starter.cta')}
+                </Link>
+              </SpotlightCard>
 
-               <SpotlightCard 
-                 className="p-6 sm:p-10 lg:p-12 lg:scale-105 z-10"
-                 spotlightColor="rgba(99, 102, 241, 0.3)"
-                 borderColor="rgba(129, 140, 248, 0.6)"
-               >
-                 <div className="inline-block self-start px-3.5 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md mb-6">
-                   Khuyên Dùng • Pro AI
-                 </div>
-                 <div className="flex items-baseline gap-2 mb-6">
-                   <span className="text-5xl sm:text-6xl font-black text-zinc-900 dark:text-white">$12</span>
-                   <span className="text-zinc-500 dark:text-zinc-400 text-sm sm:text-base font-medium">/ người dùng / tháng</span>
-                 </div>
-                 <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mb-8 border-b border-zinc-200 dark:border-white/10 pb-6">Dành cho các chuyên gia và team đòi hỏi AI siêu tốc, phân tích chuyên sâu.</p>
-                 <ul className="flex flex-col gap-4 mb-10 flex-1">
-                   {["Toàn bộ tính năng gói Starter", "Trợ lý AI Gemini 3.6 Flash không giới hạn", "Tải file PDF/Word/Excel tự lên Timeline", "Email nhắc việc tự động 8:00 AM mỗi ngày", "Gamification đầy đủ & Thống kê chuyên sâu", "Hỗ trợ ưu tiên 24/7"].map((item, i) => (
-                     <li key={i} className="flex items-center gap-3 text-zinc-800 dark:text-zinc-200 font-medium text-sm">
-                       <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shrink-0 text-xs shadow-sm">
-                         ✓
-                       </div>
-                       {item}
-                     </li>
-                   ))}
-                 </ul>
-                 <Link to="/register" className="block w-full py-3.5 sm:py-4 text-center rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:from-indigo-500 hover:to-purple-500 transition-all shadow-[0_10px_25px_rgba(99,102,241,0.4)]">
-                   Nâng Cấp Gói Pro
-                 </Link>
-               </SpotlightCard>
+              {/* Pro AI Card */}
+              <SpotlightCard
+                className="h-full ring-1 ring-indigo-500/35 dark:ring-indigo-400/30"
+                contentClassName="p-7 sm:p-9 lg:p-10 flex flex-col justify-between h-full"
+                spotlightColor="rgba(99, 102, 241, 0.28)"
+                borderColor="rgba(129, 140, 248, 0.65)"
+              >
+                <div>
+                  <div className="inline-flex items-center px-3.5 py-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md mb-4">
+                    {t('landing.pricing.pro.badge')}
+                  </div>
+                  <div className="flex items-baseline gap-2 mb-5">
+                    <span translate="no" className="text-5xl font-black text-zinc-900 dark:text-white tabular-nums whitespace-nowrap">
+                      {t('landing.pricing.pro.price')}
+                    </span>
+                    <span className="text-zinc-500 dark:text-zinc-400 text-sm sm:text-base font-medium">
+                      {t('landing.pricing.pro.period')}
+                    </span>
+                  </div>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mb-6 border-b border-zinc-200 dark:border-white/10 pb-6 leading-relaxed">
+                    {t('landing.pricing.pro.desc')}
+                  </p>
+                  <ul className="flex flex-col gap-3.5 mb-8">
+                    {proFeatures.map((item, i) => (
+                      <li key={i} className="flex items-start gap-3 text-zinc-800 dark:text-zinc-200 font-medium text-sm">
+                        <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shrink-0 text-xs shadow-sm mt-0.5">
+                          ✓
+                        </div>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link
+                  to="/register"
+                  className="mt-auto block w-full py-3.5 text-center rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-sm sm:text-base hover:from-indigo-500 hover:to-purple-500 transition-all shadow-[0_10px_25px_rgba(99,102,241,0.35)]"
+                >
+                  {t('landing.pricing.pro.cta')}
+                </Link>
+              </SpotlightCard>
             </div>
           </div>
         </section>
@@ -739,21 +797,21 @@ const Home = () => {
         {/* 9. FAQs Section */}
         <section className="py-16 sm:py-24 px-4 sm:px-6 max-w-4xl mx-auto relative z-20">
           <div className="text-center mb-10 sm:mb-14">
-            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white mb-3">Câu Hỏi Thường Gặp</h2>
-            <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">Giải đáp nhanh các thắc mắc về bảo mật, tính năng và lộ trình sử dụng.</p>
+            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white mb-3">{t('landing.faq.title')}</h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">{t('landing.faq.subtitle')}</p>
           </div>
 
           <div className="space-y-4">
             {faqs.map((faq, i) => (
-              <div 
+              <div
                 key={i}
-                className="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/10 overflow-hidden transition-colors"
+                className="rounded-2xl bg-white/90 dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/10 overflow-hidden transition-colors"
               >
                 <button
                   onClick={() => toggleFaq(i)}
                   className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-bold text-zinc-900 dark:text-white text-sm sm:text-base hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  <span>{faq.question}</span>
+                  <span>{faq.q}</span>
                   <span className={`transform transition-transform duration-300 text-xl shrink-0 ${activeFaq === i ? 'rotate-180 text-indigo-500' : 'text-zinc-400'}`}>
                     ▾
                   </span>
@@ -767,7 +825,7 @@ const Home = () => {
                       transition={{ duration: 0.25 }}
                       className="px-5 sm:px-6 pb-5 sm:pb-6 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-zinc-100 dark:border-white/5 pt-3"
                     >
-                      {faq.answer}
+                      {faq.a}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -777,23 +835,22 @@ const Home = () => {
         </section>
 
         {/* 10. Massive CTA Banner */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 relative z-20">
+        <section className="py-12 sm:py-20 px-4 sm:px-6 relative z-20">
           <div className="max-w-6xl mx-auto rounded-3xl sm:rounded-[3rem] bg-gradient-to-tr from-indigo-950/90 via-black to-purple-950/80 border border-indigo-500/30 p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-[0_30px_90px_rgba(99,102,241,0.3)]">
             <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
             <div className="relative z-10 max-w-3xl mx-auto">
               <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight mb-5 sm:mb-6">
-                Sẵn sàng nâng tầm quy trình làm việc của bạn?
+                {t('landing.ctaBanner.title')}
               </h2>
               <p className="text-base sm:text-xl text-zinc-300 mb-8 sm:mb-10 leading-relaxed font-normal">
-                Tham gia cùng hàng nghìn người dùng đã tăng 200% năng suất mỗi ngày với TaskFlow.
+                {t('landing.ctaBanner.subtitle')}
               </p>
               <Link to="/register" className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-lg font-bold text-zinc-900 bg-white hover:bg-zinc-100 rounded-full hover:scale-105 transition-transform duration-300 shadow-[0_20px_40px_rgba(255,255,255,0.25)]">
-                Bắt Đầu Ngay Hôm Nay
+                {t('landing.ctaBanner.button')}
               </Link>
             </div>
           </div>
         </section>
-
       </main>
 
       {/* 11. Minimalist Footer */}
@@ -801,27 +858,33 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 sm:gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
-            <span className="text-xs text-zinc-500 sm:ml-2">© {new Date().getFullYear()} All rights reserved.</span>
+            <span translate="no" className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">TaskFlow</span>
+            <span className="text-xs text-zinc-500 sm:ml-2">
+              © {new Date().getFullYear()} {t('landing.footer.rights')}
+            </span>
           </div>
 
           <div className="flex flex-wrap justify-center gap-5 sm:gap-6 text-sm text-zinc-500 dark:text-zinc-400">
-            <a href="#features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Pricing</a>
-            <Link to="/login" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Login</Link>
-            <Link to="/register" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Register</Link>
+            <a href="#features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{t('landing.nav.features')}</a>
+            <a href="#pricing" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{t('landing.nav.pricing')}</a>
+            <Link to="/login" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{t('nav.login')}</Link>
+            <Link to="/register" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{t('nav.register')}</Link>
           </div>
         </div>
       </footer>
 
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-100%); }
-        }
-      `}} />
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+          }
+        `,
+      }} />
     </div>
   );
 };

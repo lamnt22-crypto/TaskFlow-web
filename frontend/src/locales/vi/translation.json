@@ -156,5 +156,177 @@
     "overdue": "Công việc quá hạn",
     "dueTomorrow": "Đến hạn ngày mai",
     "markAllRead": "Đánh dấu đã đọc"
+  },
+  "landing": {
+    "nav": {
+      "features": "Tính năng",
+      "howItWorks": "Cách hoạt động",
+      "pricing": "Bảng giá",
+      "language": "Ngôn ngữ"
+    },
+    "hero": {
+      "badgeBrand": "TaskFlow 3D Spatial",
+      "badgeTag": "Không gian AI thế hệ mới",
+      "headlineTop": "Tăng tốc mọi đầu việc",
+      "headlineGradient": "trong không gian 3 chiều.",
+      "subtitlePrefix": "Đỉnh cao quản trị công việc kết hợp",
+      "subtitleBrand": "Trí tuệ nhân tạo Gemini",
+      "subtitleSuffix": ", không gian tương tác 3D đa tầng và hệ thống Gamification tạo động lực tức thì.",
+      "ctaPrimary": "Bắt đầu Miễn phí",
+      "ctaSecondary": "Khám phá Tính năng 3D",
+      "hintNoCard": "⚡ Không cần thẻ tín dụng",
+      "hintGemini": "🎁 Tặng trọn gói trợ lý Gemini AI"
+    },
+    "proof": {
+      "trustedBy": "Được tin dùng bởi hơn 10,000+ chuyên gia công nghệ & doanh nghiệp",
+      "rating": "4.9/5 điểm đánh giá từ 2,000+ phản hồi trên Product Hunt & G2"
+    },
+    "features": {
+      "eyebrow": "💎 Kiến trúc tối ưu hiệu suất",
+      "titleLine1": "Mọi thứ bạn cần.",
+      "titleLine2": "Chính xác từng miligiây.",
+      "subtitle": "Thiết kế theo triết lý tối giản công thái học, loại bỏ hoàn toàn các nút bấm thừa. Mọi thao tác đều mượt mà và tập trung tối đa.",
+      "ai": {
+        "badge": "Gemini 3.6 Flash",
+        "latency": "Phản hồi ~400ms",
+        "title": "Trợ Lý AI Ghi Âm & Phân Rã Tài Liệu",
+        "desc": "Không cần gõ phím. Bấm ghi âm hoặc tải lên file PDF/Word/Excel, AI sẽ tự động phân tích ngữ cảnh, bóc tách Tiêu đề, Hạn chót, Mức độ ưu tiên và lên Timeline chi tiết.",
+        "voiceLabel": "Thu âm trực tiếp",
+        "sampleQuote": "\"Nhắc tôi gửi báo cáo quý cho anh Hưng lúc 3 giờ chiều mai, mức độ khẩn cấp.\"",
+        "taskLabel": "CÔNG VIỆC",
+        "taskValue": "Gửi báo cáo Q3",
+        "dueLabel": "HẠN CHÓT",
+        "dueValue": "15:00 Ngày mai",
+        "priorityLabel": "ƯU TIÊN",
+        "priorityValue": "🔥 Khẩn cấp"
+      },
+      "kanban": {
+        "badge": "📋 Kéo thả mượt 120 FPS",
+        "title": "Kanban Kéo & Thả 3D",
+        "desc": "Tương tác kéo thả xúc giác mượt mà được tăng tốc bằng GPU. Card nhấc bổng khỏi mặt phẳng và phản hồi tự nhiên theo thao tác tay.",
+        "colDoing": "Đang làm",
+        "colDone": "Hoàn thành",
+        "card1": "Tối ưu UI/UX Mobile",
+        "card1Time": "⏱️ Còn 2 giờ",
+        "card2": "Phát hành v2.0",
+        "card2Xp": "🎉 +120 XP"
+      },
+      "pomodoro": {
+        "badge": "🍅 Đồng Hồ Tập Trung",
+        "title": "Pomodoro & Phân Tích Giờ",
+        "desc": "Ghi nhận tự động số phiên tập trung cho từng Task. Biểu đồ thời gian trực quan giúp bạn nhận diện chính xác nguồn năng lượng đã tiêu hao.",
+        "category": "Học tập & R&D",
+        "sessionsDone": "Đã hoàn thành 6 phiên hôm nay"
+      },
+      "gamification": {
+        "badge": "Gamification Engine",
+        "streak": "Chuỗi 14 ngày 🔥",
+        "title": "Trò Chơi Hóa & Thưởng Dopamine Đã Mắt",
+        "desc": "Biến việc hoàn thành task thành trò chơi hào hứng. Pháo hoa bung nổ, âm thanh \"Ting\" tinh tế, tích lũy điểm kinh nghiệm và thăng cấp huy hiệu mỗi ngày.",
+        "rank": "Cấp 8: Bậc Thầy Năng Suất",
+        "rankSub": "Top 1% người dùng tuần này"
+      },
+      "shortcuts": {
+        "badge": "⚡ Năng suất không độ trễ",
+        "title": "Phím Tắt Thần Tốc & Cộng Tác Trực Tuyến",
+        "desc": "Điều khiển mọi luồng công việc mà không cần rời tay khỏi bàn phím. Nhấn phím tắt để mở tìm kiếm nhanh, đổi giao diện hoặc thêm nhiệm vụ tức thì.",
+        "scSearch": "Tìm kiếm đa năng",
+        "scCreate": "Tạo Task mới",
+        "scTheme": "Đổi Dark / Light",
+        "scPomo": "Bật Pomodoro",
+        "syncTitle": "Đồng Bộ Trực Tiếp Đa Nền Tảng",
+        "syncSub": "Web, Mobile và Desktop luôn khớp dữ liệu từng giây"
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "⚡ Quy trình 3 bước tối ưu",
+      "title": "Khởi đầu chỉ trong 3 bước",
+      "subtitle": "Từ ý tưởng ban đầu đến kết quả hoàn hảo. TaskFlow được thiết kế để không làm lãng phí một giây nào của bạn.",
+      "footerLeft": "✓ Tích hợp sẵn",
+      "footerRight": "Tự động 100%",
+      "steps": [
+        {
+          "step": "BƯỚC 01",
+          "tag": "Không gian Workspace 3D",
+          "title": "Tạo Không Gian Làm Việc",
+          "desc": "Khởi tạo workspace thông minh chỉ trong vài giây. Tùy biến danh mục dự án và phân quyền cộng sự an toàn."
+        },
+        {
+          "step": "BƯỚC 02",
+          "tag": "Gemini AI Core",
+          "title": "Để AI Lập Kế Hoạch & Phân Rã",
+          "desc": "Chỉ cần ghi âm hoặc tải tệp PDF/Word. Trợ lý Gemini AI tự động bóc tách thành các đầu việc nhỏ, gắn deadline và độ ưu tiên."
+        },
+        {
+          "step": "BƯỚC 03",
+          "tag": "Gamification & XP",
+          "title": "Chinh Phục & Nhận Thưởng",
+          "desc": "Theo dõi tiến độ Kanban 3D mượt mà, bật Pomodoro tập trung sâu và thu thập XP thăng cấp huy hiệu mỗi ngày."
+        }
+      ]
+    },
+    "pricing": {
+      "title": "Minh bạch. Không rủi ro.",
+      "subtitle": "Gói miễn phí đầy đủ tính năng cốt lõi. Nâng cấp bất cứ lúc nào khi nhóm của bạn sẵn sàng bứt phá.",
+      "starter": {
+        "name": "Gói Khởi Động (Starter)",
+        "price": "$0",
+        "period": "/ trọn đời",
+        "desc": "Hoàn hảo cho sinh viên, cá nhân quản lý công việc và mục tiêu hàng ngày.",
+        "features": [
+          "Không giới hạn số lượng Task",
+          "Bảng Kanban kéo thả mượt mà",
+          "Đồng hồ Pomodoro tập trung",
+          "Trợ lý AI cơ bản",
+          "Lịch trực quan & Dark Mode"
+        ],
+        "cta": "Bắt Đầu Miễn Phí"
+      },
+      "pro": {
+        "badge": "Khuyên Dùng • Pro AI",
+        "price": "$12",
+        "period": "/ người dùng / tháng",
+        "desc": "Dành cho các chuyên gia và team đòi hỏi AI siêu tốc, phân tích chuyên sâu.",
+        "features": [
+          "Toàn bộ tính năng gói Starter",
+          "Trợ lý AI Gemini 3.6 Flash không giới hạn",
+          "Tải file PDF/Word/Excel tự lên Timeline",
+          "Email nhắc việc tự động 8:00 AM mỗi ngày",
+          "Gamification đầy đủ & Thống kê chuyên sâu",
+          "Hỗ trợ ưu tiên 24/7"
+        ],
+        "cta": "Nâng Cấp Gói Pro"
+      }
+    },
+    "faq": {
+      "title": "Câu Hỏi Thường Gặp",
+      "subtitle": "Giải đáp nhanh các thắc mắc về bảo mật, tính năng và lộ trình sử dụng.",
+      "items": [
+        {
+          "q": "TaskFlow có thực sự miễn phí không?",
+          "a": "Có! Gói Starter hoàn toàn miễn phí trọn đời với không giới hạn số lượng công việc, bảng Kanban kéo thả và đồng hồ Pomodoro."
+        },
+        {
+          "q": "Tôi có thể nâng cấp hoặc hủy gói bất cứ lúc nào không?",
+          "a": "Hoàn toàn được. Bạn có thể nâng cấp hoặc chuyển đổi gói bất cứ lúc nào mà không bị ràng buộc hợp đồng."
+        },
+        {
+          "q": "TaskFlow có hỗ trợ chế độ Tối (Dark Mode) không?",
+          "a": "Có, TaskFlow được thiết kế song song hai giao diện Sáng & Tối cao cấp, chuyển đổi tức thì chỉ với một chạm."
+        },
+        {
+          "q": "Dữ liệu công việc của tôi có được bảo mật an toàn?",
+          "a": "Mọi dữ liệu đều được mã hóa trên đường truyền HTTPS/TLS và xác thực bảo mật chặt chẽ theo tiêu chuẩn hiện đại."
+        }
+      ]
+    },
+    "ctaBanner": {
+      "title": "Sẵn sàng nâng tầm quy trình làm việc của bạn?",
+      "subtitle": "Tham gia cùng hàng nghìn người dùng đã tăng hiệu suất mỗi ngày cùng TaskFlow.",
+      "button": "Bắt Đầu Ngay Hôm Nay"
+    },
+    "footer": {
+      "rights": "Đã đăng ký bản quyền."
+    }
   }
 }

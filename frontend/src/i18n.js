@@ -4,8 +4,28 @@ import { initReactI18next } from 'react-i18next';
 import translationEN from './locales/en/translation.json';
 import translationVI from './locales/vi/translation.json';
 
-// Get language from localStorage, default to 'en' if not found
-const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
+const detectDefaultLanguage = () => {
+  try {
+    const saved = localStorage.getItem('i18nextLng');
+    if (saved === 'en' || saved === 'vi') return saved;
+    if (typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('vi')) {
+      return 'vi';
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return 'vi';
+};
+
+const savedLanguage = detectDefaultLanguage();
+
+const syncHtmlLang = (lng) => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lng === 'en' ? 'en' : 'vi';
+  }
+};
+
+syncHtmlLang(savedLanguage);
 
 const resources = {
   en: {
@@ -20,16 +40,20 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: savedLanguage, // initial language
-    fallbackLng: 'en', // if translation not found, use english
+    lng: savedLanguage,
+    fallbackLng: 'en',
     interpolation: {
-      escapeValue: false // react already safes from xss
+      escapeValue: false
     }
   });
 
-// Listen to language changes to update localStorage
 i18n.on('languageChanged', (lng) => {
-  localStorage.setItem('i18nextLng', lng);
+  try {
+    localStorage.setItem('i18nextLng', lng);
+  } catch {
+    // Ignore storage errors
+  }
+  syncHtmlLang(lng);
 });
 
 export default i18n;

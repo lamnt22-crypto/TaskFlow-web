@@ -2,14 +2,16 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 /**
- * SpotlightCard - Luxury interactive 3D Tilt & Mouse-following Spotlight
- * Inspired by Linear.app, Raycast, and Apple UI.
+ * SpotlightCard - Interactive 3D Tilt & Mouse-following Spotlight
+ * Outer shell reserves strict 1px padding for the glowing border beam;
+ * internal spacing belongs on `contentClassName` so content never clips.
  */
 const SpotlightCard = ({
   children,
   className = '',
+  contentClassName = '',
   spotlightColor = 'rgba(99, 102, 241, 0.18)',
-  borderColor = 'rgba(129, 140, 248, 0.4)',
+  borderColor = 'rgba(129, 140, 248, 0.45)',
   enableTilt = true,
   onClick,
 }) => {
@@ -17,19 +19,16 @@ const SpotlightCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [hasHoverSupport, setHasHoverSupport] = useState(true);
 
-  // Motion values for smooth 3D tilt
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
 
   const springConfig = { damping: 20, stiffness: 220, mass: 0.6 };
-  const rotateX = useSpring(useTransform(mouseY, [0, 1], enableTilt ? [6, -6] : [0, 0]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [0, 1], enableTilt ? [-6, 6] : [0, 0]), springConfig);
+  const rotateX = useSpring(useTransform(mouseY, [0, 1], enableTilt ? [5, -5] : [0, 0]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [0, 1], enableTilt ? [-5, 5] : [0, 0]), springConfig);
 
-  // Position in pixels for the radial glow
   const [pixelPos, setPixelPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    // Detect if device supports real hover (desktop vs mobile touch)
     if (typeof window !== 'undefined') {
       const match = window.matchMedia('(hover: hover) and (pointer: fine)');
       setHasHoverSupport(match.matches);
@@ -73,17 +72,17 @@ const SpotlightCard = ({
         rotateY: hasHoverSupport ? rotateY : 0,
         transformStyle: 'preserve-3d',
       }}
-      className={`relative rounded-[2rem] p-[1px] overflow-hidden transition-shadow duration-500 perspective-1000 ${
+      className={`relative rounded-3xl overflow-hidden transition-shadow duration-500 perspective-1000 ${
         isHovered
-          ? 'shadow-[0_25px_50px_-12px_rgba(79,70,229,0.25)] dark:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.8)]'
-          : 'shadow-lg dark:shadow-none'
-      } ${className}`}
+          ? 'shadow-[0_24px_48px_-12px_rgba(79,70,229,0.2)] dark:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.85)]'
+          : 'shadow-[0_8px_30px_-10px_rgba(15,23,42,0.08)] dark:shadow-none'
+      } ${className} !p-[1px]`}
     >
       {/* 1. Dynamic Glowing Border Beam (Follows cursor) */}
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-500 -z-10"
         style={{
-          opacity: isHovered ? 1 : 0.4,
+          opacity: isHovered ? 1 : 0.35,
           background: isHovered
             ? `radial-gradient(400px circle at ${pixelPos.x}px ${pixelPos.y}px, ${borderColor}, transparent 65%)`
             : undefined,
@@ -91,11 +90,10 @@ const SpotlightCard = ({
       />
 
       {/* 2. Static subtle border container */}
-      <div className="absolute inset-0 rounded-[2rem] border border-zinc-200/80 dark:border-white/10 pointer-events-none -z-10" />
+      <div className="absolute inset-0 rounded-3xl border border-zinc-200/90 dark:border-white/10 pointer-events-none -z-10" />
 
-      {/* 3. Card Inner Canvas with Spotlight sheen */}
-      <div className="relative h-full w-full rounded-[calc(2rem-1px)] bg-white/90 dark:bg-[#0c0d12]/90 backdrop-blur-xl overflow-hidden flex flex-col">
-        {/* Mouse follow radial glow */}
+      {/* 3. Card Inner Surface */}
+      <div className="relative h-full w-full rounded-[23px] bg-white dark:bg-[#0c0d12]/95 backdrop-blur-xl overflow-hidden flex flex-col">
         {hasHoverSupport && (
           <div
             className="pointer-events-none absolute inset-0 transition-opacity duration-300 -z-0"
@@ -106,11 +104,11 @@ const SpotlightCard = ({
           />
         )}
 
-        {/* Ambient Top Glow for high-end glass edge */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 dark:via-white/20 to-transparent pointer-events-none z-10" />
+        {/* Ambient Top Edge Highlight */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/70 dark:via-white/20 to-transparent pointer-events-none z-10" />
 
-        {/* Content */}
-        <div className="relative z-10 flex-1 flex flex-col">
+        {/* Content Container */}
+        <div className={`relative z-10 flex-1 flex flex-col ${contentClassName}`}>
           {children}
         </div>
       </div>
