@@ -21,6 +21,9 @@ const passport = require('./config/passport');
 
 const app = express();
 
+// Trust reverse proxy (required on Render/Vercel so req.protocol === 'https' and secure cookies work)
+app.set('trust proxy', 1);
+
 // Create tables if they don't exist
 // require('./models/schema')();
 
@@ -52,12 +55,15 @@ app.use(cookieParser()); // Parse incoming cookies
 app.use(express.json()); // Parse incoming JSON requests
 
 // OAuth Session Setup (Required by passport for OAuth strategies)
+const isProd = process.env.NODE_ENV === 'production';
 app.use(session({
   secret: process.env.SESSION_SECRET || 'oauth_session_super_secret',
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 1000 * 60 * 10 // 10 minutes session for OAuth flow
   }
 }));

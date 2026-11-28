@@ -1,8 +1,17 @@
-import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import LanguageToggle from "../components/LanguageToggle";
+
+const OAUTH_ERROR_MESSAGES = {
+  OAuthFailed: "Đăng nhập OAuth thất bại. Vui lòng thử lại.",
+  GoogleAuthFailed: "Xác thực Google thất bại. Vui lòng thử lại.",
+  GithubAuthFailed: "Xác thực GitHub thất bại. Vui lòng thử lại.",
+  OAuthServerError: "Lỗi máy chủ khi xử lý đăng nhập OAuth (kiểm tra kết nối Database).",
+  OAuthMissingToken: "Không nhận được token đăng nhập từ máy chủ.",
+  OAuthTokenInvalid: "Token đăng nhập không hợp lệ hoặc đã hết hạn.",
+};
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,7 +24,16 @@ const Login = () => {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const oauthError = params.get("error");
+    if (oauthError) {
+      setErrorMsg(OAUTH_ERROR_MESSAGES[oauthError] || `Đăng nhập thất bại (${oauthError}).`);
+    }
+  }, [location.search]);
 
   const handleGoogleSignIn = () => {
     const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
@@ -39,10 +57,14 @@ const Login = () => {
     }
 
     try {
-      await login({ email, password });
-      navigate("/dashboard");
+      const res = await login({ email, password });
+      if (res?.success) {
+        navigate("/dashboard");
+      } else {
+        setErrorMsg(res?.message || t("auth.loginFailed"));
+      }
     } catch (err) {
-      setErrorMsg(err.response?.data?.error || t("auth.loginFailed"));
+      setErrorMsg(err.response?.data?.message || err.response?.data?.error || t("auth.loginFailed"));
     } finally {
       setLoading(false);
     }

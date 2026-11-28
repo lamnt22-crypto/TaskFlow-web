@@ -3,11 +3,14 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const authService = require('../services/authService');
 
+const backendUrl = process.env.BACKEND_URL ? process.env.BACKEND_URL.replace(/\/+$/, '') : '';
+
 // Google Strategy
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID || 'placeholder',
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'placeholder',
-    callbackURL: '/api/oauth/google/callback',
+    clientID: (process.env.GOOGLE_CLIENT_ID || 'placeholder').trim(),
+    clientSecret: (process.env.GOOGLE_CLIENT_SECRET || 'placeholder').trim(),
+    callbackURL: backendUrl ? `${backendUrl}/api/oauth/google/callback` : '/api/oauth/google/callback',
+    proxy: true,
     scope: ['profile', 'email']
   },
   async (accessToken, refreshToken, profile, done) => {
@@ -22,9 +25,10 @@ passport.use(new GoogleStrategy({
 
 // GitHub Strategy
 passport.use(new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID || 'placeholder',
-    clientSecret: process.env.GITHUB_CLIENT_SECRET || 'placeholder',
-    callbackURL: '/api/oauth/github/callback',
+    clientID: (process.env.GITHUB_CLIENT_ID || 'placeholder').trim(),
+    clientSecret: (process.env.GITHUB_CLIENT_SECRET || 'placeholder').trim(),
+    callbackURL: backendUrl ? `${backendUrl}/api/oauth/github/callback` : '/api/oauth/github/callback',
+    proxy: true,
     scope: ['user:email']
   },
   async (accessToken, refreshToken, profile, done) => {

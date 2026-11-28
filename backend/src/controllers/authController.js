@@ -45,10 +45,11 @@ const login = async (req, res, next) => {
     
     const result = await authService.loginUser(email.trim().toLowerCase(), password);
     
+    const isProd = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/api/auth'
     };
@@ -93,7 +94,13 @@ const logout = async (req, res, next) => {
     // Call logout safely; if missing/invalid, it does not throw
     await authService.logoutUser(rawRefreshToken);
     
-    res.clearCookie('refreshToken', { path: '/api/auth' });
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('refreshToken', {
+      path: '/api/auth',
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax'
+    });
     
     return res.status(200).json({
       success: true,
@@ -172,10 +179,11 @@ const firebaseLogin = async (req, res, next) => {
         VALUES (@user_id, @hashed_token, @expires_at)
       `);
 
+    const isProd = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: days * 24 * 60 * 60 * 1000,
       path: '/api/auth'
     };

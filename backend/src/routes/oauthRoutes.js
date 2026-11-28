@@ -50,11 +50,12 @@ const handleOAuthSuccess = async (req, res) => {
         VALUES (@user_id, @hashed_token, @expires_at)
       `);
 
-    // Set Refresh Token Cookie
+    // Set Refresh Token Cookie (sameSite: 'none' + secure: true required for cross-domain Vercel <-> Render)
+    const isProd = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: days * 24 * 60 * 60 * 1000,
       path: '/api/auth'
     };

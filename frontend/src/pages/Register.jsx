@@ -19,7 +19,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { register } = useContext(AuthContext);
+  const { register, login } = useContext(AuthContext);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -45,10 +45,30 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register({ username: formData.username, email: formData.email, password: formData.password });
-      navigate("/dashboard");
+      const regRes = await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (!regRes?.success) {
+        setErrorMsg(regRes?.message || t("auth.registerFailed"));
+        return;
+      }
+
+      // Auto-login immediately after successful registration
+      const loginRes = await login({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (loginRes?.success) {
+        navigate("/dashboard");
+      } else {
+        navigate("/login");
+      }
     } catch (err) {
-      setErrorMsg(err.response?.data?.error || t("auth.registerFailed"));
+      setErrorMsg(err.response?.data?.message || err.response?.data?.error || t("auth.registerFailed"));
     } finally {
       setLoading(false);
     }

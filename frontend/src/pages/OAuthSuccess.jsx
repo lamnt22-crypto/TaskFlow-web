@@ -8,18 +8,33 @@ const OAuthSuccess = () => {
   const { loginWithToken } = useContext(AuthContext);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const token = params.get('token');
+    let cancelled = false;
 
-    if (token) {
-      // Store token and update context
-      loginWithToken(token);
-      navigate('/dashboard');
-    } else {
-      // If no token, something went wrong
-      navigate('/login?error=OAuthMissingToken');
-    }
-  }, [location, navigate, loginWithToken]);
+    const handleOAuthLogin = async () => {
+      const params = new URLSearchParams(location.search);
+      const token = params.get('token');
+
+      if (!token) {
+        navigate('/login?error=OAuthMissingToken', { replace: true });
+        return;
+      }
+
+      const res = await loginWithToken(token);
+      if (cancelled) return;
+
+      if (res?.success) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/login?error=OAuthTokenInvalid', { replace: true });
+      }
+    };
+
+    handleOAuthLogin();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [location.search, navigate, loginWithToken]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center">

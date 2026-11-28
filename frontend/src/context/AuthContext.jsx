@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import api, { setAuthToken, setAuthExpiredHandler } from '../services/api';
 
 export const AuthContext = createContext();
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginWithToken = async (token) => {
+  const loginWithToken = useCallback(async (token) => {
     setLoading(true);
     try {
       setAuthToken(token); // Set for API calls
@@ -76,11 +76,16 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('OAuth token login failed:', error);
+      setAuthToken(null);
+      setAccessToken(null);
+      setUser(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
       return { success: false };
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const register = async (userData) => {
     setLoading(true);
